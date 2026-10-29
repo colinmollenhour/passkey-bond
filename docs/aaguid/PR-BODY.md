@@ -16,7 +16,7 @@ Adds the AAGUID entry for **Passkey.bond**, an offline, end-to-end-encrypted pas
 The AAGUID is defined in the public source repository above. Store listings are not yet published; links will be added here once they are.
 
 ### Icons
-`icon_light` / `icon_dark` are square, pure-vector SVG data URIs (no embedded raster) of the Passkey.bond mark: two interlocking amber links on a transparent background. `icon_dark` uses `#F5A623`; `icon_light` uses the deeper `#D4920A` for contrast on light backgrounds.
+`icon_light` / `icon_dark` are square, pure-vector SVG data URIs (no embedded raster) of the Passkey.bond mark: a gold-rimmed navy keyhole framing an ivory shirt front and bow tie, on a transparent background. Both use the same drawing; its gold rim keeps it visible on dark backgrounds and its navy body on light ones.
 
 ### Checklist
 - [x] Entry added to `aaguid.json`, keyed by the AAGUID

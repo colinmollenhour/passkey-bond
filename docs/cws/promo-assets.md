@@ -32,14 +32,16 @@ The banner uses the built-in image generation tool and
 
 > Create a new finished Chrome Web Store small promotional banner for
 > Passkey.bond, aspect ratio 11:7, ideally 1320x840. Reference image is the
-> Passkey.bond logo: two interlocking amber links forming a bond, on a
-> near-black rounded square. Preserve its identity, use it as a modest brand
-> mark, do not redesign. Full bleed opaque charcoal #0D1117 background and
-> warm amber #F5A623. Refined minimal editorial typography in Saira. Exact
+> Passkey.bond logo: a gold-rimmed midnight-navy keyhole framing an ivory
+> dinner-shirt front and bow tie. Preserve its identity, use it as a modest
+> brand mark, do not redesign. Late-1970s British spy elegance. Full bleed
+> opaque tuxedo black #111111 background, brushed gold #C9A24A accents, ivory
+> #F4EBD9 text. Refined Didone display typography (Bodoni Moda) for the name,
+> geometric sans (Jost) for the tagline. Exact
 > text only: "Passkey.bond" large, highly legible, and "Passkeys + 2FA. On
 > your device." as a smaller readable two-line tagline. Left aligned
 > typographic composition with ample breathing room, logo upper left, subtle
-> fine amber line-art on right suggesting a key joined to a chain link,
+> fine gold line-art on right suggesting a keyhole and a bow tie,
 > restrained flat design. No browser UI, no fake screenshots, no extra text,
 > no gradients or glow, no rounded outer corners. Strong hierarchy and
 > legibility at 440x280 pixels. This is a finished brand banner, not a mockup.
@@ -52,15 +54,15 @@ The marquee uses the built-in image generation tool with the small banner
 master as its reference. Prompt:
 
 > Create the matching wide Chrome Web Store marquee promotional banner for
-> the supplied Passkey.bond small promo image. Preserve its interlocking
-> amber links mark, Saira typography, charcoal background and amber line-art
-> illustration. Recompose for a wide 5:2 aspect ratio, target 1400x560 pixels.
-> Do not stretch the reference. Logo in upper left above the text, generous
-> margins. Left portion: large white exact title "Passkey.bond". Below, amber
-> exact tagline on two lines: "Passkeys + 2FA." and "On your device."
-> Right portion: fine amber outline key linked into a chain of two
-> interlocking links, with subtle dashed circular geometry. Opaque full bleed
-> charcoal #0D1117, warm amber #F5A623. No UI screenshot, extra words,
+> the supplied Passkey.bond small promo image. Preserve its gold-rimmed
+> keyhole mark, Bodoni Moda and Jost typography, tuxedo-black background and
+> gold line-art illustration. Recompose for a wide 5:2 aspect ratio, target
+> 1400x560 pixels. Do not stretch the reference. Logo in upper left above the
+> text, generous margins. Left portion: large ivory exact title
+> "Passkey.bond". Below, gold exact tagline on two lines: "Passkeys + 2FA."
+> and "On your device." Right portion: fine gold outline keyhole and bow tie,
+> with subtle Art Deco circular geometry. Opaque full bleed tuxedo black
+> #111111, brushed gold #C9A24A, ivory #F4EBD9. No UI screenshot, extra words,
 > gradients, glow, mockup or rounded outer corners.
 
 Save the marquee master as `source/passkey-bond-marquee.png` and resize it to

@@ -1,0 +1,13 @@
+{
+  "name": "passkey-bond-brand-tools",
+  "private": true,
+  "description": "Regenerates the Passkey.bond logo SVGs and PNG exports in docs/brand",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "opentype.js": "1.3.4"
+  }
+}
