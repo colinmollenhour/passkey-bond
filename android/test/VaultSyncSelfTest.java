@@ -1,4 +1,4 @@
-package nz.fenko.passkeyvault;
+package bond.passkey.app;
 
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;

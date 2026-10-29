@@ -1,5 +1,5 @@
 /**
- * Canonical shapes used while moving credentials between Fenko Vault and
+ * Canonical shapes used while moving credentials between Passkey.bond and
  * third-party apps. Parsers translate a vendor file into these; the importer
  * then materialises them into vault records.
  */
@@ -20,7 +20,7 @@ export interface PortableOtp {
   period: number;
   counter: number;
   /**
-   * Set only by Fenko's own backup parser, so a restore keeps the record's
+   * Set only by the native backup parser, so a restore keeps the record's
    * identity (sync and deletion tombstones key on it) and timestamps.
    */
   id?: string;
@@ -48,12 +48,12 @@ export interface PortablePasskey {
   /**
    * Backup flags the file recorded for this passkey. Absent when the format
    * does not record them: the passkey came from a manager that syncs it, so
-   * it is imported as a synced passkey. 'unknown' marks a Fenko backup made
+   * it is imported as a synced passkey. 'unknown' marks a native backup made
    * before passkeys carried their own flags; those keep signing as before.
    */
   backup?: { flags: BackupFlags; source: BackupSource } | 'unknown';
   /**
-   * Set only by Fenko's own backup parser. `id` keeps the record's sync
+   * Set only by the native backup parser. `id` keeps the record's sync
    * identity; `prfKey` is the random WebAuthn PRF secret minted at
    * registration, which cannot be re-derived, so losing it changes every PRF
    * output the site sees.

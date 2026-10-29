@@ -10,7 +10,7 @@
 
   // Hook once per page, however the script arrived (a MAIN-world content
   // script on Chrome, a script element on Firefox).
-  const INSTALLED = Symbol.for('fenko-vault.webauthn-hook');
+  const INSTALLED = Symbol.for('passkey-bond.webauthn-hook');
   if ((window as unknown as Record<symbol, unknown>)[INSTALLED]) {
     return;
   }
@@ -94,7 +94,7 @@
   window.addEventListener('message', (event) => {
     if (event.source !== window) return;
 
-    if (event.data?.source === 'PASSKEY_VAULT_CONTENT') {
+    if (event.data?.source === 'PASSKEY_BOND_CONTENT') {
       const { requestId, result } = event.data;
 
       if (pendingRequests.has(requestId)) {
@@ -128,7 +128,7 @@
         }
         resolve(buildCredential(answer.credential as SerializedCredential));
       } else if (answer.passthrough) {
-        if (DEBUG) console.log('Fenko Vault: Passing WebAuthn request to native browser UI');
+        if (DEBUG) console.log('Passkey.bond: Passing WebAuthn request to native browser UI');
         if (!nativeFallback) {
           reject(new DOMException('Native WebAuthn fallback is unavailable.', 'NotAllowedError'));
           return;
@@ -140,18 +140,18 @@
         const errorMessage = (answer.error as string) || 'The operation was aborted.';
         const error = new DOMException(errorMessage, errorName);
         if (answer.blockNativeFallback) {
-          Object.defineProperty(error, '__passkeyVaultBlockNativeFallback', { value: true });
+          Object.defineProperty(error, '__passkeyBondBlockNativeFallback', { value: true });
         }
         reject(error);
       }
     } catch (cause) {
-      if (DEBUG) console.warn('Fenko Vault: Unusable answer from the vault', cause);
+      if (DEBUG) console.warn('Passkey.bond: Unusable answer from the vault', cause);
       // The user already dealt with the vault, so do not open another prompt.
       const error = new DOMException(
         'The passkey vault returned a credential that could not be read.',
         'UnknownError'
       );
-      Object.defineProperty(error, '__passkeyVaultBlockNativeFallback', { value: true });
+      Object.defineProperty(error, '__passkeyBondBlockNativeFallback', { value: true });
       reject(error);
     }
   }
@@ -163,7 +163,7 @@
 
     // Override create: fully intercept and handle passkey creation internally
     navigator.credentials.create = async function (options?: CredentialCreationOptions) {
-      if (DEBUG) console.log('Fenko Vault: Intercepted create request', options);
+      if (DEBUG) console.log('Passkey.bond: Intercepted create request', options);
 
       // Only intercept publicKey (WebAuthn) requests
       if (!options?.publicKey) {
@@ -198,11 +198,11 @@
           origin: window.location.origin,
         };
 
-        if (DEBUG) console.log('Fenko Vault: Sending CREATE_PASSKEY request', serializablePayload);
+        if (DEBUG) console.log('Passkey.bond: Sending CREATE_PASSKEY request', serializablePayload);
 
         window.postMessage(
           {
-            source: 'PASSKEY_VAULT_PAGE',
+            source: 'PASSKEY_BOND_PAGE',
             type: 'PASSKEY_CREATE_REQUEST',
             payload: serializablePayload,
             requestId,
@@ -214,7 +214,7 @@
 
     // Override get: try extension-managed passkeys, fall back to native WebAuthn on failure.
     navigator.credentials.get = async function (options?: CredentialRequestOptions) {
-      if (DEBUG) console.log('Fenko Vault: Intercepted get request', options);
+      if (DEBUG) console.log('Passkey.bond: Intercepted get request', options);
 
       // Only intercept publicKey (WebAuthn) requests
       if (!options?.publicKey) {
@@ -250,11 +250,11 @@
             origin: window.location.origin,
           };
 
-          if (DEBUG) console.log('Fenko Vault: Sending GET_PASSKEY request', serializablePayload);
+          if (DEBUG) console.log('Passkey.bond: Sending GET_PASSKEY request', serializablePayload);
 
           window.postMessage(
             {
-              source: 'PASSKEY_VAULT_PAGE',
+              source: 'PASSKEY_BOND_PAGE',
               type: 'PASSKEY_GET_REQUEST',
               payload: serializablePayload,
               requestId,
@@ -264,7 +264,7 @@
         });
       } catch (e: unknown) {
         const blocksNativeFallback = Boolean(
-          (e as { __passkeyVaultBlockNativeFallback?: boolean }).__passkeyVaultBlockNativeFallback
+          (e as { __passkeyBondBlockNativeFallback?: boolean }).__passkeyBondBlockNativeFallback
         );
         // A page that aborted its request wants no prompt at all.
         if (blocksNativeFallback || options.signal?.aborted || !nativeGet) {
@@ -275,7 +275,7 @@
 
         if (DEBUG) {
           console.warn(
-            'Fenko Vault: Extension get failed, falling back to native WebAuthn',
+            'Passkey.bond: Extension get failed, falling back to native WebAuthn',
             errorMessage
           );
         }
@@ -284,14 +284,14 @@
       }
     };
 
-    if (DEBUG) console.log('Fenko Vault: WebAuthn API hooked successfully');
+    if (DEBUG) console.log('Passkey.bond: WebAuthn API hooked successfully');
   } else {
     // navigator.credentials is only exposed in secure contexts (HTTPS or
     // http://localhost). On plain-HTTP origins the API is absent and there is
     // nothing to hook — not an error, just a no-op for this page.
     if (DEBUG) {
       console.log(
-        'Fenko Vault: navigator.credentials unavailable (non-secure context), skipping hook'
+        'Passkey.bond: navigator.credentials unavailable (non-secure context), skipping hook'
       );
     }
   }
@@ -325,7 +325,7 @@
       clearTimeout(pending.timeoutId);
       pending.detachSignal();
       window.postMessage(
-        { source: 'PASSKEY_VAULT_PAGE', type: 'PASSKEY_CANCEL_REQUEST', requestId },
+        { source: 'PASSKEY_BOND_PAGE', type: 'PASSKEY_CANCEL_REQUEST', requestId },
         '*'
       );
       handlers.reject(reason);
@@ -337,7 +337,7 @@
         ? 0
         : window.setTimeout(() => {
             const error = new DOMException('The operation timed out.', 'NotAllowedError');
-            Object.defineProperty(error, '__passkeyVaultBlockNativeFallback', { value: true });
+            Object.defineProperty(error, '__passkeyBondBlockNativeFallback', { value: true });
             stop(error);
           }, timeoutMs);
     signal?.addEventListener('abort', onAbort, { once: true });

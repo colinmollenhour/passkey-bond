@@ -1,8 +1,15 @@
-# Chrome Web Store — assets to upload (v0.9.0)
+# Chrome Web Store — assets to upload
+
+Passkey.bond is not yet published on the Chrome Web Store. The first upload
+creates the listing.
 
 All images are dark-theme and already at the dimensions the dashboard expects.
 
 ## Screenshots (1280×800)
+
+The screenshots in this folder predate the rebrand and still show the old
+name. Recapture them before the first upload (`npm run build:chrome`, then
+`npm run capture:cws`).
 
 Upload in this order — the first is the tile shown in search results:
 
@@ -21,16 +28,12 @@ Extras available in this folder if you want to swap any in:
 - Small promo tile (440×280, JPEG, no alpha): `promo-small.jpg`
 - Marquee promo tile (1400×560, JPEG, no alpha): `promo-marquee.jpg`
 
-The small tile now uses Fenko Vault branding. The new captioned video is
-`../video/fenko-vault-promo.mp4`; upload it to YouTube and paste its link into
-the listing. See [promo assets](promo-assets.md) for capture instructions.
+Both tiles carry the Passkey.bond mark. The captioned video is `../video/passkey-bond-promo.mp4`; upload it to YouTube and
+paste its link into the listing. See [promo assets](promo-assets.md) for the
+prompts and capture instructions.
 
 ## Listing text
 
 Summary, detailed description, and the per-locale copy live in
-`chrome-web-store-descriptions.md`. The "What's new" blurb for this version:
-
-> Passkey Vault is now a 2FA authenticator too. Add TOTP codes by otpauth://
-> URI or QR image, keep passkeys and codes in one searchable vault, and lock
-> everything behind an optional PIN. Codes and keys stay on your device; sync
-> is end-to-end encrypted.
+`chrome-web-store-descriptions.md`. The first submission has no "What's new"
+text; write one for each release after that.

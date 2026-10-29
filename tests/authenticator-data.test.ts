@@ -1,7 +1,7 @@
 import {
   createAuthenticatorData,
   ANONYMOUS_AAGUID,
-  PASSKEY_VAULT_AAGUID,
+  PASSKEY_BOND_AAGUID,
 } from '../src/background/cbor';
 
 const UP = 0x01;
@@ -121,7 +121,7 @@ describe('createAuthenticatorData', () => {
       0,
       null
     );
-    expect(aaguidOf(branded)).toEqual(PASSKEY_VAULT_AAGUID);
+    expect(aaguidOf(branded)).toEqual(PASSKEY_BOND_AAGUID);
 
     const anonymous = await createAuthenticatorData(
       'example.com',

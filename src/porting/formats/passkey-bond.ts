@@ -1,5 +1,5 @@
 /**
- * Fenko Vault's own formats: the native JSON backup, and the two fillable
+ * Passkey.bond's own formats: the native JSON backup, and the two fillable
  * CSV templates for people typing secrets in by hand or coming from an app
  * nobody wrote a parser for.
  *
@@ -98,9 +98,10 @@ function headersOf(text: string): string[] {
 }
 
 /** The native `{passkeys, totpEntries}` backup this extension writes. */
-export const fenkoJson: FormatParser = {
-  id: 'fenko-json',
-  label: 'Fenko Vault backup (JSON)',
+export const passkeyBondJson: FormatParser = {
+  id: 'passkey-bond-json',
+  // Fenko Vault writes the same structure, so its backups import here too.
+  label: 'Passkey.bond or Fenko Vault backup (JSON)',
   extensions: ['.json'],
 
   detect(input) {
@@ -109,7 +110,7 @@ export const fenkoJson: FormatParser = {
   },
 
   parse(input) {
-    const result = emptyImport(fenkoJson.id, fenkoJson.label);
+    const result = emptyImport(passkeyBondJson.id, passkeyBondJson.label);
     const json = asObject(input.json) as Json;
 
     for (const raw of (json.passkeys as unknown[]) || []) {
@@ -161,9 +162,9 @@ export const fenkoJson: FormatParser = {
 };
 
 /** The fillable MFA template: one seed per row. */
-export const fenkoTotpCsv: FormatParser = {
-  id: 'fenko-totp-csv',
-  label: 'Fenko MFA template (CSV)',
+export const passkeyBondTotpCsv: FormatParser = {
+  id: 'passkey-bond-totp-csv',
+  label: 'Passkey.bond MFA template (CSV)',
   extensions: ['.csv'],
 
   detect(input) {
@@ -175,7 +176,7 @@ export const fenkoTotpCsv: FormatParser = {
   },
 
   parse(input) {
-    const result = emptyImport(fenkoTotpCsv.id, fenkoTotpCsv.label);
+    const result = emptyImport(passkeyBondTotpCsv.id, passkeyBondTotpCsv.label);
     parseCsv(withoutComments(input.text)).forEach((row: CsvRow, index) => {
       if (!row.secret) return;
       try {
@@ -200,9 +201,9 @@ export const fenkoTotpCsv: FormatParser = {
 };
 
 /** The fillable passkey template: one credential per row. */
-export const fenkoPasskeyCsv: FormatParser = {
-  id: 'fenko-passkey-csv',
-  label: 'Fenko passkey template (CSV)',
+export const passkeyBondPasskeyCsv: FormatParser = {
+  id: 'passkey-bond-passkey-csv',
+  label: 'Passkey.bond passkey template (CSV)',
   extensions: ['.csv'],
 
   detect(input) {
@@ -212,7 +213,7 @@ export const fenkoPasskeyCsv: FormatParser = {
   },
 
   parse(input) {
-    const result = emptyImport(fenkoPasskeyCsv.id, fenkoPasskeyCsv.label);
+    const result = emptyImport(passkeyBondPasskeyCsv.id, passkeyBondPasskeyCsv.label);
     parseCsv(withoutComments(input.text)).forEach((row: CsvRow) => {
       if (!row.privatekey || !row.rpid) return;
       result.passkeys.push({
@@ -232,7 +233,7 @@ export const fenkoPasskeyCsv: FormatParser = {
 };
 
 const TEMPLATE_TOTP_NOTES = [
-  '# Fenko Vault MFA import template.',
+  '# Passkey.bond MFA import template.',
   '# secret: the base32 key the site shows next to its QR code (spaces are fine).',
   '# type: totp (default) or hotp. algorithm: SHA1 (default), SHA256 or SHA512.',
   '# digits: 6 or 8. period: seconds, 30 unless the site says otherwise.',
@@ -240,7 +241,7 @@ const TEMPLATE_TOTP_NOTES = [
 ];
 
 const TEMPLATE_PASSKEY_NOTES = [
-  '# Fenko Vault passkey import template.',
+  '# Passkey.bond passkey import template.',
   '# privateKey: base64 PKCS#8 for an ES256 (P-256) key. PEM and JWK also work.',
   '# credentialId / userHandle: base64url. Leave credentialId blank to mint one.',
   '# backupEligible / backupState: true or false. Leave blank for a passkey from',
@@ -313,6 +314,6 @@ export function passkeysToCsv(passkeys: PortablePasskey[]): string {
   );
 }
 
-export const FENKO_PARSERS: FormatParser[] = [fenkoJson, fenkoPasskeyCsv, fenkoTotpCsv];
+export const PASSKEY_BOND_PARSERS: FormatParser[] = [passkeyBondJson, passkeyBondPasskeyCsv, passkeyBondTotpCsv];
 
 export type { ParsedImport };

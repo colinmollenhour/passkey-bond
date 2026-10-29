@@ -26,16 +26,10 @@ const HEARTBEAT_INTERVAL = 300000; // 5 minutes - relays rate limit aggressively
 const MAX_DEBUG_LOGS = 200;
 const MAX_PROCESSED_EVENTS = 1000; // Track last N event IDs for replay protection
 
-// Fenko-operated relay first (restricted egress environments can whitelist it),
-// public relays for redundancy. Events are published to ALL relays and
-// subscriptions run on ALL relays — relays don't federate, so devices that
-// only share one working relay still sync.
-export const DEFAULT_RELAYS = [
-  'wss://vaultsync.fenko.nz',
-  'wss://relay.damus.io',
-  'wss://nos.lol',
-  'wss://relay.nostr.band',
-];
+// Public relays. Events are published to ALL relays and subscriptions run on
+// ALL relays — relays don't federate, so devices that only share one working
+// relay still sync.
+export const DEFAULT_RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.nostr.band'];
 const CUSTOM_RELAYS_KEY = 'custom_relays';
 
 // Passkey data structure for sync

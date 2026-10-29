@@ -1,4 +1,4 @@
-package nz.fenko.passkeyvault;
+package bond.passkey.app;
 
 import android.util.Base64;
 import java.io.ByteArrayOutputStream;
@@ -28,14 +28,14 @@ final class WebAuthnNative {
     static final String KEY_SUBTYPE = "androidx.credentials.BUNDLE_KEY_SUBTYPE";
 
     private static final SecureRandom RANDOM = new SecureRandom();
-    // Fenko Vault AAGUID d2717a32-9851-48a8-9961-b264c97a411a — must stay
+    // Passkey.bond AAGUID 2391d29c-2806-4960-a51b-7c18e5da7976 — must stay
     // byte-identical to the web (cbor.ts) and iOS (WebAuthn.swift) values.
     // See docs/aaguid/README.md.
     private static final byte[] AAGUID = new byte[] {
-        (byte) 0xd2, 0x71, 0x7a, 0x32,
-        (byte) 0x98, 0x51, 0x48, (byte) 0xa8,
-        (byte) 0x99, 0x61, (byte) 0xb2, 0x64,
-        (byte) 0xc9, 0x7a, 0x41, 0x1a
+        0x23, (byte) 0x91, (byte) 0xd2, (byte) 0x9c,
+        0x28, 0x06, 0x49, 0x60,
+        (byte) 0xa5, 0x1b, 0x7c, 0x18,
+        (byte) 0xe5, (byte) 0xda, 0x79, 0x76
     };
 
     private WebAuthnNative() {}

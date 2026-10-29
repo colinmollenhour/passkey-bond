@@ -150,7 +150,7 @@ export async function signLegacyDeletions(
   const events: SignedEvent[] = [];
   for (let i = 0; i < targets.length; i += TARGETS_PER_DELETION) {
     const tags = [...targets.slice(i, i + TARGETS_PER_DELETION), ['k', String(NOSTR_EVENT_KIND)]];
-    const content = 'Fenko Vault sync moved to a new chain identity';
+    const content = 'Passkey.bond sync moved to a new chain identity';
     const data = [0, pubkey, createdAt, NOSTR_DELETION_KIND, tags, content];
     const hash = sha256(new TextEncoder().encode(JSON.stringify(data)));
     const sig = await secp256k1.schnorr.signAsync(hash, privateKey);

@@ -4,7 +4,7 @@ Contributions are welcome! Here's how you can help.
 
 ## Development Setup
 
-1. Fork and clone the repository
+1. Fork and clone the repository (<https://github.com/colinmollenhour/passkey-bond>)
 2. Install dependencies: `npm install`
 3. Make your changes
 4. Run type checking: `npm run typecheck`
@@ -71,9 +71,9 @@ npm test
 npm run test:e2e
 npm run test:e2e:webauthn
 npm run build:all
-PASSKEY_VAULT_RELEASE=1 npm run zip:all
-PASSKEY_VAULT_RELEASE=1 npm run validate:packages
-git commit -am "Release Fenko Vault 0.9.0"
+PASSKEY_BOND_RELEASE=1 npm run zip:all
+PASSKEY_BOND_RELEASE=1 npm run validate:packages
+git commit -am "Release Passkey.bond 0.9.0"
 git tag v0.9.0
 git push origin main
 git push origin v0.9.0
@@ -81,15 +81,15 @@ git push origin v0.9.0
 
 The CI pipeline builds both extensions, publishes to the Chrome Web Store, and creates a GitHub release. Release notes come from the matching `## [x.y.z]` section in `CHANGELOG.md`.
 
-`PASSKEY_VAULT_RELEASE=1` makes a build a store package, as in the release workflow: its version is the plain `x.y.z`, and its manifest has no `key`. Every other build is a development build. Its version names its commit, such as `0.12.0+2d873fb`, with `.dirty` when tracked files have uncommitted changes; Chrome shows it on `chrome://extensions` and in the options page. Its manifest carries a development key, so every development build gets the extension ID `opnaemnnjkoolijgdldhjfinpjmhkagi` and keeps its vault when a newer build is loaded from another folder. `npm run validate:packages` accepts either kind, and only a store package when the variable is set. `npm run capture` needs a release build in `dist/`, so that the screenshots show the plain version.
+`PASSKEY_BOND_RELEASE=1` makes a build a store package, as in the release workflow: its version is the plain `x.y.z`, and its manifest has no `key`. Every other build is a development build. Its version names its commit, such as `0.12.0+2d873fb`, with `.dirty` when tracked files have uncommitted changes; Chrome shows it on `chrome://extensions` and in the options page. Its manifest carries a development key, so every development build gets the extension ID `odoehegfpkpmhicjkpdajlpdhcaghkhi` and keeps its vault when a newer build is loaded from another folder. `npm run validate:packages` accepts either kind, and only a store package when the variable is set. `npm run capture` needs a release build in `dist/`, so that the screenshots show the plain version.
 
 The publishing jobs (Chrome Web Store, Firefox Add-ons, Google Play, the GitHub release, and the iOS TestFlight upload) run in the `release` deployment environment. Configure it under Settings → Environments with required reviewers, and keep the store credentials there as environment secrets, so a pushed tag waits for a maintainer's approval before anything is published. Without that protection rule the jobs still run unattended. Firefox signing uses the `web-ext` version pinned in `package.json`; update it there, not in the workflow.
 
-Store listing copy and upload assets live in `docs/cws/`.
+Passkey.bond is not yet published in any store. The Chrome Web Store and Google Play jobs update an existing item, so create those listings by hand with the first upload before relying on CI. Store listing copy and upload assets live in `docs/cws/` (Chrome Web Store) and `android/play/` (Google Play).
 
 ## Security Issues
 
-For security vulnerabilities, please open a private issue or contact the maintainer directly rather than posting publicly.
+For security vulnerabilities, email security@passkey.bond or open a private security advisory on GitHub rather than posting publicly.
 
 ## License
 

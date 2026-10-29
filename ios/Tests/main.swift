@@ -1,6 +1,6 @@
 import Foundation
 
-let suite = "nz.fenko.sync-tests.\(UUID().uuidString)"
+let suite = "bond.passkey.sync-tests.\(UUID().uuidString)"
 let defaults = UserDefaults(suiteName: suite)!
 defer { defaults.removePersistentDomain(forName: suite) }
 let vault = VaultStore(suiteName: suite)

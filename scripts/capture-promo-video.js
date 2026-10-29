@@ -10,7 +10,7 @@ const HOLD_MS = 4200;
 module.exports = async function capturePromo(api) {
   const { VIDEO_DIR, ROOT } = api;
   fs.mkdirSync(VIDEO_DIR, { recursive: true });
-  const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fenko-promo-'));
+  const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'passkey-bond-promo-'));
   const ctx = await api.launchWithExtension({
     profileDir,
     contextOpts: { viewport: FRAME, recordVideo: { dir: VIDEO_DIR, size: FRAME } },
@@ -49,11 +49,11 @@ module.exports = async function capturePromo(api) {
         font:15px 'Saira',sans-serif; letter-spacing:1px; }
       #promo-line { position:absolute; left:76px; top:610px; width:60px; height:3px; background:#f5a623; }
     ` });
-    const logo = fs.readFileSync(path.join(ROOT, 'docs/brand/fenko-vault-logo.png')).toString('base64');
+    const logo = fs.readFileSync(path.join(ROOT, 'docs/brand/passkey-bond-logo.png')).toString('base64');
     await p.evaluate((logoData) => {
       const copy = document.createElement('section');
       copy.id = 'promo-copy';
-      copy.innerHTML = `<div id="promo-brand"><img alt="" src="data:image/png;base64,${logoData}">Fenko Vault</div>
+      copy.innerHTML = `<div id="promo-brand"><img alt="" src="data:image/png;base64,${logoData}">Passkey.bond</div>
         <div id="promo-step"></div><h1 id="promo-title"></h1><p id="promo-text"></p>`;
       document.body.append(copy);
       const footer = document.createElement('div');
@@ -130,8 +130,8 @@ module.exports = async function capturePromo(api) {
     }
     await hold();
 
-    await caption('FENKO VAULT', 'Keep your keys close.',
-      'Get Fenko Vault from the Chrome Web Store.');
+    await caption('PASSKEY.BOND', 'Keep your keys close.',
+      'Get Passkey.bond from the Chrome Web Store.');
     await hold();
     await shot('06-end');
     length = (Date.now() - began) / 1000;
@@ -140,7 +140,7 @@ module.exports = async function capturePromo(api) {
     await ctx.close();
   }
 
-  const output = path.join(VIDEO_DIR, 'fenko-vault-promo.mp4');
+  const output = path.join(VIDEO_DIR, 'passkey-bond-promo.mp4');
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-ss', String(start), '-i', rawPath,
     '-t', String(length), '-vf', 'fps=30,format=yuv420p', '-c:v', 'libx264',
     '-preset', 'medium', '-crf', '18', '-movflags', '+faststart', output], { stdio: 'inherit' });

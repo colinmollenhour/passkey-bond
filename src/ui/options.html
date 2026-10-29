@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fenko Vault — Settings</title>
+    <title>Passkey.bond — Settings</title>
     <link rel="stylesheet" href="options.css" />
   </head>
   <body data-i18n-title="settingsTitle">
@@ -12,7 +12,7 @@
         <div class="sidebar-header">
           <img class="logo" src="icons/icon128.png" width="28" height="28" alt="" />
           <div>
-            <h1 data-i18n="appName">Fenko Vault</h1>
+            <h1 data-i18n="appName">Passkey.bond</h1>
             <span class="version" id="version"></span>
           </div>
         </div>
@@ -162,7 +162,7 @@
           </button>
           <a
             class="nav-item nav-item-link"
-            href="https://tally.so/r/zxAJYM"
+            href="mailto:support@passkey.bond?subject=Passkey.bond%20feedback"
             target="_blank"
             rel="noopener noreferrer"
             data-i18n-title="feedbackTitle"
@@ -208,7 +208,7 @@
           <div class="sidebar-warning-text">
             <strong data-i18n="vaultBackupWarnTitle">Only you hold your keys</strong>
             <span data-i18n="vaultBackupWarnBody">
-              Sync is end-to-end encrypted, so our servers never see your passkeys or 2FA codes and
+              Sync is end-to-end encrypted, so sync relays never see your passkeys or 2FA codes and
               we can't recover them for you. Lose every device and backup and they're gone for good.
               Export an encrypted backup and keep a copy offline.
             </span>
@@ -255,7 +255,7 @@
           <div class="section-header">
             <h2 data-i18n="optionsInterceptionTitle">WebAuthn Interception</h2>
             <p class="section-desc" data-i18n="optionsInterceptionDesc">
-              Control which domains Fenko Vault intercepts WebAuthn requests on.
+              Control which domains Passkey.bond intercepts WebAuthn requests on.
             </p>
           </div>
 
@@ -443,7 +443,7 @@
           <div class="section-header">
             <h2 data-i18n="optionsDataTitle">Import &amp; Export</h2>
             <p class="section-desc" data-i18n="optionsDataDesc">
-              Move passkeys and MFA codes between Fenko Vault and other providers. Everything is
+              Move passkeys and MFA codes between Passkey.bond and other providers. Everything is
               read and written on this device.
             </p>
           </div>
@@ -696,12 +696,12 @@
           <div class="card">
             <h3 data-i18n="optionsAaguidTitle">AAGUID</h3>
             <p class="card-hint" data-i18n="optionsAaguidDesc">
-              Identifies the authenticator model at registration. The Fenko Vault value makes sites
+              Identifies the authenticator model at registration. The Passkey.bond value makes sites
               show the vault by name and icon; all-zero keeps the authenticator anonymous.
             </p>
             <div class="timeout-selector">
               <select id="aaguid-mode">
-                <option value="vault" data-i18n="optionsAaguidVault">Fenko Vault (default)</option>
+                <option value="vault" data-i18n="optionsAaguidVault">Passkey.bond (default)</option>
                 <option value="zero" data-i18n="optionsAaguidZero">Anonymous (all zero)</option>
               </select>
             </div>
@@ -882,35 +882,35 @@
             <div class="about-identity">
               <img src="icons/icon128.png" width="40" height="40" alt="" class="about-logo" />
               <div>
-                <h3 data-i18n="appName">Fenko Vault</h3>
+                <h3 data-i18n="appName">Passkey.bond</h3>
                 <span id="about-version" class="version">--</span>
               </div>
             </div>
             <p class="card-hint">
-              Fenko Vault is an open-source project by Fenko (FENKO LIMITED), offered free of charge
-              to help the community. The source code, issue tracker, and release history are public.
+              Passkey.bond is an open-source project by Colin Mollenhour, based on Fenko Vault by
+              Fenko (FENKO LIMITED). The source code, issue tracker, and release history are public.
             </p>
             <div class="card-actions">
               <a
                 class="btn btn-secondary btn-sm"
-                href="https://github.com/FenkoHQ/passkey-vault"
+                href="https://github.com/colinmollenhour/passkey-bond"
                 target="_blank"
                 rel="noopener"
                 >Source code</a
               >
               <a
                 class="btn btn-secondary btn-sm"
-                href="https://github.com/FenkoHQ/passkey-vault/blob/main/LICENSE"
+                href="https://github.com/colinmollenhour/passkey-bond/blob/main/LICENSE"
                 target="_blank"
                 rel="noopener"
                 >MIT License</a
               >
               <a
                 class="btn btn-secondary btn-sm"
-                href="https://chromewebstore.google.com/detail/passkey-vault/lopekoolgoijpmaidblgfgelbkfkgmod"
+                href="https://passkey.bond/"
                 target="_blank"
                 rel="noopener"
-                >Chrome Web Store</a
+                >passkey.bond</a
               >
             </div>
           </div>
@@ -931,12 +931,11 @@
               </p>
               <p>
                 <strong>Sync, if you enable it.</strong> Sync exchanges your vault between your own
-                devices through Nostr relays, including one we operate
-                (<code>vaultsync.fenko.nz</code>). Everything is encrypted on your device with keys
-                derived from your seed phrase before it is sent. Relays — ours included — see only
-                ciphertext, a random chain identifier, and ordinary connection metadata (IP address,
-                timing) that any server you connect to can see. We cannot read your vault, and
-                neither can the relay operators.
+                devices through public Nostr relays, which you can change in Sync settings.
+                Everything is encrypted on your device with keys derived from your seed phrase
+                before it is sent. Relays see only ciphertext, a random chain identifier, and
+                ordinary connection metadata (IP address, timing) that any server you connect to can
+                see. We cannot read your vault, and neither can the relay operators.
               </p>
               <p>
                 <strong>Deleting your data.</strong> Uninstalling the extension removes all locally
@@ -950,24 +949,22 @@
             <h3>Terms of use — no warranty</h3>
             <div class="about-text">
               <div class="about-notice" role="note">
-                <strong>This software comes with no warranty of any kind.</strong> Fenko Vault is
+                <strong>This software comes with no warranty of any kind.</strong> Passkey.bond is
                 provided "as is", without warranty of any kind, express or implied, including but
                 not limited to the warranties of merchantability, fitness for a particular purpose,
-                and noninfringement. In no event shall the authors, contributors, or Fenko (FENKO
-                LIMITED) be liable for any claim, damages, or other liability — including loss of
-                credentials or data — arising from the use of this software.
+                and noninfringement. In no event shall the authors or contributors be liable for any
+                claim, damages, or other liability — including loss of credentials or data —
+                arising from the use of this software.
               </div>
               <p>
-                Fenko Vault is a community project, not a commercial credential-management service.
-                There is no guaranteed support, no service-level commitment, and no paid tier. You
-                are responsible for keeping backups of your vault and for protecting your seed
+                There is no guaranteed support and no service-level commitment. You are responsible for keeping backups of your vault and for protecting your seed
                 phrase, PIN, and exported files — if they are lost or exposed, nobody (including us)
                 can recover or revoke them for you.
               </p>
               <p>
                 Use of the software is governed by the
                 <a
-                  href="https://github.com/FenkoHQ/passkey-vault/blob/main/LICENSE"
+                  href="https://github.com/colinmollenhour/passkey-bond/blob/main/LICENSE"
                   target="_blank"
                   rel="noopener"
                   >MIT License</a
@@ -981,29 +978,34 @@
             <div class="about-text">
               <p>
                 Tell us how it's going:
-                <a href="https://tally.so/r/zxAJYM" target="_blank" rel="noopener noreferrer"
-                  >send feedback</a
-                >. It takes under a minute, and if a website ever refuses one of your passkeys,
-                that's the most useful thing you can report.
+                <a href="mailto:support@passkey.bond?subject=Passkey.bond%20feedback"
+                  >support@passkey.bond</a
+                >. If a website ever refuses one of your passkeys, that's the most useful thing you
+                can report.
               </p>
               <p>
                 Bug reports and feature requests:
                 <a
-                  href="https://github.com/FenkoHQ/passkey-vault/issues"
+                  href="https://github.com/colinmollenhour/passkey-bond/issues"
                   target="_blank"
                   rel="noopener"
                   >GitHub issues</a
                 >. For security vulnerabilities, email
-                <a href="mailto:security@fenko.nz">security@fenko.nz</a> or use
+                <a href="mailto:security@passkey.bond">security@passkey.bond</a> or use
                 <a
-                  href="https://github.com/FenkoHQ/passkey-vault/security/advisories/new"
+                  href="https://github.com/colinmollenhour/passkey-bond/security/advisories/new"
                   target="_blank"
                   rel="noopener"
                   >GitHub private vulnerability reporting</a
                 >
                 instead of a public issue.
               </p>
-              <p>Fenko Vault is maintained by Fenko (FENKO LIMITED), New Zealand.</p>
+              <p>
+                Passkey.bond is maintained by Colin Mollenhour. It began as a fork of
+                <a href="https://github.com/FenkoHQ/passkey-vault" target="_blank" rel="noopener"
+                  >Fenko Vault</a
+                >, which is © Fenko and MIT licensed.
+              </p>
             </div>
           </div>
         </section>

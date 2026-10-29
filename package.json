@@ -1,5 +1,5 @@
 {
-  "name": "passkey-vault",
+  "name": "passkey-bond",
   "version": "0.12.0",
   "description": "Cross-platform browser extension for passkey (WebAuthn) and MFA/TOTP management with end-to-end encrypted multi-device sync",
   "scripts": {
@@ -7,8 +7,8 @@
     "build:chrome": "node build-extension.js --target=chrome",
     "build:firefox": "node build-extension.js --target=firefox",
     "build:all": "node build-extension.js --target=all",
-    "validate:package:chrome": "node scripts/validate-package.js passkey-vault-chrome.zip chrome",
-    "validate:package:firefox": "node scripts/validate-package.js passkey-vault-firefox.zip firefox",
+    "validate:package:chrome": "node scripts/validate-package.js passkey-bond-chrome.zip chrome",
+    "validate:package:firefox": "node scripts/validate-package.js passkey-bond-firefox.zip firefox",
     "validate:packages": "npm run validate:package:chrome && npm run validate:package:firefox",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -17,9 +17,9 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.{ts,css,html}\"",
     "typecheck": "tsc --noEmit",
-    "zip": "npm run build && rm -f passkey-vault-chrome.zip && cd dist && zip -r ../passkey-vault-chrome.zip .",
-    "zip:firefox": "npm run build:firefox && rm -f passkey-vault-firefox.zip && cd dist-firefox && zip -r ../passkey-vault-firefox.zip .",
-    "zip:all": "npm run build:all && rm -f passkey-vault-chrome.zip passkey-vault-firefox.zip && cd dist && zip -r ../passkey-vault-chrome.zip . && cd ../dist-firefox && zip -r ../passkey-vault-firefox.zip .",
+    "zip": "npm run build && rm -f passkey-bond-chrome.zip && cd dist && zip -r ../passkey-bond-chrome.zip .",
+    "zip:firefox": "npm run build:firefox && rm -f passkey-bond-firefox.zip && cd dist-firefox && zip -r ../passkey-bond-firefox.zip .",
+    "zip:all": "npm run build:all && rm -f passkey-bond-chrome.zip passkey-bond-firefox.zip && cd dist && zip -r ../passkey-bond-chrome.zip . && cd ../dist-firefox && zip -r ../passkey-bond-firefox.zip .",
     "clean": "rm -rf dist dist-firefox",
     "version:bump": "node scripts/bump-version.js",
     "update:psl": "node scripts/update-public-suffix-list.js",
@@ -43,11 +43,15 @@
     "authentication",
     "security"
   ],
-  "author": "",
+  "author": "Colin Mollenhour",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/colinmollenhour/passkey-bond.git"
+  },
+  "homepage": "https://passkey.bond",
+  "bugs": {
+    "url": "https://github.com/colinmollenhour/passkey-bond/issues"
   },
   "devDependencies": {
     "@simplewebauthn/server": "^14.0.3",

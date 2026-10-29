@@ -451,7 +451,7 @@ describe('the page shim never strands a promise', () => {
       new MessageEvent('message', {
         source: window,
         data: {
-          source: 'PASSKEY_VAULT_CONTENT',
+          source: 'PASSKEY_BOND_CONTENT',
           requestId: (request?.data as any)?.requestId,
           result: {
             success: true,
@@ -474,7 +474,7 @@ describe('the page shim never strands a promise', () => {
     window.dispatchEvent(
       new MessageEvent('message', {
         source: window,
-        data: { source: 'PASSKEY_VAULT_CONTENT', requestId: (request?.data as any)?.requestId },
+        data: { source: 'PASSKEY_BOND_CONTENT', requestId: (request?.data as any)?.requestId },
       })
     );
     vault.native.get.mockResolvedValue({ id: 'native' });

@@ -1,4 +1,4 @@
-package nz.fenko.passkeyvault;
+package bond.passkey.app;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
@@ -21,10 +21,10 @@ import java.security.MessageDigest;
 import android.util.Base64;
 
 public final class CredentialActionActivity extends Activity {
-    static final String EXTRA_ACTION = "nz.fenko.passkeyvault.extra.ACTION";
-    static final String EXTRA_CREDENTIAL_ID = "nz.fenko.passkeyvault.extra.CREDENTIAL_ID";
-    static final String EXTRA_OPTION_ID = "nz.fenko.passkeyvault.extra.OPTION_ID";
-    static final String EXTRA_CREDENTIAL_TYPE = "nz.fenko.passkeyvault.extra.CREDENTIAL_TYPE";
+    static final String EXTRA_ACTION = "bond.passkey.app.extra.ACTION";
+    static final String EXTRA_CREDENTIAL_ID = "bond.passkey.app.extra.CREDENTIAL_ID";
+    static final String EXTRA_OPTION_ID = "bond.passkey.app.extra.OPTION_ID";
+    static final String EXTRA_CREDENTIAL_TYPE = "bond.passkey.app.extra.CREDENTIAL_TYPE";
     static final String ACTION_GET = "get";
     static final String ACTION_CREATE = "create";
 
@@ -150,7 +150,7 @@ public final class CredentialActionActivity extends Activity {
             return;
         }
         new BiometricPrompt.Builder(this)
-                .setTitle("Verify to use Fenko Vault")
+                .setTitle("Verify to use Passkey.bond")
                 .setDeviceCredentialAllowed(true)
                 .build()
                 .authenticate(new CancellationSignal(), getMainExecutor(),

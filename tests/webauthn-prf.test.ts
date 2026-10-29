@@ -11,8 +11,8 @@ import { computePrfResults, normalizePrfInput, selectPrfEval } from '../src/back
 // Side-effect import: hooks navigator.credentials and listens for responses.
 require('../src/content/webauthn-inject');
 
-const PAGE_SOURCE = 'PASSKEY_VAULT_PAGE';
-const CONTENT_SOURCE = 'PASSKEY_VAULT_CONTENT';
+const PAGE_SOURCE = 'PASSKEY_BOND_PAGE';
+const CONTENT_SOURCE = 'PASSKEY_BOND_CONTENT';
 const PRF_KEY = new Uint8Array(32).fill(7).buffer;
 
 function b64url(bytes: Uint8Array): string {

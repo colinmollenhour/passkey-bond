@@ -522,7 +522,7 @@ describe('a framed dialog checking its scale', () => {
     expect(vault.chrome.sentToTabs).toContainEqual({
       tabId: 7,
       frameId: 0,
-      message: { type: 'PASSKEY_VAULT_TOP_METRICS' },
+      message: { type: 'PASSKEY_BOND_TOP_METRICS' },
     });
   });
 

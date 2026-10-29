@@ -45,7 +45,7 @@ type MessageListener = (
 
 type ChangeListener = (changes: Record<string, unknown>, areaName: string) => void;
 
-export const EXTENSION_ID = 'fenkovaulttestextensionidaaaaaaa';
+export const EXTENSION_ID = 'passkeybondtestextensionidaaaaaa';
 export const EXTENSION_ORIGIN = `chrome-extension://${EXTENSION_ID}`;
 
 const clone = <T>(value: T): T =>

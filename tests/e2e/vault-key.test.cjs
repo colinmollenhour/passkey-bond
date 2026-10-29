@@ -41,7 +41,7 @@ const timings = {};
 
 before(async () => {
   assert.ok(fs.existsSync(path.join(DIST, 'manifest.json')), 'run npm run build:chrome first');
-  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fenko-vault-e2e-key-'));
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'passkey-bond-e2e-key-'));
   context = await chromium.launchPersistentContext(userDataDir, {
     channel: 'chromium',
     headless: true,
@@ -81,7 +81,7 @@ before(async () => {
       };
       await chrome.storage.local.set({
         passext_encryption_salt: b64(salt),
-        passext_master_key_check: await seal('passkey-vault-check'),
+        passext_master_key_check: await seal('passkey-bond-check'),
         passext_encrypted_passkeys: await seal(JSON.stringify([passkey])),
       });
     },

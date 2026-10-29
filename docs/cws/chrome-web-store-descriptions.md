@@ -10,7 +10,7 @@ Store WebAuthn passkeys and TOTP 2FA codes locally. One searchable vault, option
 
 ### Detailed Description
 
-Fenko Vault keeps your passkeys and two-factor codes in one place, on your device, and syncs them across your computers with no cloud account. Sign in without passwords, get your 2FA codes right where your passkeys already live, and stay in control of every credential.
+Passkey.bond keeps your passkeys and two-factor codes in one place, on your device, and syncs them across your computers with no cloud account. Sign in without passwords, get your 2FA codes right where your passkeys already live, and stay in control of every credential.
 
 Sync is end-to-end encrypted, so your keys move between your devices without anyone else seeing them, not even us. Nothing leaves your device unless you choose to back it up or sync it.
 
@@ -24,9 +24,9 @@ Highlights:
 - Encrypted backups you export and restore yourself
 - Works alongside your browser: sites you have not saved still get the normal passkey prompt
 
-When a site offers a passkey, Fenko Vault can create it, store it, and sign you back in later, all on your device.
+When a site offers a passkey, Passkey.bond can create it, store it, and sign you back in later, all on your device.
 
-Fenko Vault is built for people who want their passkeys and 2FA codes to stay private and portable. Because everything lives on your device, keep an offline backup: there is no recovery if you lose every device and every backup.
+Passkey.bond is built for people who want their passkeys and 2FA codes to stay private and portable. Because everything lives on your device, keep an offline backup: there is no recovery if you lose every device and every backup.
 
 ## French (`fr`)
 
@@ -36,7 +36,7 @@ Stockez et utilisez des passkeys WebAuthn localement, avec sauvegarde, synchroni
 
 ### Detailed Description
 
-Fenko Vault est un outil de passkeys WebAuthn local-first pour les développeurs, les testeurs et les utilisateurs avancés qui veulent contrôler directement la création, le stockage, la sauvegarde, la synchronisation et le comportement de repli du navigateur.
+Passkey.bond est un outil de passkeys WebAuthn local-first pour les développeurs, les testeurs et les utilisateurs avancés qui veulent contrôler directement la création, le stockage, la sauvegarde, la synchronisation et le comportement de repli du navigateur.
 
 L'extension intercepte les demandes d'inscription et de connexion WebAuthn, stocke les passkeys dans le stockage local de l'extension du navigateur, et vous permet d'inspecter, rechercher, exporter, importer et synchroniser des identifiants sans dépendre d'un compte cloud tiers.
 
@@ -52,7 +52,7 @@ Fonctionnalités principales :
 - Synchronisation multi-appareils optionnelle avec une chaîne de synchronisation chiffrée basée sur Nostr
 - Journalisation développeur, inspection du stockage, journaux de synchronisation et outils d'événements WebAuthn
 
-Important : Fenko Vault est un outil de recherche et de développement. Les clés privées sont stockées dans le stockage local de l'extension du navigateur. Traitez les données de l'extension et les sauvegardes exportées comme des informations d'identification sensibles.
+Important : Passkey.bond est un outil de recherche et de développement. Les clés privées sont stockées dans le stockage local de l'extension du navigateur. Traitez les données de l'extension et les sauvegardes exportées comme des informations d'identification sensibles.
 
 ## Spanish (`es`)
 
@@ -62,7 +62,7 @@ Guarda y usa passkeys WebAuthn localmente, con copias de seguridad, sincronizaci
 
 ### Detailed Description
 
-Fenko Vault es una herramienta local-first para passkeys WebAuthn, pensada para desarrolladores, testers y usuarios avanzados que quieren controlar directamente la creación, el almacenamiento, las copias de seguridad, la sincronización y el comportamiento de reserva del navegador.
+Passkey.bond es una herramienta local-first para passkeys WebAuthn, pensada para desarrolladores, testers y usuarios avanzados que quieren controlar directamente la creación, el almacenamiento, las copias de seguridad, la sincronización y el comportamiento de reserva del navegador.
 
 La extensión intercepta solicitudes de registro e inicio de sesión WebAuthn, guarda las passkeys en el almacenamiento local de la extensión del navegador y permite inspeccionar, buscar, exportar, importar y sincronizar credenciales sin depender de una cuenta en la nube de terceros.
 
@@ -78,7 +78,7 @@ Funciones principales:
 - Sincronización opcional entre dispositivos mediante una cadena de sincronización cifrada basada en Nostr
 - Registros para desarrolladores, inspección de almacenamiento, registros de sincronización y herramientas de eventos WebAuthn
 
-Importante: Fenko Vault es una herramienta de investigación y desarrollo. El material de clave privada se almacena en el almacenamiento local de la extensión del navegador. Trata los datos de la extensión y las copias de seguridad exportadas como material de credenciales sensible.
+Importante: Passkey.bond es una herramienta de investigación y desarrollo. El material de clave privada se almacena en el almacenamiento local de la extensión del navegador. Trata los datos de la extensión y las copias de seguridad exportadas como material de credenciales sensible.
 
 ## Arabic (`ar`)
 
@@ -88,7 +88,7 @@ Importante: Fenko Vault es una herramienta de investigación y desarrollo. El ma
 
 ### Detailed Description
 
-Fenko Vault هي أداة محلية أولاً لمفاتيح مرور WebAuthn، مخصصة للمطورين والمختبرين والمستخدمين المتقدمين الذين يريدون تحكماً مباشراً في إنشاء مفاتيح المرور وتخزينها ونسخها احتياطياً ومزامنتها وسلوك الرجوع إلى المتصفح.
+Passkey.bond هي أداة محلية أولاً لمفاتيح مرور WebAuthn، مخصصة للمطورين والمختبرين والمستخدمين المتقدمين الذين يريدون تحكماً مباشراً في إنشاء مفاتيح المرور وتخزينها ونسخها احتياطياً ومزامنتها وسلوك الرجوع إلى المتصفح.
 
 تعترض الإضافة طلبات التسجيل وتسجيل الدخول عبر WebAuthn، وتخزن مفاتيح المرور في التخزين المحلي لإضافة المتصفح، وتتيح لك فحص بيانات الاعتماد والبحث فيها وتصديرها واستيرادها ومزامنتها دون الاعتماد على حساب سحابي تابع لطرف ثالث.
 
@@ -104,7 +104,7 @@ Fenko Vault هي أداة محلية أولاً لمفاتيح مرور WebAuthn
 - مزامنة اختيارية بين الأجهزة باستخدام سلسلة مزامنة مشفرة مبنية على Nostr
 - سجلات للمطورين، فحص التخزين، سجلات المزامنة، وأدوات أحداث WebAuthn
 
-مهم: Fenko Vault هي أداة بحث وتطوير. يتم تخزين مادة المفاتيح الخاصة في التخزين المحلي لإضافة المتصفح. تعامل مع بيانات الإضافة والنسخ الاحتياطية المصدّرة كمواد اعتماد حساسة.
+مهم: Passkey.bond هي أداة بحث وتطوير. يتم تخزين مادة المفاتيح الخاصة في التخزين المحلي لإضافة المتصفح. تعامل مع بيانات الإضافة والنسخ الاحتياطية المصدّرة كمواد اعتماد حساسة.
 
 ## Persian (`fa`)
 
@@ -114,7 +114,7 @@ Fenko Vault هي أداة محلية أولاً لمفاتيح مرور WebAuthn
 
 ### Detailed Description
 
-Fenko Vault یک ابزار محلی‌محور برای کلیدهای عبور WebAuthn است که برای توسعه‌دهندگان، آزمایش‌کنندگان و کاربران پیشرفته ساخته شده است؛ افرادی که می‌خواهند روی ایجاد، ذخیره‌سازی، پشتیبان‌گیری، همگام‌سازی و رفتار بازگشت مرورگر کنترل مستقیم داشته باشند.
+Passkey.bond یک ابزار محلی‌محور برای کلیدهای عبور WebAuthn است که برای توسعه‌دهندگان، آزمایش‌کنندگان و کاربران پیشرفته ساخته شده است؛ افرادی که می‌خواهند روی ایجاد، ذخیره‌سازی، پشتیبان‌گیری، همگام‌سازی و رفتار بازگشت مرورگر کنترل مستقیم داشته باشند.
 
 این افزونه درخواست‌های ثبت‌نام و ورود WebAuthn را رهگیری می‌کند، کلیدهای عبور را در فضای ذخیره‌سازی محلی افزونه مرورگر نگه می‌دارد، و به شما امکان می‌دهد اعتبارنامه‌ها را بدون وابستگی به حساب ابری شخص ثالث بررسی، جستجو، صادر، وارد و همگام‌سازی کنید.
 
@@ -130,7 +130,7 @@ Fenko Vault یک ابزار محلی‌محور برای کلیدهای عبور
 - همگام‌سازی اختیاری بین دستگاه‌ها با زنجیره همگام‌سازی رمزگذاری‌شده مبتنی بر Nostr
 - گزارش‌های توسعه‌دهنده، بررسی ذخیره‌سازی، گزارش‌های همگام‌سازی و ابزارهای رویداد WebAuthn
 
-مهم: Fenko Vault یک ابزار پژوهشی و توسعه‌ای است. داده‌های کلید خصوصی در فضای ذخیره‌سازی محلی افزونه مرورگر ذخیره می‌شود. داده‌های افزونه و پشتیبان‌های صادرشده را مانند اطلاعات اعتباری حساس مدیریت کنید.
+مهم: Passkey.bond یک ابزار پژوهشی و توسعه‌ای است. داده‌های کلید خصوصی در فضای ذخیره‌سازی محلی افزونه مرورگر ذخیره می‌شود. داده‌های افزونه و پشتیبان‌های صادرشده را مانند اطلاعات اعتباری حساس مدیریت کنید.
 
 ## Russian (`ru`)
 
@@ -140,7 +140,7 @@ Fenko Vault یک ابزار محلی‌محور برای کلیدهای عبور
 
 ### Detailed Description
 
-Fenko Vault — это local-first инструмент для passkey WebAuthn, предназначенный для разработчиков, тестировщиков и опытных пользователей, которым нужен прямой контроль над созданием, хранением, резервным копированием, синхронизацией и fallback-поведением браузера.
+Passkey.bond — это local-first инструмент для passkey WebAuthn, предназначенный для разработчиков, тестировщиков и опытных пользователей, которым нужен прямой контроль над созданием, хранением, резервным копированием, синхронизацией и fallback-поведением браузера.
 
 Расширение перехватывает запросы регистрации и входа WebAuthn, хранит passkey в локальном хранилище расширения браузера и позволяет просматривать, искать, экспортировать, импортировать и синхронизировать учетные данные без зависимости от стороннего облачного аккаунта.
 
@@ -156,7 +156,7 @@ Fenko Vault — это local-first инструмент для passkey WebAuthn,
 - Опциональная синхронизация между устройствами через зашифрованную sync-цепочку на основе Nostr
 - Журналы для разработчиков, инспекция хранилища, журналы синхронизации и инструменты событий WebAuthn
 
-Важно: Fenko Vault — это инструмент для исследований и разработки. Материал приватных ключей хранится в локальном хранилище расширения браузера. Относитесь к данным расширения и экспортированным резервным копиям как к чувствительным учетным данным.
+Важно: Passkey.bond — это инструмент для исследований и разработки. Материал приватных ключей хранится в локальном хранилище расширения браузера. Относитесь к данным расширения и экспортированным резервным копиям как к чувствительным учетным данным.
 
 ## Chinese Simplified (`zh_CN`)
 
@@ -166,7 +166,7 @@ Fenko Vault — это local-first инструмент для passkey WebAuthn,
 
 ### Detailed Description
 
-Fenko Vault 是一款本地优先的 WebAuthn passkey 工具，面向开发者、测试人员和高级用户，适合需要直接控制 passkey 创建、存储、备份、同步以及浏览器回退行为的场景。
+Passkey.bond 是一款本地优先的 WebAuthn passkey 工具，面向开发者、测试人员和高级用户，适合需要直接控制 passkey 创建、存储、备份、同步以及浏览器回退行为的场景。
 
 该扩展会拦截 WebAuthn 注册和登录请求，将 passkey 存储在浏览器扩展的本地存储中，并允许你检查、搜索、导出、导入和同步凭据，而无需依赖第三方云账号。
 
@@ -182,4 +182,4 @@ Fenko Vault 是一款本地优先的 WebAuthn passkey 工具，面向开发者�
 - 可选的跨设备同步，使用基于 Nostr 的加密同步链
 - 开发者日志、存储检查、同步日志和 WebAuthn 事件工具
 
-重要提示：Fenko Vault 是研究和开发工具。私钥材料存储在浏览器扩展的本地存储中。请将扩展数据和导出的备份视为敏感凭据材料处理。
+重要提示：Passkey.bond 是研究和开发工具。私钥材料存储在浏览器扩展的本地存储中。请将扩展数据和导出的备份视为敏感凭据材料处理。

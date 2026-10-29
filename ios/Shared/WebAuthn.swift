@@ -3,7 +3,7 @@ import CryptoKit
 
 /// Port of the Android `WebAuthnNative` logic. Produces byte-identical
 /// authenticatorData / COSE keys / attestation objects / ES256 signatures so a
-/// passkey created on any Fenko Vault platform verifies the same way server-side.
+/// passkey created on any Passkey.bond platform verifies the same way server-side.
 enum WebAuthnError: Error {
     case missingRpId
     case badPublicKey
@@ -11,12 +11,12 @@ enum WebAuthnError: Error {
 }
 
 enum WebAuthn {
-    /// Fenko Vault AAGUID d2717a32-9851-48a8-9961-b264c97a411a — must stay
+    /// Passkey.bond AAGUID 2391d29c-2806-4960-a51b-7c18e5da7976 — must stay
     /// byte-identical to the web (cbor.ts) and Android (WebAuthnNative.java)
     /// values. See docs/aaguid/README.md.
     static let aaguid = Data([
-        0xd2, 0x71, 0x7a, 0x32, 0x98, 0x51, 0x48, 0xa8,
-        0x99, 0x61, 0xb2, 0x64, 0xc9, 0x7a, 0x41, 0x1a,
+        0x23, 0x91, 0xd2, 0x9c, 0x28, 0x06, 0x49, 0x60,
+        0xa5, 0x1b, 0x7c, 0x18, 0xe5, 0xda, 0x79, 0x76,
     ])
 
     // MARK: Key generation

@@ -1,5 +1,5 @@
 import { materialize, parseImport } from '../../src/porting/import';
-import { passkeyCsvTemplate, totpCsvTemplate } from '../../src/porting/formats/fenko';
+import { passkeyCsvTemplate, totpCsvTemplate } from '../../src/porting/formats/passkey-bond';
 import { buildExport } from '../../src/porting/export';
 import { arrayBufferToBase64, decodeBase64Flexible } from '../../src/utils/base64';
 import { getOrCreatePrfKey } from '../../src/background/prf';
@@ -22,9 +22,9 @@ beforeAll(async () => {
 
 describe('the fillable CSV templates', () => {
   it('imports the MFA template it ships, comments and all', () => {
-    const parsed = parseImport('fenko-mfa-template.csv', totpCsvTemplate());
+    const parsed = parseImport('passkey-bond-mfa-template.csv', totpCsvTemplate());
 
-    expect(parsed.format).toBe('fenko-totp-csv');
+    expect(parsed.format).toBe('passkey-bond-totp-csv');
     expect(parsed.otp).toHaveLength(2);
     expect(parsed.otp[0]).toMatchObject({
       type: 'totp',
@@ -45,9 +45,9 @@ describe('the fillable CSV templates', () => {
 
   it('reads the passkey template once a real key is pasted in', async () => {
     const csv = passkeyCsvTemplate().replace('MIGHAgEAMBMGByqGSM49AgEG...', pkcs8);
-    const parsed = parseImport('fenko-passkey-template.csv', csv);
+    const parsed = parseImport('passkey-bond-passkey-template.csv', csv);
 
-    expect(parsed.format).toBe('fenko-passkey-csv');
+    expect(parsed.format).toBe('passkey-bond-passkey-csv');
     const ready = await materialize(parsed, EMPTY_VAULT);
     expect(ready.passkeys[0]).toMatchObject({
       rpId: 'example.com',
@@ -119,8 +119,8 @@ describe('materialising an import', () => {
 });
 
 describe('the native backup format', () => {
-  it('round-trips a Fenko export back into vault records', async () => {
-    const file = buildExport('fenko-json', {
+  it('round-trips a native export back into vault records', async () => {
+    const file = buildExport('passkey-bond-json', {
       passkeys: [
         {
           id: 'Y3JlZC1pZA',
@@ -153,7 +153,7 @@ describe('the native backup format', () => {
 
     const ready = await materialize(parseImport(file.fileName, file.content), EMPTY_VAULT);
 
-    expect(ready.format).toBe('fenko-json');
+    expect(ready.format).toBe('passkey-bond-json');
     expect(ready.passkeys[0]).toMatchObject({
       id: 'Y3JlZC1pZA',
       rpId: 'github.com',
@@ -273,7 +273,7 @@ describe('the native backup format', () => {
     const file = buildExport('totp-csv', { passkeys: [], totpEntries: source.totpEntries });
     const parsed = parseImport(file.fileName, file.content);
 
-    expect(parsed.format).toBe('fenko-totp-csv');
+    expect(parsed.format).toBe('passkey-bond-totp-csv');
     expect(base32Encode(parsed.otp[0].secret)).toBe(SECRET_B32);
   });
 
@@ -357,7 +357,7 @@ describe('backup flags on imported passkeys', () => {
   });
 
   function nativeExport(extra: Record<string, unknown>): string {
-    return buildExport('fenko-json', {
+    return buildExport('passkey-bond-json', {
       passkeys: [
         {
           id: 'Y3JlZC1pZA',
@@ -377,28 +377,28 @@ describe('backup flags on imported passkeys', () => {
     }).content;
   }
 
-  it('keeps the flags a Fenko backup recorded, including device-bound ones', async () => {
+  it('keeps the flags a native backup recorded, including device-bound ones', async () => {
     const ready = await materialize(
-      parseImport('fenko.json', nativeExport({ ...OFF, backupSource: 'created' })),
+      parseImport('backup.json', nativeExport({ ...OFF, backupSource: 'created' })),
       EMPTY_VAULT
     );
     expect(ready.passkeys[0]).toMatchObject({ ...OFF, backupSource: 'created' });
   });
 
-  it('does not assume a pre-flags Fenko backup holds synced passkeys', async () => {
-    const ready = await materialize(parseImport('fenko.json', nativeExport({})), {
+  it('does not assume a pre-flags native backup holds synced passkeys', async () => {
+    const ready = await materialize(parseImport('backup.json', nativeExport({})), {
       passkeys: [stored({ ...OFF, backupSource: 'legacy' })],
       totpEntries: [],
     });
     expect(ready.backupRepairs).toEqual([]);
 
-    const fresh = await materialize(parseImport('fenko.json', nativeExport({})), EMPTY_VAULT);
+    const fresh = await materialize(parseImport('backup.json', nativeExport({})), EMPTY_VAULT);
     expect(fresh.passkeys[0].backupEligible).toBeUndefined();
   });
 
   it('round-trips the flags through the passkey CSV', async () => {
     const source = await materialize(
-      parseImport('fenko.json', nativeExport({ ...OFF, backupSource: 'created' })),
+      parseImport('backup.json', nativeExport({ ...OFF, backupSource: 'created' })),
       EMPTY_VAULT
     );
     const csv = buildExport('passkey-csv', { passkeys: source.passkeys, totpEntries: [] });

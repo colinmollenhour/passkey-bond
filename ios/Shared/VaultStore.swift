@@ -7,7 +7,7 @@ import CoreFoundation
 /// `ProviderVaultStore` SharedPreferences). Stored as JSON strings under the same
 /// logical keys for cross-platform familiarity.
 final class VaultStore {
-    static let appGroup = "group.nz.fenko.passkeyvault"
+    static let appGroup = "group.bond.passkey.app"
     static let shared = VaultStore()
 
     private let defaults: UserDefaults

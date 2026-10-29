@@ -1,4 +1,4 @@
-// Fenko Vault — Options Page
+// Passkey.bond — Options Page
 
 import {
   SUPPORTED_LANGUAGES,
@@ -23,12 +23,7 @@ import {
 } from '../porting';
 import { checkVaultSecret, type VaultSecretProblem } from '../crypto/vault-secret';
 
-const DEFAULT_RELAYS = [
-  'wss://vaultsync.fenko.nz',
-  'wss://relay.damus.io',
-  'wss://nos.lol',
-  'wss://relay.nostr.band',
-];
+const DEFAULT_RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.nostr.band'];
 
 interface DomainRules {
   mode: 'disabled' | 'all' | 'allowlist' | 'blocklist';
@@ -716,11 +711,13 @@ async function loadDeveloperSettings(): Promise<void> {
   });
   document
     .getElementById('options-totp-template-btn')!
-    .addEventListener('click', () => downloadTemplate('fenko-mfa-template.csv', totpCsvTemplate()));
+    .addEventListener('click', () =>
+      downloadTemplate('passkey-bond-mfa-template.csv', totpCsvTemplate())
+    );
   document
     .getElementById('options-passkey-template-btn')!
     .addEventListener('click', () =>
-      downloadTemplate('fenko-passkey-template.csv', passkeyCsvTemplate())
+      downloadTemplate('passkey-bond-passkey-template.csv', passkeyCsvTemplate())
     );
 
   // Danger zone
@@ -866,7 +863,7 @@ function downloadTemplate(fileName: string, content: string): void {
 
 async function exportAllData(): Promise<void> {
   const select = document.getElementById('export-format') as HTMLSelectElement | null;
-  const format = (select?.value || 'fenko-json') as ExportFormat;
+  const format = (select?.value || 'passkey-bond-json') as ExportFormat;
 
   const response = await sendMessage('EXPORT_VAULT');
   if (!response.success) {

@@ -1,4 +1,4 @@
-package nz.fenko.passkeyvault;
+package bond.passkey.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,7 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 final class ProviderVaultStore {
-    private static final String PREFS = "passkey_vault_native";
+    private static final String PREFS = "passkey_bond_native";
     private static final String PASSKEYS = "passkeys";
     private static final String TOTP = "totp_entries";
     private static final String SYNC_CONFIG = "sync_config";

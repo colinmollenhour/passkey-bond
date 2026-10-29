@@ -1,1 +1,1 @@
-Version bump to stay in step with the browser extension, which gains import and export for other providers' passkey and MFA formats. The Android provider itself is unchanged in this release.
+First release of Passkey.bond for Android: a passkey provider and 2FA authenticator that keeps your secrets on your device, with optional end-to-end encrypted sync across your devices.

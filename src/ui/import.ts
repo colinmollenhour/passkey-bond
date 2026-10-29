@@ -1,7 +1,7 @@
 /**
- * Import Page for Fenko Vault
+ * Import Page for Passkey.bond
  *
- * Takes a file from any of the supported providers — encrypted Fenko backups,
+ * Takes a file from any of the supported providers — encrypted Passkey.bond (or Fenko Vault) backups,
  * CXF, password-manager exports, authenticator-app backups, or a filled-in
  * CSV template — and turns it into vault records.
  */
@@ -63,10 +63,10 @@ import {
     importBtn.addEventListener('click', performImport);
     chooseFileBtn.addEventListener('click', () => fileInput.click());
     totpTemplateBtn?.addEventListener('click', () =>
-      downloadTemplate('fenko-mfa-template.csv', totpCsvTemplate())
+      downloadTemplate('passkey-bond-mfa-template.csv', totpCsvTemplate())
     );
     passkeyTemplateBtn?.addEventListener('click', () =>
-      downloadTemplate('fenko-passkey-template.csv', passkeyCsvTemplate())
+      downloadTemplate('passkey-bond-passkey-template.csv', passkeyCsvTemplate())
     );
     closeLink.addEventListener('click', (e) => {
       e.preventDefault();

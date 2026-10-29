@@ -1,11 +1,11 @@
 {
   "appName": {
-    "message": "Fenko Vault | Passkey and MFA Manager"
+    "message": "Passkey.bond | Passkey and MFA Manager"
   },
   "appDesc": {
     "message": "安全的 passkey 存储与管理"
   },
   "actionTitle": {
-    "message": "Fenko Vault"
+    "message": "Passkey.bond"
   }
 }

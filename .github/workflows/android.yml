@@ -62,7 +62,7 @@ jobs:
             exit 1
           fi
           mkdir -p android/signing
-          printf '%s' "$KEYSTORE_BASE64" | base64 -d > android/signing/passkey-vault.jks
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > android/signing/passkey-bond.jks
 
       - name: Build signed APK
         env:
@@ -73,6 +73,6 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: fenko-vault-android
-          path: android/dist/passkey-vault-android-signed.apk
+          name: passkey-bond-android
+          path: android/dist/passkey-bond-android-signed.apk
           if-no-files-found: error

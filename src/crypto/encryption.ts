@@ -5,7 +5,7 @@ import { randomBytes } from '@noble/hashes/utils';
 import { uint8ArrayToBase64 } from '../utils/base64';
 
 /**
- * Encryption utilities for Fenko Vault
+ * Encryption utilities for Passkey.bond
  * Implements AES-256-GCM encryption with PBKDF2 key derivation
  */
 

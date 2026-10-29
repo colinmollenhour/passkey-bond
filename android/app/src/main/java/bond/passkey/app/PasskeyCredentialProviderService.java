@@ -1,4 +1,4 @@
-package nz.fenko.passkeyvault;
+package bond.passkey.app;
 
 import android.app.PendingIntent;
 import android.app.slice.Slice;
@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 public final class PasskeyCredentialProviderService extends CredentialProviderService {
-    private static final String TAG = "FenkoVaultProvider";
+    private static final String TAG = "PasskeyBondProvider";
 
     // The system picker only renders entries encoded in the androidx.credentials
     // slice format, so every spec name, revision, and hint below must match
@@ -101,7 +101,7 @@ public final class PasskeyCredentialProviderService extends CredentialProviderSe
         }
 
         if (count == 0) {
-            response.addAction(new Action(openAppSlice("Open Fenko Vault", "No matching passkeys found")));
+            response.addAction(new Action(openAppSlice("Open Passkey.bond", "No matching passkeys found")));
         }
         Log.i(TAG, "begin get entries=" + count);
         callback.onResult(response.build());
@@ -184,7 +184,7 @@ public final class PasskeyCredentialProviderService extends CredentialProviderSe
 
         Slice.Builder slice = new Slice.Builder(
                 Uri.EMPTY, new SliceSpec(CREATE_SPEC_TYPE, CREATE_REVISION));
-        slice.addText("Fenko Vault", null, Arrays.asList(CREATE_HINT_ACCOUNT_NAME));
+        slice.addText("Passkey.bond", null, Arrays.asList(CREATE_HINT_ACCOUNT_NAME));
         slice.addText("Stored on this device", null, Arrays.asList(CREATE_HINT_NOTE));
         slice.addIcon(
                 Icon.createWithResource(this, R.mipmap.ic_launcher),

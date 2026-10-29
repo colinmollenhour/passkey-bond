@@ -1,10 +1,10 @@
-# Fenko Vault promo assets
+# Passkey.bond promo assets
 
 - Banner: `promo-small.jpg`, 440 × 280, opaque JPEG.
-- Banner master: `source/fenko-vault-banner.png`.
+- Banner master: `source/passkey-bond-banner.png`.
 - Marquee: `promo-marquee.jpg`, 1400 × 560, opaque JPEG.
-- Marquee master: `source/fenko-vault-marquee.png`.
-- Video: `../video/fenko-vault-promo.mp4`, 1280 × 720, H.264, 30 fps.
+- Marquee master: `source/passkey-bond-marquee.png`.
+- Video: `../video/passkey-bond-promo.mp4`, 1280 × 720, H.264, 30 fps.
 - Review frames: `../video/review/`.
 
 The video is silent with on-screen captions. It records the built extension
@@ -27,39 +27,42 @@ Requires Playwright, Chromium and FFmpeg. Video files follow the repository's
 existing `docs/video/` ignore rule. The capture uses a disposable browser
 profile and adds presentation captions around the popup.
 
-The banner uses the built-in image generation tool and the existing
-`docs/brand/fenko-vault-logo.png` as its reference. Prompt:
+The banner uses the built-in image generation tool and
+`docs/brand/passkey-bond-logo.png` as its reference. Prompt:
 
-> Create a new finished Chrome Web Store small promotional banner for Fenko
-> Vault, aspect ratio 11:7, ideally 1320x840. Reference image is the existing
-> Fenko Vault fox/shield logo: preserve its identity, use as a modest brand
+> Create a new finished Chrome Web Store small promotional banner for
+> Passkey.bond, aspect ratio 11:7, ideally 1320x840. Reference image is the
+> Passkey.bond logo: two interlocking amber links forming a bond, on a
+> near-black rounded square. Preserve its identity, use it as a modest brand
 > mark, do not redesign. Full bleed opaque charcoal #0D1117 background and
-> warm amber #F5A623. Refined minimal editorial typography. Exact text only:
-> "Fenko Vault" large, highly legible, and "Passkeys + 2FA. On your device."
-> as a smaller readable two-line tagline. Left aligned typographic
-> composition with ample breathing room, logo upper left, subtle fine amber
-> graphic geometry on right suggesting a key and local vault, restrained
-> flat design. No browser UI, no fake screenshots, no extra text, no gradients
-> or glow, no rounded outer corners. Strong hierarchy and legibility at
-> 440x280 pixels. This is a finished brand banner, not a mockup.
+> warm amber #F5A623. Refined minimal editorial typography in Saira. Exact
+> text only: "Passkey.bond" large, highly legible, and "Passkeys + 2FA. On
+> your device." as a smaller readable two-line tagline. Left aligned
+> typographic composition with ample breathing room, logo upper left, subtle
+> fine amber line-art on right suggesting a key joined to a chain link,
+> restrained flat design. No browser UI, no fake screenshots, no extra text,
+> no gradients or glow, no rounded outer corners. Strong hierarchy and
+> legibility at 440x280 pixels. This is a finished brand banner, not a mockup.
 
-The generated master was resized to the store dimensions with ImageMagick.
-`npm run capture:promo` also uses this master for the small tile.
+Save the generated master as `source/passkey-bond-banner.png`, then resize it
+to the store dimensions with ImageMagick. `npm run capture:promo` also uses
+this master for the small tile.
 
 The marquee uses the built-in image generation tool with the small banner
 master as its reference. Prompt:
 
 > Create the matching wide Chrome Web Store marquee promotional banner for
-> the supplied Fenko Vault small promo image. Preserve its fox/shield logo
-> identity, typography, charcoal background and amber line-art key and vault
+> the supplied Passkey.bond small promo image. Preserve its interlocking
+> amber links mark, Saira typography, charcoal background and amber line-art
 > illustration. Recompose for a wide 5:2 aspect ratio, target 1400x560 pixels.
 > Do not stretch the reference. Logo in upper left above the text, generous
-> margins. Left portion: large white exact title "Fenko Vault". Below, amber
+> margins. Left portion: large white exact title "Passkey.bond". Below, amber
 > exact tagline on two lines: "Passkeys + 2FA." and "On your device."
-> Right portion: fine amber outline key and safe with shield keyhole and
-> subtle dashed circular geometry. Opaque full bleed charcoal #0D1117,
-> warm amber #F5A623. No UI screenshot, extra words, gradients, glow,
-> mockup or rounded outer corners.
+> Right portion: fine amber outline key linked into a chain of two
+> interlocking links, with subtle dashed circular geometry. Opaque full bleed
+> charcoal #0D1117, warm amber #F5A623. No UI screenshot, extra words,
+> gradients, glow, mockup or rounded outer corners.
 
-The marquee master was resized to 1400 × 560 with ImageMagick.
-`npm run capture:promo` also uses this master for the marquee tile.
+Save the marquee master as `source/passkey-bond-marquee.png` and resize it to
+1400 × 560 with ImageMagick. `npm run capture:promo` also uses this master for
+the marquee tile.

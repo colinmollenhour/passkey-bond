@@ -111,7 +111,7 @@ describe('Credential Exchange Format', () => {
       ],
     });
 
-    expect(file.fileName).toMatch(/^fenko-vault-cxf-\d{4}-\d{2}-\d{2}\.json$/);
+    expect(file.fileName).toMatch(/^passkey-bond-cxf-\d{4}-\d{2}-\d{2}\.json$/);
 
     const parsed = parseImport(file.fileName, file.content);
     expect(parsed.format).toBe('cxf');

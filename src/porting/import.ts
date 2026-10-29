@@ -23,7 +23,7 @@ import {
 import { FormatParser, ImportInput, ParsedImport, PortableOtp, PortablePasskey } from './types';
 import { AUTHENTICATOR_PARSERS } from './formats/authenticators';
 import { MANAGER_PARSERS } from './formats/managers';
-import { FENKO_PARSERS } from './formats/fenko';
+import { PASSKEY_BOND_PARSERS } from './formats/passkey-bond';
 import { cxf } from './formats/cxf';
 
 const CREDENTIAL_ID_BYTES = 16;
@@ -34,7 +34,7 @@ const PASSKEY_TYPE = 'public-key';
  * catch-all JSON/CSV readers, which would otherwise swallow them.
  */
 export const IMPORT_PARSERS: FormatParser[] = [
-  ...FENKO_PARSERS,
+  ...PASSKEY_BOND_PARSERS,
   cxf,
   ...MANAGER_PARSERS,
   ...AUTHENTICATOR_PARSERS,
@@ -118,7 +118,7 @@ export function parseImport(fileName: string, text: string): ParsedImport {
 
   if (!parser) {
     throw new Error(
-      'Unrecognised file. Export from your provider as JSON, CXF or CSV, or use the Fenko CSV template.'
+      'Unrecognised file. Export from your provider as JSON, CXF or CSV, or use the Passkey.bond CSV template.'
     );
   }
 
@@ -223,7 +223,7 @@ function backupRepairFor(
 /**
  * Turn parsed entries into vault records, dropping anything the vault already
  * holds. TOTP seeds have no stable id across apps, so they are matched on
- * issuer + account + secret; a Fenko backup does carry the ids, so those are
+ * issuer + account + secret; a Passkey.bond backup does carry the ids, so those are
  * matched too.
  */
 export async function materialize(

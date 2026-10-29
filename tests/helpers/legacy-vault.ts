@@ -47,7 +47,7 @@ export function scryptVault(
 function sealVault(key: Buffer, kdf: Record<string, unknown>, contents: LegacyVaultContents) {
   const storage: Record<string, unknown> = {
     ...kdf,
-    passext_master_key_check: seal('passkey-vault-check', key),
+    passext_master_key_check: seal('passkey-bond-check', key),
   };
   if (contents.passkeys) {
     storage.passext_encrypted_passkeys = seal(JSON.stringify(contents.passkeys), key);

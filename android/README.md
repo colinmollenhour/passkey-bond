@@ -1,8 +1,8 @@
-# Fenko Vault — Android
+# Passkey.bond — Android
 
-Android build of Fenko Vault. A small native shell (WebView + credential provider service) around the same TypeScript crypto code the extension uses.
+Android build of Passkey.bond. A small native shell (WebView + credential provider service) around the same TypeScript crypto code the extension uses.
 
-Live on Google Play: <https://play.google.com/store/apps/details?id=nz.fenko.passkeyvault> (package `nz.fenko.passkeyvault`). A self-signed APK also ships with each [GitHub release](https://github.com/FenkoHQ/passkey-vault/releases) — different signing key, so devices can't upgrade between the two.
+Package `bond.passkey.app`. The app is not yet published on Google Play. A self-signed APK ships with each [GitHub release](https://github.com/colinmollenhour/passkey-bond/releases); once the Play listing exists, its builds will carry Play's app-signing key, so devices won't be able to upgrade between the two.
 
 ## Build
 
@@ -13,12 +13,14 @@ Live on Google Play: <https://play.google.com/store/apps/details?id=nz.fenko.pas
 The signed APK is written to:
 
 ```text
-android/dist/passkey-vault-android-signed.apk
+android/dist/passkey-bond-android-signed.apk
 ```
 
 The build is Gradle-free. It uses the Android SDK tools on this machine directly: `aapt2`, `javac`, `d8`, `zipalign`, and `apksigner`.
 
-Signing uses `android/signing/passkey-vault.jks` (gitignored) with the password from `ANDROID_KEYSTORE_PASSWORD`. The permanent release key (cert SHA-256 `9652babc...adc05ef1`) lives in the GitHub Actions secrets `ANDROID_KEYSTORE_BASE64` / `ANDROID_KEYSTORE_PASSWORD`, with an age-encrypted backup at `~/secrets/fenko-vault-android-signing.tar.age` on the dev machine. CI (`.github/workflows/android.yml`) builds and signs the APK on pushes to main that touch `android/`. If the keystore is missing locally, the script generates a throwaway dev key (password `android`) — fine for hacking, but the APK won't upgrade-install over release-signed builds.
+Signing uses `android/signing/passkey-bond.jks` (gitignored), alias `passkey-bond`, with the password from `ANDROID_KEYSTORE_PASSWORD`. If the keystore is missing, `build-android.sh` creates it on the first build (password `android` when the variable is unset) — fine for hacking, but an APK signed with a throwaway key won't upgrade-install over release-signed builds.
+
+Passkey.bond's release/upload key has not been created yet. Once it exists, keep it in the GitHub Actions secrets `ANDROID_KEYSTORE_BASE64` / `ANDROID_KEYSTORE_PASSWORD` with an offline backup; Google Play App Signing will hold the app-signing key. CI (`.github/workflows/android.yml`) builds and signs the APK on pushes to main that touch `android/`.
 
 Supported Android versions:
 
@@ -36,21 +38,21 @@ Supported Android versions:
 - Vault screen for passkeys and 2FA codes, with bottom search bar and bottom tab navigation.
 - TOTP/HOTP (RFC 6238/4226) with the same `totp_entries` JSON shape as the extension. Add by otpauth URI, manual entry, or camera QR scan (bundled jsQR).
 - Android Credential Manager provider (API 34+): passkey create and get flows through the OS picker, with entries encoded in the androidx.credentials slice format.
-- Native WebAuthn signing for provider flows. Uses the caller-supplied `clientDataHash` when present (browser flows) and the same Fenko Vault AAGUID as the extension.
+- Native WebAuthn signing for provider flows. Uses the caller-supplied `clientDataHash` when present (browser flows) and the same Passkey.bond AAGUID as the extension.
 - Native/WebView vault snapshot bridge so provider-created passkeys appear in the app vault and vice versa.
 - Vault lock via the device lock mechanism only (BiometricPrompt: face, fingerprint, or screen-lock credential). No app-specific PIN. Auto-lock timer (default 5 minutes, configurable in Tools).
 - Delete protection: long-press an item, confirm, and it moves to a recycle bin in Tools for 7 days before permanent removal.
 - Pull-to-refresh on the vault triggers a sync.
-- Nostr sync matching the extension protocol. Default relays put `wss://vaultsync.fenko.nz` first.
+- Nostr sync matching the extension protocol. Default relays are the public Nostr relays `wss://relay.damus.io`, `wss://nos.lol`, and `wss://relay.nostr.band`; Passkey.bond runs no relay of its own.
 - Encrypted backup export/import in the same format as the extension (`src/crypto/backup-crypto.ts`: AES-256-GCM, key from scrypt with its parameters in the file; older PBKDF2 backups still import); raw JSON backup retained.
-- Fenko branding: Saira font (bundled, SIL OFL), dark theme, adaptive launcher icon that follows the system light/dark theme.
-- About panel in Tools: open-source/no-warranty statement, privacy summary, and links to fenko.nz terms, privacy policy, and contact.
+- Passkey.bond branding: Saira font (bundled, SIL OFL), dark theme, adaptive launcher icon that follows the system light/dark theme.
+- About panel in Tools: open-source/no-warranty statement, privacy summary, and links to passkey.bond, its terms and privacy policy, and the support and security addresses.
 
 ## Verified On Device
 
-Samsung SM-A566B (Galaxy A56), Android 16 / API 36, 2026-06-11:
+Upstream Fenko Vault, before the fork, on a Samsung SM-A566B (Galaxy A56), Android 16 / API 36, 2026-06-11:
 
-- Full passkey registration and authentication on webauthn.io through Chrome and the OS picker, served by Fenko Vault as the selected credential provider.
+- Full passkey registration and authentication on webauthn.io through Chrome and the OS picker, served by Passkey.bond as the selected credential provider.
 - TOTP added by camera QR scan generates codes matching `oathtool` for the same window.
 - Biometric unlock, auto-lock timer, recycle bin restore, encrypted backup, and sync relay connection all exercised manually.
 - `./android/provider-selftest.sh` (runs the provider Java code on-device via `app_process`) passes.

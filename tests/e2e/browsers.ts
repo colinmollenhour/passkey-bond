@@ -61,7 +61,7 @@ function certificate(dir: string): { key: string; cert: string; spkiHash: string
       '-days',
       '2',
       '-subj',
-      '/CN=fenko-vault-e2e',
+      '/CN=passkey-bond-e2e',
       '-addext',
       'subjectAltName=DNS:*.test,DNS:test,DNS:*.bank.test,DNS:*.shop.test,DNS:*.example.test,DNS:*.co.test,' +
         'DNS:example.com,DNS:*.example.com,DNS:example.net,DNS:*.example.net,DNS:example.org,DNS:*.example.org',
@@ -75,7 +75,7 @@ function certificate(dir: string): { key: string; cert: string; spkiHash: string
 }
 
 export async function startSite(): Promise<Site> {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fenko-vault-site-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'passkey-bond-site-'));
   const { key, cert, spkiHash } = certificate(dir);
   const routes: Site['routes'] = new Map();
   const server = https.createServer({ key, cert }, (request, response) => {
@@ -127,7 +127,7 @@ export async function launchWithVault(
   if (!fs.existsSync(path.join(DIST, 'manifest.json'))) {
     throw new Error('Build the extension first: npm run build:chrome');
   }
-  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fenko-vault-e2e-'));
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'passkey-bond-e2e-'));
   const context = await chromium.launchPersistentContext(userDataDir, {
     channel: 'chromium',
     headless: true,
@@ -138,7 +138,7 @@ export async function launchWithVault(
 }
 
 export async function launchNative(site: Site): Promise<BrowserContext> {
-  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fenko-native-e2e-'));
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'passkey-bond-native-e2e-'));
   return chromium.launchPersistentContext(userDataDir, {
     channel: 'chromium',
     headless: true,

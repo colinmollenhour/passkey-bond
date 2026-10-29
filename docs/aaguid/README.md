@@ -1,21 +1,21 @@
-# Fenko Vault AAGUID
+# Passkey.bond AAGUID
 
 ## Value
 
 ```
-d2717a32-9851-48a8-9961-b264c97a411a
+2391d29c-2806-4960-a51b-7c18e5da7976
 ```
 
 Byte form (16 bytes, big-endian, as embedded in attested credential data):
 
 ```
-d2 71 7a 32 98 51 48 a8 99 61 b2 64 c9 7a 41 1a
+23 91 d2 9c 28 06 49 60 a5 1b 7c 18 e5 da 79 76
 ```
 
 This is a randomly generated UUID version 4 (version nibble `4` in the third
-group, RFC 4122 variant nibble `9` in the fourth group). It identifies the
-**authenticator model** ("Fenko Vault"), not any user or credential — every
-Fenko Vault install reports the same value, exactly like 1Password, Bitwarden,
+group, RFC 4122 variant nibble `a` in the fourth group). It identifies the
+**authenticator model** ("Passkey.bond"), not any user or credential — every
+Passkey.bond install reports the same value, exactly like 1Password, Bitwarden,
 and iCloud Keychain report theirs.
 
 ## Where it is defined (single source of truth per platform)
@@ -25,14 +25,14 @@ changes it MUST be changed in all three places together.
 
 | Platform | File | Symbol |
 |----------|------|--------|
-| Web extension | `src/background/cbor.ts` | `PASSKEY_VAULT_AAGUID` |
-| Android | `android/app/src/main/java/nz/fenko/passkeyvault/WebAuthnNative.java` | `AAGUID` |
+| Web extension | `src/background/cbor.ts` | `PASSKEY_BOND_AAGUID` |
+| Android | `android/app/src/main/java/bond/passkey/app/WebAuthnNative.java` | `AAGUID` |
 | iOS | `ios/Shared/WebAuthn.swift` | `aaguid` |
 
 Verify consistency:
 
 ```sh
-grep -rn '0xd2, 0x71, 0x7a, 0x32' src android/app ios
+grep -rnE '0x23, (\(byte\) )?0x91, (\(byte\) )?0xd2, (\(byte\) )?0x9c' src android/app ios
 ```
 
 ## Why it is non-zero
@@ -42,14 +42,14 @@ The AAGUID is emitted in attested credential data during registration. With
 client to zero the AAGUID so relying parties cannot fingerprint the
 authenticator model without asking for attestation.
 
-Fenko Vault intentionally reports a real, stable AAGUID instead, so that
-consumer relying parties (Google, GitHub, etc.) display **"Fenko Vault"** and
-the Fenko icon in their passkey lists. This is the same trade-off every major
+Passkey.bond intentionally reports a real, stable AAGUID instead, so that
+consumer relying parties (Google, GitHub, etc.) display **"Passkey.bond"** and
+its icon in their passkey lists. This is the same trade-off every major
 passkey manager makes, and it is what the community AAGUID registry below
 exists to support.
 
 Trade-off, stated plainly: a stable AAGUID reveals to a relying party that the
-user's authenticator is Fenko Vault. It is a *model* identifier shared by all
+user's authenticator is Passkey.bond. It is a *model* identifier shared by all
 users, so it does not deanonymize an individual. If a future deployment needs
 to hide the authenticator brand, zero the AAGUID in the three files above (and
 drop the registry entry).
@@ -61,37 +61,32 @@ registry consumed by Chrome and others:
 
 > https://github.com/passkeydeveloper/passkey-authenticator-aaguids
 
-To register (or update) the Fenko Vault entry:
+To register (or update) the Passkey.bond entry:
 
 1. Fork that repository.
 2. Merge the entry in [`registry-entry.json`](./registry-entry.json) into the
    repository's `aaguid.json` (a single object keyed by AAGUID; append the
-   `d2717a32-…` key with its `name`/`icon_dark`/`icon_light`).
+   `2391d29c-…` key with its `name`/`icon_dark`/`icon_light`).
 3. Keep `combined_aaguid.json` / `aaguid.csv` in sync if the repo's tooling
    does not regenerate them.
-4. Open a pull request (the repo requires a complete GitHub profile with an
-   organization name and contact info for vendor verification).
+4. Open a pull request using [`PR-BODY.md`](./PR-BODY.md) (the repo requires a
+   complete GitHub profile with contact info for vendor verification).
 
 Registry rule: icons MUST be base64-encoded **SVG** data URIs, square, and pure
 vector (no embedded PNG/JPG).
 
-The icon is the Fenko Vault fox-shield logo ([`vault-icon.svg`](./vault-icon.svg)):
-a fennec fox forming a keyhole on an amber shield. It was vectorized from the
-raster brand logo (`docs/brand/fenko-vault-logo.png`, which has no vector
-master) by color-separating the amber shield and navy fox and tracing each with
-potrace, then centering the portrait art in a square `1260×1260` viewBox. The
-amber shield is its own background, so a single icon reads on both light and
-dark RP backgrounds — `icon_light` and `icon_dark` are identical.
-
-`registry-entry.json` embeds it. To regenerate after a logo change, re-run the
-color-separate → potrace → combine steps and then `scratchpad/gen-aaguid-entry.js`.
-
-(The previous lock-box icon `icon.png` is deprecated and must not be used.)
+The icon is the Passkey.bond mark: two interlocking amber links (a "bond"), on a
+transparent background in a square `512×512` viewBox
+([`docs/brand/passkey-bond-mark.svg`](../brand/passkey-bond-mark.svg)).
+`icon_dark` draws the links in `#F5A623` and `icon_light` in the deeper
+`#D4920A`, so each keeps its contrast on the RP's background.
+[`vault-icon.svg`](./vault-icon.svg) is the full app icon, the same links on a
+near-black rounded square.
 
 ## Status
 
-- [x] Proper value: valid random UUIDv4, unique to Fenko Vault.
+- [x] Proper value: valid random UUIDv4, unique to Passkey.bond.
 - [x] Verified: byte-identical across web, Android, and iOS.
 - [x] Documented: this file, referenced from each platform's source.
 - [ ] Registered: PR to `passkey-authenticator-aaguids` not yet opened
-      (entry prepared in `registry-entry.json`).
+      (entry prepared in `registry-entry.json`, PR text in `PR-BODY.md`).

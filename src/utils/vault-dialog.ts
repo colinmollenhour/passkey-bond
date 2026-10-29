@@ -76,11 +76,11 @@ export const DIALOG_MESSAGES = {
   /** Background to content script: the outcome of a dialog. */
   RESULT: 'PASSKEY_DIALOG_RESULT',
   /** Background to the top frame's content script: its device pixel ratio. */
-  TOP_METRICS: 'PASSKEY_VAULT_TOP_METRICS',
+  TOP_METRICS: 'PASSKEY_BOND_TOP_METRICS',
 } as const;
 
 /** The postMessage that hands a framed dialog its token. */
-export const DIALOG_TOKEN_MESSAGE = 'fenko-vault-dialog-token';
+export const DIALOG_TOKEN_MESSAGE = 'passkey-bond-dialog-token';
 
 /**
  * Fixed frame sizes. The picker's does not depend on how many passkeys it

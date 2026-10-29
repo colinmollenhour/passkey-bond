@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 async function testExtension() {
-  console.log('🧪 Testing Passkey Vault Extension...');
+  console.log('🧪 Testing Passkey.bond Extension...');
   console.log('📋 Extension Features:');
   console.log('  - Chrome extension loading');
   console.log('  - Background service worker');
@@ -40,10 +40,10 @@ async function testExtension() {
     const extensionPage = await context.newPage();
     await extensionPage.goto('chrome://extensions/');
 
-    // Find the Passkey Vault extension
+    // Find the Passkey.bond extension
     try {
-      await extensionPage.waitForSelector('text=Passkey Vault', { timeout: 5000 });
-      console.log('✅ Passkey Vault extension loaded successfully!');
+      await extensionPage.waitForSelector('text=Passkey.bond', { timeout: 5000 });
+      console.log('✅ Passkey.bond extension loaded successfully!');
 
       // Check for any error indicators
       const hasErrors = await extensionPage.evaluate(() => {
@@ -89,7 +89,7 @@ async function testExtension() {
 
       await extensionPage.close();
     } catch (error) {
-      console.error('❌ Could not find Passkey Vault extension:', error.message);
+      console.error('❌ Could not find Passkey.bond extension:', error.message);
     } finally {
       if (context) {
         await context.close();

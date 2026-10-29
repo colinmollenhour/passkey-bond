@@ -98,8 +98,8 @@ g.AuthenticatorAssertionResponse = FakeAssertionResponse;
 // Side-effect import: hooks navigator.credentials and listens for responses.
 require('../src/content/webauthn-inject');
 
-const PAGE_SOURCE = 'PASSKEY_VAULT_PAGE';
-const CONTENT_SOURCE = 'PASSKEY_VAULT_CONTENT';
+const PAGE_SOURCE = 'PASSKEY_BOND_PAGE';
+const CONTENT_SOURCE = 'PASSKEY_BOND_CONTENT';
 const COSE_ES256 = -7;
 
 const CLIENT_DATA = new Uint8Array([1, 2, 3]);

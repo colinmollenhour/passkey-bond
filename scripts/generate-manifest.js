@@ -3,7 +3,7 @@ const path = require('path');
 
 const manifest = {
   manifest_version: 3,
-  name: 'Passkey Vault',
+  name: 'Passkey.bond',
   version: process.env.npm_package_version || '0.1.0',
   description: 'Secure passkey storage and management',
 
@@ -33,7 +33,7 @@ const manifest = {
   ],
 
   action: {
-    default_title: 'Passkey Vault',
+    default_title: 'Passkey.bond',
   },
 
   icons: {

@@ -1,4 +1,4 @@
-package nz.fenko.passkeyvault;
+package bond.passkey.app;
 
 import android.Manifest;
 import android.app.Activity;
@@ -40,14 +40,14 @@ import java.nio.charset.StandardCharsets;
 public final class MainActivity extends Activity {
     private static final int CAMERA_REQUEST = 42;
     private static final int CREATE_FILE_REQUEST = 43;
-    private static final String APP_ORIGIN = "app.passkey-vault.local";
+    private static final String APP_ORIGIN = "app.passkey-bond.local";
     private WebView webView;
 
     @Override
     protected void onResume() {
         super.onResume();
         if (webView != null) {
-            webView.evaluateJavascript("window.__fenkoNativeRefresh?.()", null);
+            webView.evaluateJavascript("window.__passkeyBondNativeRefresh?.()", null);
         }
     }
     private byte[] pendingFileBytes;
@@ -141,7 +141,7 @@ public final class MainActivity extends Activity {
                 // Avoid mirroring web console output to logcat in release builds.
                 if ((getApplicationInfo().flags
                         & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-                    android.util.Log.d("FenkoVaultWeb", message.message());
+                    android.util.Log.d("PasskeyBondWeb", message.message());
                 }
                 return true;
             }
@@ -289,7 +289,7 @@ public final class MainActivity extends Activity {
 
     private void postBiometricResult(boolean ok) {
         runOnUiThread(() -> webView.evaluateJavascript(
-                "window.__fenkoBiometricResult && window.__fenkoBiometricResult(" + ok + ")", null));
+                "window.__passkeyBondBiometricResult && window.__passkeyBondBiometricResult(" + ok + ")", null));
     }
 
     public static final class AndroidBridge {
@@ -318,7 +318,7 @@ public final class MainActivity extends Activity {
         public void requestBiometricUnlock() {
             context.runOnUiThread(() -> {
                 BiometricPrompt.Builder builder = new BiometricPrompt.Builder(context)
-                        .setTitle("Unlock Fenko Vault")
+                        .setTitle("Unlock Passkey.bond")
                         .setSubtitle("Use your face, fingerprint, or screen lock");
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     builder.setAllowedAuthenticators(
@@ -349,7 +349,7 @@ public final class MainActivity extends Activity {
         public void copyText(String value) {
             ClipboardManager clipboard =
                     (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setPrimaryClip(ClipData.newPlainText("Fenko Vault", value));
+            clipboard.setPrimaryClip(ClipData.newPlainText("Passkey.bond", value));
             Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show();
         }
 
@@ -387,7 +387,7 @@ public final class MainActivity extends Activity {
                     syncConfigJson,
                     syncDevicesJson,
                     customRelaysJson);
-            context.runOnUiThread(() -> context.webView.evaluateJavascript("window.__fenkoNativeRefresh?.()", null));
+            context.runOnUiThread(() -> context.webView.evaluateJavascript("window.__passkeyBondNativeRefresh?.()", null));
         }
     }
 }

@@ -3,13 +3,13 @@
  * Covers map headers, text strings, byte strings, and COSE public keys.
  */
 
-// Fenko Vault AAGUID — d2717a32-9851-48a8-9961-b264c97a411a (random UUIDv4).
+// Passkey.bond AAGUID — 2391d29c-2806-4960-a51b-7c18e5da7976 (random UUIDv4).
 // Stable authenticator-model identifier, byte-identical across web/Android/iOS,
-// reported so RPs display the "Fenko Vault" brand and icon via the
+// reported so RPs display the "Passkey.bond" brand and icon via the
 // passkey-authenticator-aaguids registry. Intentionally non-zero under `none`
 // attestation. Canonical reference + registry submission: docs/aaguid/README.md.
-export const PASSKEY_VAULT_AAGUID = new Uint8Array([
-  0xd2, 0x71, 0x7a, 0x32, 0x98, 0x51, 0x48, 0xa8, 0x99, 0x61, 0xb2, 0x64, 0xc9, 0x7a, 0x41, 0x1a,
+export const PASSKEY_BOND_AAGUID = new Uint8Array([
+  0x23, 0x91, 0xd2, 0x9c, 0x28, 0x06, 0x49, 0x60, 0xa5, 0x1b, 0x7c, 0x18, 0xe5, 0xda, 0x79, 0x76,
 ]);
 
 const MAJOR_BYTES = 2;
@@ -173,7 +173,7 @@ export async function createAuthenticatorData(
   new DataView(counterBytes.buffer).setUint32(0, counter, false);
 
   if (includeAttestedCredentialData && credentialId && publicKeyRaw) {
-    const aaguid = options.aaguid ?? PASSKEY_VAULT_AAGUID;
+    const aaguid = options.aaguid ?? PASSKEY_BOND_AAGUID;
     const credentialIdLength = new Uint8Array(2);
     new DataView(credentialIdLength.buffer).setUint16(0, credentialId.length, false);
     const cosePublicKey = rawPublicKeyToCose(publicKeyRaw);

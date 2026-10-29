@@ -15,5 +15,5 @@ export {
 export type { MaterializedImport, ExistingVault, StoredPasskeyRecord } from './import';
 export { buildExport, EXPORT_FORMATS, otpauthFor, base32For } from './export';
 export type { ExportFormat, ExportFile, ExportFormatInfo, VaultSnapshot } from './export';
-export { totpCsvTemplate, passkeyCsvTemplate } from './formats/fenko';
+export { totpCsvTemplate, passkeyCsvTemplate } from './formats/passkey-bond';
 export { buildOtpauthUri } from './otpauth';

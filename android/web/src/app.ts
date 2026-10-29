@@ -85,8 +85,8 @@ declare global {
       canUseBiometrics?(): boolean;
       requestBiometricUnlock?(): void;
     };
-    __fenkoNativeRefresh?: (snapshot?: string) => void;
-    __fenkoBiometricResult?: (ok: boolean) => void;
+    __passkeyBondNativeRefresh?: (snapshot?: string) => void;
+    __passkeyBondBiometricResult?: (ok: boolean) => void;
   }
 }
 
@@ -189,11 +189,10 @@ const LOCKED_FLAG_KEY = 'android_vault_locked';
 const AUTOLOCK_KEY = 'android_auto_lock_minutes';
 const RECYCLE_BIN_KEY = 'recycle_bin';
 const RECYCLE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-const FEEDBACK_URL = 'https://tally.so/r/zxAJYM';
+const FEEDBACK_URL = 'mailto:support@passkey.bond?subject=Passkey.bond%20feedback';
 
 let lastActivityAt = Date.now();
 const DEFAULT_RELAYS = [
-  'wss://vaultsync.fenko.nz',
   'wss://relay.damus.io',
   'wss://nos.lol',
   'wss://relay.nostr.band',
@@ -760,7 +759,7 @@ function maybeAutoLock(): void {
 }
 
 function startBiometricUnlock(): void {
-  window.__fenkoBiometricResult = (ok: boolean) => {
+  window.__passkeyBondBiometricResult = (ok: boolean) => {
     if (!ok) {
       setStatus('Biometric unlock cancelled.', 'warn');
       render();
@@ -803,7 +802,7 @@ async function exportBackup(): Promise<void> {
 
 function exportVault(): void {
   const payload = {
-    version: 'fenko-vault-android-0.1.0',
+    version: 'passkey-bond-android-0.1.0',
     exportType: 'full',
     exportedAt: Date.now(),
     passkeys: getPasskeys(),
@@ -815,13 +814,13 @@ function exportVault(): void {
   };
   const json = JSON.stringify(payload, null, 2);
   copyText(json);
-  saveBackupFile(backupFileName('fenko-vault-backup'), json);
+  saveBackupFile(backupFileName('passkey-bond-backup'), json);
   setStatus('Backup copied and saving to file…');
 }
 
 async function exportEncryptedVault(password: string): Promise<void> {
   const payload = {
-    version: 'fenko-vault-android-0.1.0',
+    version: 'passkey-bond-android-0.1.0',
     exportType: 'full',
     exportedAt: new Date().toISOString(),
     passkeys: getPasskeys(),
@@ -840,7 +839,7 @@ async function exportEncryptedVault(password: string): Promise<void> {
   };
   const json = JSON.stringify(backup, null, 2);
   copyText(json);
-  saveBackupFile(backupFileName('fenko-vault-backup-encrypted'), json);
+  saveBackupFile(backupFileName('passkey-bond-backup-encrypted'), json);
   setStatus('Encrypted backup copied and saving to file…');
 }
 
@@ -868,7 +867,7 @@ async function importVault(raw: string): Promise<void> {
     } catch (error) {
       setStatus(
         error instanceof UnsupportedBackupError
-          ? 'This backup was made by a newer version of Fenko Vault. Update the app to import it.'
+          ? 'This backup was made by a newer version of Passkey.bond. Update the app to import it.'
           : 'Wrong password or corrupted backup.',
         'bad'
       );
@@ -1739,7 +1738,7 @@ function render(): void {
         <div class="brand">
           <img class="brand-mark" src="icon.png" alt="" aria-hidden="true" />
           <div>
-            <h1>Fenko Vault</h1>
+            <h1>Passkey.bond</h1>
             <p class="muted">${getPasskeys().length} passkeys, ${getTotpEntries().length} 2FA codes</p>
           </div>
         </div>
@@ -2159,38 +2158,38 @@ function renderTools(): string {
         <div class="brand">
           <img class="brand-mark" src="icon.png" alt="" aria-hidden="true" />
           <div>
-            <h2 class="about-title">Fenko Vault</h2>
-            <p class="muted">Version ${escapeHtml(__APP_VERSION__)} &middot; Fenko Limited, New Zealand</p>
+            <h2 class="about-title">Passkey.bond</h2>
+            <p class="muted">Version ${escapeHtml(__APP_VERSION__)} &middot; Colin Mollenhour</p>
           </div>
         </div>
         <p class="muted">
-          Fenko Vault is a free, open-source project, offered by Fenko Limited to help the community
-          manage passkeys and 2FA codes. The source code is MIT licensed &mdash; you can read it, audit it,
-          and build it yourself.
+          Passkey.bond keeps your passkeys and 2FA codes on your own devices. The source code is MIT
+          licensed &mdash; you can read it, audit it, and build it yourself. It began as a fork of
+          Fenko Vault by Fenko Limited.
         </p>
         <p class="muted">
           Your vault lives on this device. Optional sync sends only end-to-end encrypted bundles
-          through the relays you choose &mdash; Fenko runs no server that can read your secrets.
+          through the relays you choose &mdash; there is no Passkey.bond server that can read your secrets.
           No analytics, no tracking.
         </p>
         <h3>No warranty</h3>
         <p class="muted">
           This software is provided &ldquo;as is&rdquo;, without warranty of any kind, express or implied,
-          including merchantability, fitness for a particular purpose, and non-infringement. It is not a
-          commercial service and comes with no support obligation, no uptime promise, and no guarantee
-          against data loss. You use it at your own risk. To the maximum extent permitted by New Zealand
-          law, Fenko Limited is not liable for any loss or damage arising from its use.
+          including merchantability, fitness for a particular purpose, and non-infringement. It comes with
+          no uptime promise and no guarantee against data loss, so keep a backup of your vault. To the
+          maximum extent permitted by law, the authors are not liable for any loss or damage arising
+          from its use.
         </p>
         <nav class="link-list">
-          <a href="https://fenko.nz/about">About Fenko</a>
-          <a href="https://fenko.nz/contact">Contact</a>
-          <a href="mailto:security@fenko.nz">security@fenko.nz</a>
-          <a href="https://fenko.nz/terms-conditions">Terms of Service</a>
-          <a href="https://fenko.nz/privacy-policy">Privacy Policy</a>
+          <a href="https://passkey.bond/">passkey.bond</a>
+          <a href="mailto:support@passkey.bond">support@passkey.bond</a>
+          <a href="mailto:security@passkey.bond">security@passkey.bond</a>
+          <a href="https://passkey.bond/terms">Terms of Service</a>
+          <a href="https://passkey.bond/privacy">Privacy Policy</a>
         </nav>
         <p class="muted">
           Built with open source: Saira (SIL OFL 1.1), jsQR, and noble cryptography (MIT).
-          Fenko Vault source is MIT licensed.
+          Passkey.bond source is MIT licensed.
         </p>
       </div>
     </section>
@@ -2478,7 +2477,7 @@ function setupPullToRefresh(): void {
 
 let pointerDown = false;
 
-window.__fenkoNativeRefresh = (snapshot?: string) => {
+window.__passkeyBondNativeRefresh = (snapshot?: string) => {
   const before = JSON.stringify([getPasskeys(), getTotpEntries()]);
   mergeNativeSnapshot(snapshot);
   repairPasskeyIds();

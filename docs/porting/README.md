@@ -1,6 +1,6 @@
 # Moving credentials in and out
 
-Fenko Vault reads the export files other providers write, and writes files they
+Passkey.bond reads the export files other providers write, and writes files they
 can read back. Nothing leaves the device: parsing, key conversion and
 de-duplication all happen inside the extension.
 
@@ -20,7 +20,7 @@ de-duplication all happen inside the extension.
 | Bitwarden                                     | `.json`       | `login.fido2Credentials`; the CSV export has no passkeys |
 | Proton Pass                                   | `.json`       | `content.passkeys`                                       |
 | Dashlane                                      | `.json`       | `PASSKEY` records                                        |
-| Fenko Vault                                   | `.json`       | Plain or password-protected backup                       |
+| Passkey.bond or Fenko Vault                   | `.json`       | Plain or password-protected backup                       |
 | Anything else                                 | `.csv`        | Fill in the passkey template                             |
 
 Chrome, Edge and Safari cannot export passkeys at all yet. KeePassXC keeps them
@@ -48,7 +48,7 @@ off — the extension never asks for another provider's password.
 
 Both templates are on the import page, and both import straight back.
 
-`fenko-mfa-template.csv`
+`passkey-bond-mfa-template.csv`
 
 ```csv
 type,issuer,account,secret,algorithm,digits,period,counter
@@ -60,7 +60,7 @@ totp,GitHub,you@example.com,JBSWY3DPEHPK3PXP,SHA1,6,30,0
 - `algorithm` — `SHA1` (default), `SHA256`, `SHA512`. `digits` — 6 or 8.
 - `period` — seconds, 30 unless the site says otherwise.
 
-`fenko-passkey-template.csv`
+`passkey-bond-passkey-template.csv`
 
 ```csv
 rpId,userName,userDisplayName,userHandle,credentialId,privateKey,counter
@@ -79,7 +79,7 @@ Rows starting with `#` are comments, so the templates carry their own notes.
 
 | Format                           | Contains       | Read by                                       |
 | -------------------------------- | -------------- | --------------------------------------------- |
-| Fenko Vault backup (JSON)        | Passkeys + MFA | Another Fenko Vault                           |
+| Passkey.bond backup (JSON)       | Passkeys + MFA | Passkey.bond or Fenko Vault                   |
 | Credential Exchange Format (CXF) | Passkeys + MFA | Apple, Google, 1Password, Bitwarden, Dashlane |
 | `otpauth://` URI list (TXT)      | MFA            | Aegis, Ente Auth, 2FAS, most authenticators   |
 | MFA spreadsheet (CSV)            | MFA            | Spreadsheets, and this vault                  |

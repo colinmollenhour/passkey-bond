@@ -44,7 +44,7 @@ for (const name of [
   (globalThis as Record<string, unknown>)[name] ??= class {};
 }
 
-const VAULT_AAGUID = 'd2717a32985148a89961b264c97a411a';
+const VAULT_AAGUID = '2391d29c28064960a51b7c18e5da7976';
 
 let site: Site;
 let vault: BrowserContext;

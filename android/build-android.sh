@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
 BUILD_TOOLS="${ANDROID_BUILD_TOOLS:-$ANDROID_HOME/build-tools/36.0.0}"
 PLATFORM="${ANDROID_PLATFORM:-$ANDROID_HOME/platforms/android-36/android.jar}"
-APP_ID="nz.fenko.passkeyvault"
+APP_ID="bond.passkey.app"
 VERSION_CODE="${VERSION_CODE:-1}"
 VERSION_NAME="${VERSION_NAME:-$(node -p "require('$ROOT/package.json').version")}"
 
@@ -22,7 +22,7 @@ GEN="$OUT/generated"
 COMPILED="$OUT/compiled"
 DIST="$ROOT/android/dist"
 KEY_DIR="$ROOT/android/signing"
-KEYSTORE="$KEY_DIR/passkey-vault.jks"
+KEYSTORE="$KEY_DIR/passkey-bond.jks"
 KS_PASS="${ANDROID_KEYSTORE_PASSWORD:-android}"
 
 rm -rf "$OUT" "$DIST"
@@ -40,11 +40,12 @@ cp "$ROOT/android/web/src/index.html" "$ASSETS/index.html"
 cp "$ROOT/android/web/src/styles.css" "$ASSETS/styles.css"
 cp -r "$ROOT/android/web/src/fonts" "$ASSETS/fonts"
 cp "$ROOT/android/web/src/icon.png" "$ASSETS/icon.png"
+cp "$ROOT/LICENSE" "$ASSETS/LICENSE.txt"
 cp "$ROOT/node_modules/jsqr/dist/jsQR.js" "$ASSETS/jsQR.js"
 
 "$AAPT2" compile --dir "$ROOT/android/app/src/main/res" -o "$COMPILED"
 "$AAPT2" link \
-  -o "$OUT/passkey-vault-unsigned.apk" \
+  -o "$OUT/passkey-bond-unsigned.apk" \
   -I "$PLATFORM" \
   --auto-add-overlay \
   --manifest "$ROOT/android/app/src/main/AndroidManifest.xml" \
@@ -61,30 +62,30 @@ javac --release 8 -cp "$PLATFORM" -d "$CLASSES" @"$OUT/sources.list"
 
 jar cf "$OUT/classes.jar" -C "$CLASSES" .
 "$D8" --lib "$PLATFORM" --output "$DEX" "$OUT/classes.jar"
-cp "$OUT/passkey-vault-unsigned.apk" "$OUT/passkey-vault-with-dex.apk"
-(cd "$DEX" && zip -q -r "$OUT/passkey-vault-with-dex.apk" classes.dex)
+cp "$OUT/passkey-bond-unsigned.apk" "$OUT/passkey-bond-with-dex.apk"
+(cd "$DEX" && zip -q -r "$OUT/passkey-bond-with-dex.apk" classes.dex)
 
-"$ZIPALIGN" -f -p 4 "$OUT/passkey-vault-with-dex.apk" "$OUT/passkey-vault-aligned.apk"
+"$ZIPALIGN" -f -p 4 "$OUT/passkey-bond-with-dex.apk" "$OUT/passkey-bond-aligned.apk"
 
 if [ ! -f "$KEYSTORE" ]; then
   keytool -genkeypair \
     -keystore "$KEYSTORE" \
     -storepass "$KS_PASS" \
     -keypass "$KS_PASS" \
-    -alias passkey-vault \
+    -alias passkey-bond \
     -keyalg RSA \
     -keysize 3072 \
     -validity 10000 \
-    -dname "CN=Fenko Vault Android Dev,O=Fenko,L=Auckland,C=NZ" >/dev/null
+    -dname "CN=Passkey.bond Android,O=Passkey.bond" >/dev/null
 fi
 
 "$APKSIGNER" sign \
   --ks "$KEYSTORE" \
-  --ks-key-alias passkey-vault \
+  --ks-key-alias passkey-bond \
   --ks-pass "pass:$KS_PASS" \
   --key-pass "pass:$KS_PASS" \
-  --out "$DIST/passkey-vault-android-signed.apk" \
-  "$OUT/passkey-vault-aligned.apk"
+  --out "$DIST/passkey-bond-android-signed.apk" \
+  "$OUT/passkey-bond-aligned.apk"
 
-"$APKSIGNER" verify --print-certs "$DIST/passkey-vault-android-signed.apk"
-echo "$DIST/passkey-vault-android-signed.apk"
+"$APKSIGNER" verify --print-certs "$DIST/passkey-bond-android-signed.apk"
+echo "$DIST/passkey-bond-android-signed.apk"

@@ -1,5 +1,5 @@
 /**
- * Popup UI for Fenko Vault
+ * Popup UI for Passkey.bond
  *
  * Displays and manages stored passkeys with full export/import support
  */
@@ -1024,7 +1024,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
         data: encResponse.encrypted.data,
       };
 
-      downloadJson(encryptedBackup, `passkey-vault-backup-${getDateString()}.json`);
+      downloadJson(encryptedBackup, `passkey-bond-backup-${getDateString()}.json`);
       await chrome.runtime.sendMessage({ type: 'COMPLETE_UPGRADE_BACKUP' });
       document.getElementById('upgrade-backup-required')?.remove();
       showNotification(t('popupExportedPasskeys', { count: passkeys.length + totpEntries.length }));

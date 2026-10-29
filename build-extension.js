@@ -20,17 +20,17 @@ const targets = target === 'all' ? ['chrome', 'firefox'] : [target];
 
 // The release workflow sets this for the packages it uploads to the stores.
 // Every other build is a development build.
-const isRelease = process.env.PASSKEY_VAULT_RELEASE === '1';
+const isRelease = process.env.PASSKEY_BOND_RELEASE === '1';
 
 // Chrome gives an unpacked extension an ID made from its folder's path unless
 // the manifest has a key, and keeps the extension's storage, vault included,
 // under that ID, so a build loaded from a new folder started with an empty
 // vault. Development builds carry this public key instead, which makes every
-// one of them opnaemnnjkoolijgdldhjfinpjmhkagi wherever it is loaded from. Its
+// one of them odoehegfpkpmhicjkpdajlpdhcaghkhi wherever it is loaded from. Its
 // private half was not kept: loading unpacked needs only this, and no package
 // can be signed as this ID. Store packages keep the IDs the stores gave them.
 const DEV_PUBLIC_KEY =
-  'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0oKeBOcHT2frHj4npujFfCF/1FfQd6Q9e+6jVheXDhypA9aVkGuAjxcEoTDo/mAAVU8dd/YsfE3Uihq2KQPPWw84l8JgaHKPSnIAjGc3MtUKiYAkjT70OFbpHY0g7O5yJMqE7DHR96CJuXY98CZv/kekSwHqmZIgTVoOPHCls3k+Z36WJGLhCFq55B8HsOKgNB3LuMWW8MH6kApBM8/5t0r450d8mUX8PvSKxAGAY6RnN6fdaQBldV4FXQCXKG3rFD62WVjaDNPdKkKqv35Eia5fRszNodQlJUxErX0/Q49jV3ryM2uYxbcefwLFrLhoaEJqqA1lcXrOlxGtLkH9uwIDAQAB';
+  'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApB/bH4H7/u8726JhpFV2S/GvWHA6LkDm0sMcEzL2QXrODVjsT24CuhoA+qSWwYggvlnyc4wdmmmd3NJQvv84rfMvc1ZxJP3WahxTtacyJWAYmptINSxf+X0CnPgwz77NrLQBZz888gB9iRT4rAcS+s1w6nQz6AD55RCTFJwIHw10nEqGICPd0lqN47dpX94JBCXtCxfoj/6SeKIEhoJ5KPYCC0Cb1dxdSLLMoS5Sagcq05r/A8FusZFhyiNtTeC8/ZmX+EeTXltwPs1A4byEQiYRWkoiMoD+S17mWaHD2q/RB2fB8v10YHdlVXn7iP3olxNaN9RyPFe5LVFeozqCoQIDAQAB';
 
 // The ID Chrome derives from a manifest key: the first 32 hex digits of the
 // key's SHA-256, each written as a letter from a to p.
@@ -80,7 +80,7 @@ async function buildForTarget(browserTarget) {
   const isFirefox = browserTarget === 'firefox';
   const distDir = isFirefox ? 'dist-firefox' : 'dist';
 
-  console.log(`\n🏗️  Building Passkey Vault for ${browserTarget.toUpperCase()}...\n`);
+  console.log(`\n🏗️  Building Passkey.bond for ${browserTarget.toUpperCase()}...\n`);
 
   const { version, versionName } = getVersionFromPackage();
   console.log(`📌 Version: ${versionName} (manifest: ${version})`);
@@ -232,6 +232,10 @@ async function buildForTarget(browserTarget) {
   console.log('  ✅ Copied checked-in icons from src/icons');
 
   console.log('📄 Copying static assets...');
+
+  // MIT requires the copyright and permission notice in every copy.
+  fs.copyFileSync('LICENSE', path.join(distDir, 'LICENSE'));
+  console.log('  ✅ LICENSE');
 
   const localesSourceDir = path.join('src', '_locales');
   if (fs.existsSync(localesSourceDir)) {

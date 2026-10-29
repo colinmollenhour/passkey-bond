@@ -36,7 +36,7 @@ const VECTORS = [
 // The AES key is not extractable, so check it by what it decrypts.
 async function encryptsLike(key: CryptoKey, rawKeyHex: string): Promise<boolean> {
   const iv = new Uint8Array(12);
-  const plaintext = new TextEncoder().encode('fenko');
+  const plaintext = new TextEncoder().encode('passkey.bond');
   const reference = await crypto.subtle.importKey(
     'raw',
     Buffer.from(rawKeyHex, 'hex'),

@@ -48,7 +48,7 @@ import {
   createAttestationObjectNone,
   convertP1363ToDER,
   ANONYMOUS_AAGUID,
-  PASSKEY_VAULT_AAGUID,
+  PASSKEY_BOND_AAGUID,
   COSE_ALG_ES256,
   type AuthenticatorDataOptions,
 } from './cbor';
@@ -140,7 +140,7 @@ function toAuthenticatorDataOptions(
     userVerified: flags.userVerification === 'always',
     backupEligible: backup.backupEligible,
     backupState: backup.backupState,
-    aaguid: flags.aaguid === 'zero' ? ANONYMOUS_AAGUID : PASSKEY_VAULT_AAGUID,
+    aaguid: flags.aaguid === 'zero' ? ANONYMOUS_AAGUID : PASSKEY_BOND_AAGUID,
   };
 }
 
@@ -1641,7 +1641,7 @@ class BackgroundService {
     if (rawPasskeys.some((entry) => !entry?.id || !entry.rpId || !entry.privateKey)) {
       return { success: false, error: 'Backup contains an invalid passkey' };
     }
-    // A Fenko backup taken before issue #17 was fixed still holds Bitwarden IDs.
+    // A backup taken before upstream issue #17 was fixed still holds Bitwarden IDs.
     const repair = repairCredentialIds(rawPasskeys);
     const incomingPasskeys = repair.passkeys;
     if (repair.deletions.length > 0) await this.recordDeletions(repair.deletions);

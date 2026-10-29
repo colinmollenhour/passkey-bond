@@ -1,16 +1,24 @@
-# Fenko Vault
+<img src="docs/brand/passkey-bond-icon.svg" width="72" alt="" align="right"/>
 
-Intercepts WebAuthn API calls and stores passkeys locally, bypassing the browser's native passkey UI. Available as a browser extension for Chromium browsers and Firefox, and as an Android passkey provider app.
+# Passkey.bond
+
+Keeps your passkeys and 2FA codes on your own devices. Passkey.bond intercepts WebAuthn API calls and stores passkeys locally, bypassing the browser's native passkey UI. It runs as a browser extension for Chromium browsers and Firefox, and as an Android passkey provider app; an iOS app is in progress.
+
+Website: <https://passkey.bond>
 
 ## Download
 
-| Platform | Get it | Status |
-| --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_24x24.png" width="16" alt=""/> **Chrome** · <img src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_24x24.png" width="16" alt=""/> **Edge** · <img src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/brave/brave_24x24.png" width="16" alt=""/> **Brave** · <img src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/opera/opera_24x24.png" width="16" alt=""/> **Opera** | [Chrome Web Store](https://chromewebstore.google.com/detail/passkey-vault/lopekoolgoijpmaidblgfgelbkfkgmod) | Available |
-| <img src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png" width="16" alt=""/> **Firefox** | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/fenko-vault/) | Available |
-| <img src="https://cdn.simpleicons.org/android/3DDC84" width="16" alt=""/> **Android** | [Google Play](https://play.google.com/store/apps/details?id=nz.fenko.passkeyvault) | Available |
+| Platform | Status |
+| --- | --- |
+| **Chrome** · **Edge** · **Brave** · **Opera** | Not yet published — [build from source](#build-from-source) |
+| **Firefox** | Not yet published — [build from source](#build-from-source) |
+| **Android** | Not yet published — see [android/README.md](android/README.md) |
 
-> Found a bug? [Open an issue](https://github.com/FenkoHQ/passkey-vault/issues).
+Store links will be listed at <https://passkey.bond/download> once they exist.
+
+> Found a bug? [Open an issue](https://github.com/colinmollenhour/passkey-bond/issues).
+
+> Passkey.bond began as a fork of [Fenko Vault](https://github.com/FenkoHQ/passkey-vault) by Fenko, MIT licensed. It can import Fenko Vault backups and join a Fenko Vault sync chain, so you can move an existing vault across.
 
 ---
 
@@ -68,27 +76,15 @@ Intercepts WebAuthn API calls and stores passkeys locally, bypassing the browser
 
 ## Installation
 
-### Chrome, Edge, Brave, Opera
-
-[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/passkey-vault/lopekoolgoijpmaidblgfgelbkfkgmod). The same listing covers all Chromium-based browsers.
-
-### Firefox
-
-[Install from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/fenko-vault/).
-
-### Android
-
-[Install from Google Play](https://play.google.com/store/apps/details?id=nz.fenko.passkeyvault), then enable Fenko Vault under **Settings → Passwords & accounts → Passkeys** as a credential provider.
-
-Prefer sideloading? A signed APK ships with each [GitHub release](https://github.com/FenkoHQ/passkey-vault/releases). Note the APK and the Play build are signed with different keys, so a device can't upgrade between them — pick one.
+Passkey.bond isn't in any store yet. Build it from source:
 
 ### Build from source
 
 Requires Node.js 18+.
 
 ```bash
-git clone https://github.com/FenkoHQ/passkey-vault.git
-cd passkey-vault
+git clone https://github.com/colinmollenhour/passkey-bond.git
+cd passkey-bond
 npm install
 
 npm run build          # Chrome
@@ -104,7 +100,7 @@ npm run build:all      # Both
 
 A development build shows its commit as its version, such as `0.12.0+2d873fb`, on `chrome://extensions` and in the options page.
 
-Every development build has the extension ID `opnaemnnjkoolijgdldhjfinpjmhkagi`, whichever folder it is loaded from, so the vault carries over to a newer build. To update, load the new folder the same way, or replace the files in the loaded folder and click the reload icon. **Remove** deletes the vault.
+Every development build has the extension ID `odoehegfpkpmhicjkpdajlpdhcaghkhi`, whichever folder it is loaded from, so the vault carries over to a newer build. To update, load the new folder the same way, or replace the files in the loaded folder and click the reload icon. **Remove** deletes the vault.
 
 **Load in Firefox:**
 
@@ -127,7 +123,7 @@ Every development build has the extension ID `opnaemnnjkoolijgdldhjfinpjmhkagi`,
 
 ## How sync works
 
-Cross-device sync is optional and off by default. When you enable it, your devices exchange end-to-end encrypted messages over public [Nostr](https://github.com/nostr-protocol/nips) relays — there is no Fenko account, no server that holds your vault, and nothing a relay operator can read.
+Cross-device sync is optional and off by default. When you enable it, your devices exchange end-to-end encrypted messages over public [Nostr](https://github.com/nostr-protocol/nips) relays — there is no Passkey.bond account, no server that holds your vault, and nothing a relay operator can read.
 
 **Setup.** Enabling sync generates a BIP-39 seed phrase (the "sync chain"). You type that phrase into your other devices; every device holding the phrase is on the chain. The phrase never leaves your devices.
 
@@ -143,12 +139,11 @@ Cross-device sync is optional and off by default. When you enable it, your devic
 
 | Relay | Operator |
 | --- | --- |
-| `wss://vaultsync.fenko.nz` | Fenko (us) — runs [nosflare](https://github.com/Spl0itable/nosflare), accepts only kind 30078 sync events |
 | `wss://relay.damus.io` | Damus |
 | `wss://nos.lol` | nos.lol |
 | `wss://relay.nostr.band` | nostr.band |
 
-You can add or remove relays in the extension options. On restricted networks, whitelisting `vaultsync.fenko.nz` (WebSocket, port 443) is enough for sync to work.
+You can add or remove relays in the extension options. The sync protocol is the same as Fenko Vault's, so Passkey.bond and Fenko Vault devices on one chain sync with each other as long as they share a relay.
 
 ---
 
@@ -180,4 +175,4 @@ src/
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE). Passkey.bond is © Colin Mollenhour and contains code from Fenko Vault, © Fenko, under the same license.

@@ -53,7 +53,7 @@ export type KdfSpec = Pbkdf2Spec | ScryptSpec;
 /**
  * The stored KDF is one this build cannot use: written by a newer version, or
  * with parameters outside the bounds above. Distinct from a wrong password,
- * so the UI can say "update Fenko Vault" instead of "wrong password".
+ * so the UI can say "update Passkey.bond" instead of "wrong password".
  */
 export class UnsupportedKdfError extends Error {
   readonly code = 'UNSUPPORTED_KDF';

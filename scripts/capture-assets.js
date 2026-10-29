@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Automated screenshot and video capture for Passkey Vault extension.
+ * Automated screenshot and video capture for Passkey.bond extension.
  *
  * Usage:
  *   npm run capture          — screenshots + video
  *   npm run capture:screenshots
  *   npm run capture:video
  *
- * Requires: a release build in dist/  (run `PASSKEY_VAULT_RELEASE=1 npm run build:chrome` first)
+ * Requires: a release build in dist/  (run `PASSKEY_BOND_RELEASE=1 npm run build:chrome` first)
  * Uses headless Chromium by default. Set PLAYWRIGHT_CHROMIUM_EXECUTABLE to override the browser.
  */
 
@@ -118,7 +118,8 @@ async function launchWithExtension(opts = {}) {
 
   return chromium.launchPersistentContext(dir, {
     headless: true,
-    executablePath: CHROMIUM_EXECUTABLE,
+    // Headless shell can't load extensions; full Chromium in headless mode can.
+    ...(CHROMIUM_EXECUTABLE ? { executablePath: CHROMIUM_EXECUTABLE } : { channel: 'chromium' }),
     args: [
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,
@@ -634,7 +635,7 @@ async function captureCWS() {
         </span>
         <span style="font-family:'Courier New',monospace;font-size:13px;font-weight:700;
           letter-spacing:1px;color:#000;opacity:0.5">
-          Passkey Vault
+          Passkey.bond
         </span>
       `;
         document.body.appendChild(strip);
@@ -749,7 +750,7 @@ async function captureCWS() {
         <span style="font-family:'Courier New',monospace;font-size:18px;font-weight:700;
           text-transform:uppercase;letter-spacing:2px;color:#000;max-width:700px">${text}</span>
         <span style="font-family:'Courier New',monospace;font-size:13px;font-weight:700;
-          letter-spacing:1px;color:#000;opacity:0.5">Passkey Vault</span>
+          letter-spacing:1px;color:#000;opacity:0.5">Passkey.bond</span>
       `;
         document.body.appendChild(strip);
       },
@@ -802,7 +803,7 @@ async function captureCWS() {
         <span style="font-family:'Courier New',monospace;font-size:18px;font-weight:700;
           text-transform:uppercase;letter-spacing:2px;color:#000;max-width:700px">${text}</span>
         <span style="font-family:'Courier New',monospace;font-size:13px;font-weight:700;
-          letter-spacing:1px;color:#000;opacity:0.5">Passkey Vault</span>
+          letter-spacing:1px;color:#000;opacity:0.5">Passkey.bond</span>
       `;
         document.body.appendChild(strip);
       },
@@ -931,18 +932,18 @@ body::before {
         <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
       </svg>
     </div>
-    <div class="brand">Passkey Vault</div>
+    <div class="brand">Passkey.bond</div>
     <div class="tagline">Passkeys + 2FA.<br>On your device.<br>Nobody else.</div>
   </div>
 </body></html>`);
     await p.waitForTimeout(300);
     const file = path.join(CWS_DIR, 'promo-small.jpg');
     // Preserve the banner artwork when regenerating store assets.
-    const banner = path.join(CWS_DIR, 'source', 'fenko-vault-banner.png');
+    const banner = path.join(CWS_DIR, 'source', 'passkey-bond-banner.png');
     if (fs.existsSync(banner)) {
       const data = fs.readFileSync(banner).toString('base64');
       await p.setContent(`<body style="margin:0"><img style="display:block;width:440px;height:280px"
-        src="data:image/png;base64,${data}" alt="Fenko Vault"></body>`);
+        src="data:image/png;base64,${data}" alt="Passkey.bond"></body>`);
       await p.locator('img').evaluate((img) => img.decode());
     }
     await p.screenshot({
@@ -1034,11 +1035,11 @@ body::before {
     await p.waitForTimeout(300);
     const file = path.join(CWS_DIR, 'promo-marquee.jpg');
     // Preserve the marquee artwork when regenerating store assets.
-    const banner = path.join(CWS_DIR, 'source', 'fenko-vault-marquee.png');
+    const banner = path.join(CWS_DIR, 'source', 'passkey-bond-marquee.png');
     if (fs.existsSync(banner)) {
       const data = fs.readFileSync(banner).toString('base64');
       await p.setContent(`<body style="margin:0"><img style="display:block;width:1400px;height:560px"
-        src="data:image/png;base64,${data}" alt="Fenko Vault"></body>`);
+        src="data:image/png;base64,${data}" alt="Passkey.bond"></body>`);
       await p.locator('img').evaluate((img) => img.decode());
     }
     await p.screenshot({
@@ -1059,14 +1060,14 @@ body::before {
 
 async function main() {
   if (!fs.existsSync(EXTENSION_PATH)) {
-    console.error('dist/ not found — run: PASSKEY_VAULT_RELEASE=1 npm run build:chrome');
+    console.error('dist/ not found — run: PASSKEY_BOND_RELEASE=1 npm run build:chrome');
     process.exit(1);
   }
   // The options page shows version_name, which names the commit in a development build.
   const manifest = JSON.parse(fs.readFileSync(path.join(EXTENSION_PATH, 'manifest.json'), 'utf8'));
   if (manifest.version_name !== manifest.version) {
     console.error(
-      `dist/ is a development build (${manifest.version_name}) — run: PASSKEY_VAULT_RELEASE=1 npm run build:chrome`
+      `dist/ is a development build (${manifest.version_name}) — run: PASSKEY_BOND_RELEASE=1 npm run build:chrome`
     );
     process.exit(1);
   }

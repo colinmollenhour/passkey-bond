@@ -24,7 +24,7 @@ const PASSKEYS = [
     type: 'public-key',
     rpId: 'google.com',
     origin: 'https://google.com',
-    user: { name: 'alim@fenko.nz', displayName: 'Ali' },
+    user: { name: 'ali@example.com', displayName: 'Ali' },
     publicKey: 'BASE64-PUBLIC-KEY',
     privateKey: 'BASE64-PRIVATE-KEY-MUST-NOT-LEAVE',
     createdAt: 1757000000000,
@@ -39,7 +39,7 @@ const PASSKEYS = [
     type: 'public-key',
     rpId: 'cveform-api.mitre.org',
     origin: 'https://cveform-api.mitre.org',
-    user: { name: 'alim@fenko.nz', displayName: 'Ali' },
+    user: { name: 'ali@example.com', displayName: 'Ali' },
     publicKey: 'BASE64-PUBLIC-KEY-2',
     privateKey: 'BASE64-PRIVATE-KEY-MUST-NOT-LEAVE',
     createdAt: 1749000000000,
@@ -71,7 +71,7 @@ const consoleErrors = [];
 before(async () => {
   assert.ok(fs.existsSync(path.join(DIST, 'manifest.json')), 'run npm run build:chrome first');
 
-  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fenko-vault-e2e-'));
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'passkey-bond-e2e-'));
   context = await chromium.launchPersistentContext(userDataDir, {
     channel: 'chromium',
     headless: true,

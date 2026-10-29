@@ -386,10 +386,10 @@ describe('the token', () => {
     let token: string | undefined;
     void receiveTokenFromParent(win).then((value) => (token = value));
 
-    post({ type: 'fenko-vault-dialog-token', token: 'from-elsewhere' }, {});
+    post({ type: 'passkey-bond-dialog-token', token: 'from-elsewhere' }, {});
     post({ type: 'something-else', token: 'wrong-type' }, parent);
-    post({ type: 'fenko-vault-dialog-token', token: 42 }, parent);
-    post({ type: 'fenko-vault-dialog-token', token: 'real' }, parent);
+    post({ type: 'passkey-bond-dialog-token', token: 42 }, parent);
+    post({ type: 'passkey-bond-dialog-token', token: 'real' }, parent);
     await flush();
 
     expect(token).toBe('real');
@@ -401,7 +401,7 @@ describe('the token', () => {
     let token: string | undefined;
     void receiveTokenFromParent(win).then((value) => (token = value));
 
-    post({ type: 'fenko-vault-dialog-token', token: 'self' }, win);
+    post({ type: 'passkey-bond-dialog-token', token: 'self' }, win);
     await flush();
 
     expect(token).toBeUndefined();

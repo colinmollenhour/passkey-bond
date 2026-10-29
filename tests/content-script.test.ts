@@ -11,8 +11,8 @@ export {};
 
 import { trustedKey } from './helpers/trusted-input';
 
-const PAGE_SOURCE = 'PASSKEY_VAULT_PAGE';
-const CONTENT_SOURCE = 'PASSKEY_VAULT_CONTENT';
+const PAGE_SOURCE = 'PASSKEY_BOND_PAGE';
+const CONTENT_SOURCE = 'PASSKEY_BOND_CONTENT';
 
 jest.mock('../src/content/vault-dialog-frame', () => ({
   extensionOrigin: () => 'chrome-extension://test',
@@ -130,7 +130,7 @@ describe('content script: sign-in with a locked vault', () => {
     expect(result.error).toBe('Vault is locked');
     expect(ui.showErrorNotification).toHaveBeenCalledWith(
       'Vault Locked',
-      expect.stringContaining('Unlock Fenko Vault')
+      expect.stringContaining('Unlock Passkey.bond')
     );
     expect(mountDialogFrame).not.toHaveBeenCalled();
   });
@@ -142,7 +142,7 @@ describe('content script: sign-in with a locked vault', () => {
 
     expect(result.passthrough).toBeUndefined();
     expect(result.blockNativeFallback).toBe(true);
-    expect(result.error).toContain('Unlock Fenko Vault');
+    expect(result.error).toContain('Unlock Passkey.bond');
     expect(result.error).not.toBe('No passkeys found for this site');
   });
 
@@ -341,7 +341,7 @@ describe('content script: the vault dialog', () => {
     const answers: unknown[] = [];
     for (const listener of backgroundListeners) {
       listener(
-        { type: 'PASSKEY_VAULT_TOP_METRICS' },
+        { type: 'PASSKEY_BOND_TOP_METRICS' },
         { id: chromeMock.runtime.id },
         (answer: unknown) => answers.push(answer)
       );

@@ -67,7 +67,7 @@ describe('the dialog frame', () => {
     iframe.dispatchEvent(new Event('load'));
 
     expect(post).toHaveBeenCalledWith(
-      { type: 'fenko-vault-dialog-token', token: 'secret-token' },
+      { type: 'passkey-bond-dialog-token', token: 'secret-token' },
       'chrome-extension://test-extension-id'
     );
   });

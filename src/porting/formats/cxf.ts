@@ -191,7 +191,7 @@ export function buildCxf(source: CxfSource): Json {
     timestamp,
     accounts: [
       {
-        id: 'fenko-vault',
+        id: 'passkey-bond',
         userName: '',
         email: '',
         collections: [],

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct FenkoVaultApp: App {
+struct PasskeyBondApp: App {
     var body: some Scene {
         WindowGroup {
             WebVaultView()

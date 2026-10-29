@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Build and validate store packages, not development builds (build-extension.js)
-      PASSKEY_VAULT_RELEASE: '1'
+      PASSKEY_BOND_RELEASE: '1'
 
     steps:
       - name: Checkout code
@@ -66,11 +66,11 @@ jobs:
 
       - name: Create Chrome ZIP
         run: |
-          cd dist && zip -r ../passkey-vault-chrome.zip . && cd ..
+          cd dist && zip -r ../passkey-bond-chrome.zip . && cd ..
 
       - name: Create Firefox ZIP
         run: |
-          cd dist-firefox && zip -r ../passkey-vault-firefox.zip . && cd ..
+          cd dist-firefox && zip -r ../passkey-bond-firefox.zip . && cd ..
 
       - name: Validate release ZIPs
         run: npm run validate:packages
@@ -78,26 +78,26 @@ jobs:
       - name: Upload Chrome artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: passkey-vault-chrome
+          name: passkey-bond-chrome
           path: dist/
 
       - name: Upload Firefox artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: passkey-vault-firefox
+          name: passkey-bond-firefox
           path: dist-firefox/
 
       - name: Upload Chrome ZIP artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: passkey-vault-chrome-zip
-          path: passkey-vault-chrome.zip
+          name: passkey-bond-chrome-zip
+          path: passkey-bond-chrome.zip
 
       - name: Upload Firefox ZIP artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: passkey-vault-firefox-zip
-          path: passkey-vault-firefox.zip
+          name: passkey-bond-firefox-zip
+          path: passkey-bond-firefox.zip
 
   build-android:
     name: Build signed Android APK
@@ -134,7 +134,7 @@ jobs:
             exit 1
           fi
           mkdir -p android/signing
-          printf '%s' "$KEYSTORE_BASE64" | base64 -d > android/signing/passkey-vault.jks
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > android/signing/passkey-bond.jks
 
       - name: Build and sign APK
         env:
@@ -143,14 +143,14 @@ jobs:
         run: |
           export VERSION_NAME="${GITHUB_REF#refs/tags/v}"
           ./android/build-android.sh
-          cp android/dist/passkey-vault-android-signed.apk \
-            "android/dist/fenko-vault-${VERSION_NAME}.apk"
+          cp android/dist/passkey-bond-android-signed.apk \
+            "android/dist/passkey-bond-${VERSION_NAME}.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: fenko-vault-apk
-          path: android/dist/fenko-vault-*.apk
+          name: passkey-bond-apk
+          path: android/dist/passkey-bond-*.apk
           if-no-files-found: error
 
   publish-chrome:
@@ -167,7 +167,7 @@ jobs:
       - name: Download Chrome ZIP artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: passkey-vault-chrome-zip
+          name: passkey-bond-chrome-zip
 
       - name: Get OAuth access token
         id: token
@@ -194,7 +194,7 @@ jobs:
             -H "Authorization: Bearer $ACCESS_TOKEN" \
             -H "x-goog-api-version: 2" \
             -H "Content-Type: application/zip" \
-            --data-binary @passkey-vault-chrome.zip \
+            --data-binary @passkey-bond-chrome.zip \
             "https://www.googleapis.com/upload/chromewebstore/v1.1/items/${EXTENSION_ID}?uploadType=media")
           echo "$RESPONSE" | jq .
           STATE=$(echo "$RESPONSE" | jq -r '.uploadState')
@@ -256,7 +256,7 @@ jobs:
       - name: Download Firefox build artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: passkey-vault-firefox
+          name: passkey-bond-firefox
           path: dist-firefox
 
       # web-ext takes its API key and secret from WEB_EXT_API_KEY and
@@ -313,7 +313,7 @@ jobs:
         run: |
           [ -n "$KEYSTORE_BASE64" ] || { echo "ANDROID_KEYSTORE_BASE64 secret is not set" >&2; exit 1; }
           mkdir -p android/signing
-          printf '%s' "$KEYSTORE_BASE64" | base64 -d > android/signing/passkey-vault.jks
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > android/signing/passkey-bond.jks
 
       - name: Compute versionCode
         id: vc
@@ -333,7 +333,7 @@ jobs:
 
       - name: Resolve AAB path
         id: aab
-        run: echo "path=$(ls android/dist/fenko-vault-*.aab | head -1)" >> "$GITHUB_OUTPUT"
+        run: echo "path=$(ls android/dist/passkey-bond-*.aab | head -1)" >> "$GITHUB_OUTPUT"
 
       - name: Authenticate to Google Cloud (keyless, WIF)
         id: auth
@@ -347,7 +347,7 @@ jobs:
       - name: Upload AAB to Google Play (production)
         env:
           TOKEN: ${{ steps.auth.outputs.access_token }}
-          PKG: nz.fenko.passkeyvault
+          PKG: bond.passkey.app
           AAB: ${{ steps.aab.outputs.path }}
         run: |
           set -euo pipefail
@@ -393,17 +393,17 @@ jobs:
       - name: Download Chrome ZIP artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: passkey-vault-chrome-zip
+          name: passkey-bond-chrome-zip
 
       - name: Download Firefox ZIP artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: passkey-vault-firefox-zip
+          name: passkey-bond-firefox-zip
 
       - name: Download Android APK artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: fenko-vault-apk
+          name: passkey-bond-apk
 
       - name: Extract tag name
         id: tag_name
@@ -426,19 +426,19 @@ jobs:
             echo "## Installation"
             echo ""
             echo "### Chrome"
-            echo "1. Download \`passkey-vault-chrome.zip\` and extract it"
+            echo "1. Download \`passkey-bond-chrome.zip\` and extract it"
             echo "2. Open \`chrome://extensions/\`, enable Developer mode"
             echo "3. Click \"Load unpacked\" and select the extracted directory"
             echo ""
             echo "### Firefox"
-            echo "1. Download \`passkey-vault-firefox.zip\` and extract it"
+            echo "1. Download \`passkey-bond-firefox.zip\` and extract it"
             echo "2. Open \`about:debugging#/runtime/this-firefox\`"
             echo "3. Click \"Load Temporary Add-on...\" and select \`manifest.json\`"
             echo ""
             echo "### Android"
-            echo "1. Download \`fenko-vault-${VER}.apk\`"
+            echo "1. Download \`passkey-bond-${VER}.apk\`"
             echo "2. Allow installs from unknown sources, then open the APK to install"
-            echo "3. Enable Fenko Vault under Settings → Passwords & accounts → passkey provider"
+            echo "3. Enable Passkey.bond under Settings → Passwords & accounts → passkey provider"
             echo ""
             echo "See the [full changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)."
           } >> RELEASE_NOTES.md
@@ -449,11 +449,11 @@ jobs:
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
         with:
           tag_name: ${{ steps.tag_name.outputs.tag }}
-          name: Passkey Vault ${{ steps.tag_name.outputs.tag }}
+          name: Passkey.bond ${{ steps.tag_name.outputs.tag }}
           draft: false
           prerelease: ${{ contains(steps.tag_name.outputs.tag, 'alpha') || contains(steps.tag_name.outputs.tag, 'beta') || contains(steps.tag_name.outputs.tag, 'rc') }}
           files: |
-            passkey-vault-chrome.zip
-            passkey-vault-firefox.zip
-            fenko-vault-*.apk
+            passkey-bond-chrome.zip
+            passkey-bond-firefox.zip
+            passkey-bond-*.apk
           body_path: RELEASE_NOTES.md

@@ -90,11 +90,11 @@ jobs:
       - name: Archive
         working-directory: ios
         run: |
-          xcodebuild -project FenkoVault.xcodeproj \
-            -scheme FenkoVault \
+          xcodebuild -project PasskeyBond.xcodeproj \
+            -scheme PasskeyBond \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            -archivePath "$RUNNER_TEMP/FenkoVault.xcarchive" \
+            -archivePath "$RUNNER_TEMP/PasskeyBond.xcarchive" \
             -allowProvisioningUpdates \
             -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
             -authenticationKeyID ${{ secrets.ASC_KEY_ID }} \
@@ -119,7 +119,7 @@ jobs:
           </plist>
           PLIST
           xcodebuild -exportArchive \
-            -archivePath "$RUNNER_TEMP/FenkoVault.xcarchive" \
+            -archivePath "$RUNNER_TEMP/PasskeyBond.xcarchive" \
             -exportPath "$RUNNER_TEMP/export" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
             -allowProvisioningUpdates \
@@ -130,6 +130,6 @@ jobs:
       - name: Upload to TestFlight
         run: |
           xcrun altool --upload-app -t ios \
-            -f "$RUNNER_TEMP/export/FenkoVault.ipa" \
+            -f "$RUNNER_TEMP/export/PasskeyBond.ipa" \
             --apiKey ${{ secrets.ASC_KEY_ID }} \
             --apiIssuer ${{ secrets.ASC_ISSUER_ID }}

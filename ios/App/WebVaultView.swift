@@ -46,13 +46,13 @@ struct WebVaultView: UIViewRepresentable {
         let literal = (try? String(data: JSONEncoder().encode(snapshot), encoding: .utf8) ?? "\"\"") ?? "\"\""
         return """
         (function () {
-          window.__fenkoSnapshot = \(literal);
+          window.__passkeyBondSnapshot = \(literal);
           function post(msg) { try { window.webkit.messageHandlers.bridge.postMessage(msg); } catch (e) {} }
           window.AndroidBridge = {
             copyText: function (v) { post({ action: 'copy', value: v }); },
             toast: function (v) { post({ action: 'toast', value: v }); },
             resetVault: function () { post({ action: 'reset' }); },
-            loadVaultSnapshot: function () { return window.__fenkoSnapshot || ''; },
+            loadVaultSnapshot: function () { return window.__passkeyBondSnapshot || ''; },
             saveVaultSnapshot: function (p, t, s, d, r) {
               post({ action: 'save', passkeys: p, totp: t, syncConfig: s, syncDevices: d, customRelays: r });
             },
@@ -84,7 +84,7 @@ struct WebVaultView: UIViewRepresentable {
             self.webView = webView
             guard let data = try? JSONEncoder().encode(VaultStore.shared.snapshotJSON()),
                   let literal = String(data: data, encoding: .utf8) else { return }
-            webView.evaluateJavaScript("window.__fenkoSnapshot = \(literal); window.__fenkoNativeRefresh?.(window.__fenkoSnapshot)")
+            webView.evaluateJavaScript("window.__passkeyBondSnapshot = \(literal); window.__passkeyBondNativeRefresh?.(window.__passkeyBondSnapshot)")
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {

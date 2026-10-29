@@ -18,12 +18,12 @@ export const SUPPORTED_LANGUAGES: Array<{ code: SupportedLanguage; label: string
 ];
 
 const en: TranslationMap = {
-  appName: 'Fenko Vault',
-  settingsTitle: 'Fenko Vault — Settings',
-  importTitle: 'Import Passkeys - Fenko Vault',
-  syncSetupTitle: 'Sync Setup - Fenko Vault',
-  syncSettingsTitle: 'Sync Settings - Fenko Vault',
-  emergencyTitle: 'Emergency Access — Fenko Vault',
+  appName: 'Passkey.bond',
+  settingsTitle: 'Passkey.bond — Settings',
+  importTitle: 'Import Passkeys - Passkey.bond',
+  syncSetupTitle: 'Sync Setup - Passkey.bond',
+  syncSettingsTitle: 'Sync Settings - Passkey.bond',
+  emergencyTitle: 'Emergency Access — Passkey.bond',
 
   commonCancel: 'Cancel',
   commonConfirm: 'Confirm',
@@ -53,7 +53,7 @@ const en: TranslationMap = {
   popupUnlocking: 'Unlocking...',
   popupWrongPassword: 'Wrong PIN or passphrase',
   popupVaultNeedsUpdate:
-    'This vault was locked by a newer version of Fenko Vault. Update the extension to unlock it.',
+    'This vault was locked by a newer version of Passkey.bond. Update the extension to unlock it.',
   popupSetupVault: 'Set Up Vault',
   popupSetupHelp: 'Set a PIN or passphrase to lock your vault.',
   popupSetupPasswordPlaceholder: 'PIN or passphrase',
@@ -99,7 +99,7 @@ const en: TranslationMap = {
   popupBackupHelp: 'If a site rejects this passkey, set this to match the app that created it.',
   popupBackupImported:
     'Imported from another password manager, so it signs in as a synced passkey.',
-  popupBackupCreated: 'Created in Fenko Vault.',
+  popupBackupCreated: 'Created in Passkey.bond.',
   popupBackupLegacy: 'Kept the sign-in settings it had before this update.',
   popupBackupManual: 'Set by you.',
   popupBackupSaved: 'Saved. Try signing in again.',
@@ -181,7 +181,7 @@ const en: TranslationMap = {
   popupTotpDecodeFailed: 'Could not read the image',
   vaultBackupWarnTitle: 'Only you hold your keys',
   vaultBackupWarnBody:
-    "Sync is end-to-end encrypted, so our servers never see your passkeys or 2FA codes and we can't recover them for you. Lose every device and backup and they're gone for good. Export an encrypted backup and keep a copy offline.",
+    "Sync is end-to-end encrypted, so sync relays never see your passkeys or 2FA codes and we can't recover them for you. Lose every device and backup and they're gone for good. Export an encrypted backup and keep a copy offline.",
 
   navGeneral: 'General',
   navInterception: 'Interception',
@@ -202,7 +202,7 @@ const en: TranslationMap = {
   optionsCounterIncrement: 'Count up per signature (default)',
   optionsCounterZero: 'Always send zero',
   optionsAaguidTitle: 'AAGUID',
-  optionsAaguidVault: 'Fenko Vault (default)',
+  optionsAaguidVault: 'Passkey.bond (default)',
   optionsAaguidZero: 'Anonymous (all zero)',
   optionsAttachmentTitle: 'Reported Attachment',
   optionsAttachmentCross: 'Cross-platform (default)',
@@ -225,7 +225,7 @@ const en: TranslationMap = {
   optionsCounterDesc:
     'Every device keeps its own counter, so a synced credential can look cloned to a site that checks for it. Sending zero is what platform passkey providers do.',
   optionsAaguidDesc:
-    'Identifies the authenticator model at registration. The Fenko Vault value makes sites show the vault by name and icon; all-zero keeps the authenticator anonymous.',
+    'Identifies the authenticator model at registration. The Passkey.bond value makes sites show the vault by name and icon; all-zero keeps the authenticator anonymous.',
   optionsAttachmentDesc: 'How the credential describes where it lives. Cosmetic on most sites.',
   optionsFlagsScope:
     'Changes apply to the next ceremony. Backup flags only apply to passkeys created after the change; existing passkeys keep their own.',
@@ -246,7 +246,7 @@ const en: TranslationMap = {
   themeLight: 'Light',
   themeDark: 'Dark',
   optionsInterceptionTitle: 'WebAuthn Interception',
-  optionsInterceptionDesc: 'Control which domains Fenko Vault intercepts WebAuthn requests on.',
+  optionsInterceptionDesc: 'Control which domains Passkey.bond intercepts WebAuthn requests on.',
   optionsInterceptionMode: 'Interception Mode',
   optionsDisabled: 'Disabled',
   optionsDisabledDesc: 'No interception — browser handles WebAuthn natively',
@@ -285,7 +285,7 @@ const en: TranslationMap = {
   optionsThisDevice: 'This Device',
   optionsDataTitle: 'Import & Export',
   optionsDataDesc:
-    'Move passkeys and MFA codes between Fenko Vault and other providers. Everything is read and written on this device.',
+    'Move passkeys and MFA codes between Passkey.bond and other providers. Everything is read and written on this device.',
   optionsImportCardTitle: 'Import from a file',
   optionsImportCardDesc:
     'Reads Credential Exchange Format (Apple, Google, 1Password, Bitwarden, Dashlane), Bitwarden, Proton Pass and Dashlane JSON, Google Authenticator export payloads, Aegis, 2FAS, andOTP, FreeOTP+, Raivo, Ente Auth, LastPass Authenticator, and the MFA column of the password-manager CSV exports. Shows a preview first and skips anything already in your vault.',
@@ -398,7 +398,7 @@ const en: TranslationMap = {
   importDecrypting: 'Decrypting...',
   importWrongPassword: 'Wrong password or corrupted file',
   importBackupNewerVersion:
-    'This backup was made by a newer version of Fenko Vault. Update the extension to import it.',
+    'This backup was made by a newer version of Passkey.bond. Update the extension to import it.',
   importInvalidDecrypted: 'Decryption succeeded but file contents are invalid',
   importInvalidFormat: 'Invalid file format: missing passkeys array',
   importNoPrivateKeys:
@@ -431,7 +431,7 @@ const en: TranslationMap = {
   importSucceeded: 'Imported {passkeys} passkey(s) and {totp} MFA entry(ies)',
   importSourcesTitle: 'Where can this come from?',
   importSourcesPasskeys:
-    'Passkeys: Credential Exchange Format (Apple, Google, 1Password, Bitwarden, Dashlane), Bitwarden JSON, Proton Pass JSON, Dashlane JSON, and Fenko backups.',
+    'Passkeys: Credential Exchange Format (Apple, Google, 1Password, Bitwarden, Dashlane), Bitwarden JSON, Proton Pass JSON, Dashlane JSON, and Passkey.bond or Fenko Vault backups.',
   importSourcesMfa:
     'MFA: Google Authenticator export QR, Aegis, 2FAS, andOTP, FreeOTP+, Raivo, Ente Auth, LastPass Authenticator, plus the TOTP column of Bitwarden, 1Password, Proton Pass, Dashlane, KeePassXC, LastPass and Keeper exports.',
   importSourcesTemplate: 'Nothing fits? Fill in a template and import that.',
@@ -499,7 +499,7 @@ const en: TranslationMap = {
   syncLastSync: 'Last Sync',
   syncDevicesInChain: 'Devices in Sync Chain',
   syncAddDevice: 'Add Another Device',
-  syncGetOtherDevices: 'Install Fenko Vault on another device, then join this chain from there:',
+  syncGetOtherDevices: 'Install Passkey.bond on another device, then join this chain from there:',
   syncStoreChrome: 'Chrome, Edge & Brave',
   syncStoreFirefox: 'Firefox',
   syncStoreAndroid: 'Android',
@@ -567,13 +567,13 @@ const en: TranslationMap = {
   pagePasskeyCreatedMsg: 'Saved passkey for {user} on {rp}',
   pageSignedIn: 'Signed In',
   pageSignedInMsg: 'Used passkey for {user}',
-  pageSignedInSiteMsg: 'Signed in to {rp} with Fenko Vault',
+  pageSignedInSiteMsg: 'Signed in to {rp} with Passkey.bond',
   pagePasskeyError: 'Passkey Error',
   pageSignInFailed: 'Sign In Failed',
   pageChoosePasskey: 'Choose a Passkey',
   pageSignInTo: 'Sign in to {rp}',
   pageNoPasskeysSite: 'No passkeys found for this site',
-  pageVaultLockedMsg: 'Unlock Fenko Vault from the toolbar to sign in with a vault passkey.',
+  pageVaultLockedMsg: 'Unlock Passkey.bond from the toolbar to sign in with a vault passkey.',
   pageContinue: 'Continue',
   pageUseOtherPasskey: 'Use other passkey',
   pageChoosePasskeyButton: 'Choose a passkey',
@@ -586,7 +586,7 @@ const en: TranslationMap = {
 };
 
 const ru: TranslationMap = {
-  appName: 'Fenko Vault',
+  appName: 'Passkey.bond',
   commonCancel: 'Отмена',
   commonConfirm: 'Подтвердить',
   commonDelete: 'Удалить',
@@ -611,7 +611,7 @@ const ru: TranslationMap = {
   popupUnlocking: 'Разблокировка...',
   popupWrongPassword: 'Неверный пароль',
   popupVaultNeedsUpdate:
-    'Это хранилище заблокировано более новой версией Fenko Vault. Обновите расширение, чтобы разблокировать его.',
+    'Это хранилище заблокировано более новой версией Passkey.bond. Обновите расширение, чтобы разблокировать его.',
   popupSetupVault: 'Настройка хранилища',
   popupSetupHelp: 'Создайте мастер-пароль для шифрования passkey.',
   popupCreatePassword: 'Создать пароль',
@@ -657,7 +657,7 @@ const ru: TranslationMap = {
   optionsCounterIncrement: 'Увеличивать при каждой подписи (по умолчанию)',
   optionsCounterZero: 'Всегда отправлять ноль',
   optionsAaguidTitle: 'AAGUID',
-  optionsAaguidVault: 'Fenko Vault (по умолчанию)',
+  optionsAaguidVault: 'Passkey.bond (по умолчанию)',
   optionsAaguidZero: 'Анонимно (все нули)',
   optionsAttachmentTitle: 'Сообщаемый тип подключения',
   optionsAttachmentCross: 'Межплатформенный (по умолчанию)',
@@ -679,7 +679,7 @@ const ru: TranslationMap = {
   optionsLanguageHelp: 'Автоматически — язык браузера, если он поддерживается.',
   optionsLanguageSaved: 'Язык сохранён. Перезагрузка…',
   optionsInterceptionTitle: 'Перехват WebAuthn',
-  optionsInterceptionDesc: 'Управляйте доменами, где Fenko Vault перехватывает WebAuthn-запросы.',
+  optionsInterceptionDesc: 'Управляйте доменами, где Passkey.bond перехватывает WebAuthn-запросы.',
   optionsInterceptionMode: 'Режим перехвата',
   optionsDisabled: 'Отключено',
   optionsAllSites: 'Все сайты',
@@ -725,7 +725,7 @@ const ru: TranslationMap = {
   importDecrypt: 'Расшифровать',
   importWrongPassword: 'Неверный пароль или повреждённый файл',
   importBackupNewerVersion:
-    'Эта резервная копия создана более новой версией Fenko Vault. Обновите расширение, чтобы импортировать её.',
+    'Эта резервная копия создана более новой версией Passkey.bond. Обновите расширение, чтобы импортировать её.',
   importAlreadyExists: 'Уже существует',
   importNew: 'Новый',
   importSuccess: 'Успешно импортировано: {count} passkey{plural}!',
@@ -760,7 +760,7 @@ const ru: TranslationMap = {
   pageContinue: 'Продолжить',
   pageNoPasskeysSite: 'Для этого сайта passkeys не найдены',
   pageVaultLockedMsg:
-    'Разблокируйте Fenko Vault на панели инструментов, чтобы войти с passkey из хранилища.',
+    'Разблокируйте Passkey.bond на панели инструментов, чтобы войти с passkey из хранилища.',
 
   popupCopyDetails: 'Копировать данные',
   popupCopyWarnTitle: 'Скопировать данные ключа доступа?',
@@ -792,7 +792,7 @@ const zh_CN: TranslationMap = {
   popupUnlock: '解锁',
   popupUnlocking: '正在解锁...',
   popupWrongPassword: '密码错误',
-  popupVaultNeedsUpdate: '此保险库由更新版本的 Fenko Vault 锁定。请更新扩展后再解锁。',
+  popupVaultNeedsUpdate: '此保险库由更新版本的 Passkey.bond 锁定。请更新扩展后再解锁。',
   popupSetupVault: '设置保险库',
   popupCreatePassword: '创建密码',
   popupPasswordMin: '请使用至少 4 位数字的 PIN 码，或至少 8 个字符的密码短语',
@@ -824,7 +824,7 @@ const zh_CN: TranslationMap = {
   optionsCounterIncrement: '每次签名递增（默认）',
   optionsCounterZero: '始终发送零',
   optionsAaguidTitle: 'AAGUID',
-  optionsAaguidVault: 'Fenko Vault（默认）',
+  optionsAaguidVault: 'Passkey.bond（默认）',
   optionsAaguidZero: '匿名（全零）',
   optionsAttachmentTitle: '报告的连接方式',
   optionsAttachmentCross: '跨平台（默认）',
@@ -899,7 +899,7 @@ const zh_CN: TranslationMap = {
   pageChoosePasskey: '选择 Passkey',
   pageContinue: '继续',
   pageNoPasskeysSite: '此网站没有 passkey',
-  pageVaultLockedMsg: '请从工具栏解锁 Fenko Vault，以使用保险库中的 passkey 登录。',
+  pageVaultLockedMsg: '请从工具栏解锁 Passkey.bond，以使用保险库中的 passkey 登录。',
 
   popupCopyDetails: '复制详情',
   popupCopyWarnTitle: '复制通行密钥详情？',
@@ -911,7 +911,7 @@ const zh_CN: TranslationMap = {
   popupBackupPasswordMin: '请至少使用 12 个字符',
   popupBackupPasswordHint:
     '任何拿到该文件的人都可以离线猜测密码，速度只受其硬件限制。请使用由四个或更多随机单词组成的密码短语。',
-  importBackupNewerVersion: '此备份由更新版本的 Fenko Vault 创建。请更新扩展后再导入。',
+  importBackupNewerVersion: '此备份由更新版本的 Passkey.bond 创建。请更新扩展后再导入。',
 };
 
 const ar: TranslationMap = {
@@ -938,7 +938,7 @@ const ar: TranslationMap = {
   popupUnlock: 'فتح',
   popupUnlocking: 'جارٍ الفتح...',
   popupWrongPassword: 'كلمة المرور غير صحيحة',
-  popupVaultNeedsUpdate: 'قُفلت هذه الخزنة بإصدار أحدث من Fenko Vault. حدّث الإضافة لفتحها.',
+  popupVaultNeedsUpdate: 'قُفلت هذه الخزنة بإصدار أحدث من Passkey.bond. حدّث الإضافة لفتحها.',
   popupSetupVault: 'إعداد الخزنة',
   popupCreatePassword: 'إنشاء كلمة مرور',
   popupPasswordMin: 'استخدم رمز PIN من 4 أرقام على الأقل أو عبارة مرور من 8 أحرف على الأقل',
@@ -967,7 +967,7 @@ const ar: TranslationMap = {
   optionsCounterIncrement: 'زيادة مع كل توقيع (افتراضي)',
   optionsCounterZero: 'إرسال صفر دائمًا',
   optionsAaguidTitle: 'AAGUID',
-  optionsAaguidVault: 'Fenko Vault (افتراضي)',
+  optionsAaguidVault: 'Passkey.bond (افتراضي)',
   optionsAaguidZero: 'مجهول (أصفار بالكامل)',
   optionsAttachmentTitle: 'نوع الارتباط المُبلَّغ',
   optionsAttachmentCross: 'عبر الأنظمة (افتراضي)',
@@ -1040,7 +1040,7 @@ const ar: TranslationMap = {
   pageChoosePasskey: 'اختر مفتاح مرور',
   pageContinue: 'متابعة',
   pageNoPasskeysSite: 'لا توجد مفاتيح مرور لهذا الموقع',
-  pageVaultLockedMsg: 'افتح قفل Fenko Vault من شريط الأدوات لتسجيل الدخول بمفتاح مرور من الخزنة.',
+  pageVaultLockedMsg: 'افتح قفل Passkey.bond من شريط الأدوات لتسجيل الدخول بمفتاح مرور من الخزنة.',
 
   popupCopyDetails: 'نسخ التفاصيل',
   popupCopyWarnTitle: 'نسخ تفاصيل مفتاح المرور؟',
@@ -1053,11 +1053,11 @@ const ar: TranslationMap = {
   popupBackupPasswordHint:
     'يستطيع أي شخص يحصل على الملف تجربة كلمات المرور دون اتصال وبالسرعة التي يسمح بها عتاده. استخدم عبارة مرور من أربع كلمات عشوائية أو أكثر.',
   importBackupNewerVersion:
-    'أُنشئت هذه النسخة الاحتياطية بإصدار أحدث من Fenko Vault. حدّث الإضافة لاستيرادها.',
+    'أُنشئت هذه النسخة الاحتياطية بإصدار أحدث من Passkey.bond. حدّث الإضافة لاستيرادها.',
 };
 
 const fa: TranslationMap = {
-  appName: 'Fenko Vault',
+  appName: 'Passkey.bond',
   commonCancel: 'لغو',
   commonConfirm: 'تأیید',
   commonDelete: 'حذف',
@@ -1084,7 +1084,7 @@ const fa: TranslationMap = {
   popupUnlocking: 'در حال باز کردن...',
   popupWrongPassword: 'رمز اشتباه است',
   popupVaultNeedsUpdate:
-    'این گاوصندوق با نسخه‌ای جدیدتر از Fenko Vault قفل شده است. برای باز کردن آن، افزونه را به‌روزرسانی کنید.',
+    'این گاوصندوق با نسخه‌ای جدیدتر از Passkey.bond قفل شده است. برای باز کردن آن، افزونه را به‌روزرسانی کنید.',
   popupSetupVault: 'راه‌اندازی گاوصندوق',
   popupSetupHelp: 'برای رمزنگاری کلیدهای عبور، یک رمز اصلی بسازید.',
   popupSetupPasswordPlaceholder: 'پین یا عبارت عبور',
@@ -1137,7 +1137,7 @@ const fa: TranslationMap = {
   optionsCounterIncrement: 'افزایش با هر امضا (پیش‌فرض)',
   optionsCounterZero: 'همیشه صفر ارسال شود',
   optionsAaguidTitle: 'AAGUID',
-  optionsAaguidVault: 'Fenko Vault (پیش‌فرض)',
+  optionsAaguidVault: 'Passkey.bond (پیش‌فرض)',
   optionsAaguidZero: 'ناشناس (تماماً صفر)',
   optionsAttachmentTitle: 'نوع اتصال گزارش‌شده',
   optionsAttachmentCross: 'بین‌سکویی (پیش‌فرض)',
@@ -1165,7 +1165,7 @@ const fa: TranslationMap = {
   themeDark: 'تاریک',
   optionsInterceptionTitle: 'رهگیری WebAuthn',
   optionsInterceptionDesc:
-    'کنترل کنید Fenko Vault روی کدام دامنه‌ها درخواست‌های WebAuthn را رهگیری کند.',
+    'کنترل کنید Passkey.bond روی کدام دامنه‌ها درخواست‌های WebAuthn را رهگیری کند.',
   optionsInterceptionMode: 'حالت رهگیری',
   optionsDisabled: 'غیرفعال',
   optionsDisabledDesc: 'بدون رهگیری — مرورگر WebAuthn را به‌صورت بومی مدیریت می‌کند',
@@ -1225,7 +1225,7 @@ const fa: TranslationMap = {
   importDecrypt: 'رمزگشایی',
   importWrongPassword: 'رمز اشتباه است یا فایل خراب شده',
   importBackupNewerVersion:
-    'این پشتیبان با نسخه‌ای جدیدتر از Fenko Vault ساخته شده است. برای وارد کردن آن، افزونه را به‌روزرسانی کنید.',
+    'این پشتیبان با نسخه‌ای جدیدتر از Passkey.bond ساخته شده است. برای وارد کردن آن، افزونه را به‌روزرسانی کنید.',
   importAlreadyExists: 'از قبل وجود دارد',
   importNew: 'جدید',
   importSuccess: '{count} کلید عبور با موفقیت وارد شد!',
@@ -1277,7 +1277,8 @@ const fa: TranslationMap = {
   pageChoosePasskey: 'یک کلید عبور انتخاب کنید',
   pageSignInTo: 'ورود به {rp}',
   pageNoPasskeysSite: 'برای این سایت کلید عبوری پیدا نشد',
-  pageVaultLockedMsg: 'برای ورود با کلید عبور گاوصندوق، قفل Fenko Vault را از نوار ابزار باز کنید.',
+  pageVaultLockedMsg:
+    'برای ورود با کلید عبور گاوصندوق، قفل Passkey.bond را از نوار ابزار باز کنید.',
   pageContinue: 'ادامه',
 
   popupCopyDetails: 'کپی جزئیات',
@@ -1311,7 +1312,7 @@ const es: TranslationMap = {
   popupUnlocking: 'Desbloqueando...',
   popupWrongPassword: 'Contraseña incorrecta',
   popupVaultNeedsUpdate:
-    'Esta bóveda se bloqueó con una versión más reciente de Fenko Vault. Actualiza la extensión para desbloquearla.',
+    'Esta bóveda se bloqueó con una versión más reciente de Passkey.bond. Actualiza la extensión para desbloquearla.',
   popupSetupVault: 'Configurar bóveda',
   popupCreatePassword: 'Crear contraseña',
   popupPasswordMin:
@@ -1341,7 +1342,7 @@ const es: TranslationMap = {
   optionsCounterIncrement: 'Aumentar con cada firma (predeterminado)',
   optionsCounterZero: 'Enviar siempre cero',
   optionsAaguidTitle: 'AAGUID',
-  optionsAaguidVault: 'Fenko Vault (predeterminado)',
+  optionsAaguidVault: 'Passkey.bond (predeterminado)',
   optionsAaguidZero: 'Anónimo (todo ceros)',
   optionsAttachmentTitle: 'Vinculación informada',
   optionsAttachmentCross: 'Multiplataforma (predeterminado)',
@@ -1416,7 +1417,7 @@ const es: TranslationMap = {
   pageContinue: 'Continuar',
   pageNoPasskeysSite: 'No hay passkeys para este sitio',
   pageVaultLockedMsg:
-    'Desbloquea Fenko Vault desde la barra de herramientas para iniciar sesión con una passkey de la bóveda.',
+    'Desbloquea Passkey.bond desde la barra de herramientas para iniciar sesión con una passkey de la bóveda.',
 
   popupCopyDetails: 'Copiar detalles',
   popupCopyWarnTitle: '¿Copiar los datos de la clave de acceso?',
@@ -1429,7 +1430,7 @@ const es: TranslationMap = {
   popupBackupPasswordHint:
     'Quien consiga el archivo puede probar contraseñas sin conexión, tan rápido como le permita su hardware. Usa una frase de contraseña de cuatro o más palabras aleatorias.',
   importBackupNewerVersion:
-    'Esta copia de seguridad se creó con una versión más reciente de Fenko Vault. Actualiza la extensión para importarla.',
+    'Esta copia de seguridad se creó con una versión más reciente de Passkey.bond. Actualiza la extensión para importarla.',
 };
 
 const fr: TranslationMap = {
@@ -1457,7 +1458,7 @@ const fr: TranslationMap = {
   popupUnlocking: 'Déverrouillage...',
   popupWrongPassword: 'Mot de passe incorrect',
   popupVaultNeedsUpdate:
-    'Ce coffre a été verrouillé par une version plus récente de Fenko Vault. Mettez à jour l’extension pour le déverrouiller.',
+    'Ce coffre a été verrouillé par une version plus récente de Passkey.bond. Mettez à jour l’extension pour le déverrouiller.',
   popupSetupVault: 'Configurer le coffre',
   popupCreatePassword: 'Créer le mot de passe',
   popupPasswordMin:
@@ -1487,7 +1488,7 @@ const fr: TranslationMap = {
   optionsCounterIncrement: 'Incrémenter à chaque signature (par défaut)',
   optionsCounterZero: 'Toujours envoyer zéro',
   optionsAaguidTitle: 'AAGUID',
-  optionsAaguidVault: 'Fenko Vault (par défaut)',
+  optionsAaguidVault: 'Passkey.bond (par défaut)',
   optionsAaguidZero: 'Anonyme (tout à zéro)',
   optionsAttachmentTitle: 'Rattachement déclaré',
   optionsAttachmentCross: 'Multiplateforme (par défaut)',
@@ -1563,7 +1564,7 @@ const fr: TranslationMap = {
   pageContinue: 'Continuer',
   pageNoPasskeysSite: 'Aucune passkey pour ce site',
   pageVaultLockedMsg:
-    'Déverrouillez Fenko Vault depuis la barre d’outils pour vous connecter avec une passkey du coffre.',
+    'Déverrouillez Passkey.bond depuis la barre d’outils pour vous connecter avec une passkey du coffre.',
 
   popupCopyDetails: 'Copier les détails',
   popupCopyWarnTitle: 'Copier les détails de la clé d’accès ?',
@@ -1576,7 +1577,7 @@ const fr: TranslationMap = {
   popupBackupPasswordHint:
     'Quiconque obtient le fichier peut essayer des mots de passe hors ligne, aussi vite que son matériel le permet. Utilisez une phrase secrète de quatre mots aléatoires ou plus.',
   importBackupNewerVersion:
-    'Cette sauvegarde a été créée par une version plus récente de Fenko Vault. Mettez à jour l’extension pour l’importer.',
+    'Cette sauvegarde a été créée par une version plus récente de Passkey.bond. Mettez à jour l’extension pour l’importer.',
 };
 
 const translations: Record<ResolvedLanguage, TranslationMap> = { en, ru, zh_CN, ar, fa, es, fr };

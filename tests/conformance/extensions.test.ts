@@ -20,8 +20,8 @@ beforeEach(async () => {
   vault.goto('https://example.com/login');
 });
 
-const SALT_A = b64url(new TextEncoder().encode('fenko prf salt A'));
-const SALT_B = b64url(new TextEncoder().encode('fenko prf salt B'));
+const SALT_A = b64url(new TextEncoder().encode('prf salt A'));
+const SALT_B = b64url(new TextEncoder().encode('prf salt B'));
 
 function prfFirst(credential: any): Uint8Array {
   return toBytes(credential.getClientExtensionResults().prf.results.first);

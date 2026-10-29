@@ -2,8 +2,8 @@
  * Importers for the password managers.
  *
  * These files mix logins, MFA seeds and (for a few vendors) passkeys. We take
- * the two kinds of secret the vault stores and ignore the passwords: Fenko
- * Vault is not a password manager.
+ * the two kinds of secret the vault stores and ignore the passwords:
+ * Passkey.bond is not a password manager.
  */
 
 import { FormatParser, ImportInput, ParsedImport, PortablePasskey, emptyImport } from '../types';

@@ -14,7 +14,7 @@ const nativeGet = navigator.credentials.get as jest.Mock;
 // Side-effect import: hooks navigator.credentials and listens for messages.
 require('../src/content/webauthn-inject');
 
-const PAGE_SOURCE = 'PASSKEY_VAULT_PAGE';
+const PAGE_SOURCE = 'PASSKEY_BOND_PAGE';
 
 let posted: Array<{ type: string; requestId: string }>;
 const record = (event: MessageEvent) => {

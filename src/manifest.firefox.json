@@ -63,7 +63,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "security@fenko.nz",
+      "id": "extension@passkey.bond",
       "strict_min_version": "109.0",
       "data_collection_permissions": {
         "required": [

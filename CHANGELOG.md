@@ -1,10 +1,36 @@
 # Changelog
 
-All notable changes to Passkey Vault are documented here. The format follows
+All notable changes to Passkey.bond are documented here. Releases up to 0.12.0
+were published by Fenko as Fenko Vault (originally Passkey Vault), so those
+entries use the old names. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Fenko Vault is now Passkey.bond
+
+Passkey.bond is a fork of Fenko Vault with its own name, icon and identifiers,
+maintained by Colin Mollenhour. It installs next to Fenko Vault rather than
+over it:
+
+- **New IDs.** The development-build extension ID is now
+  `odoehegfpkpmhicjkpdajlpdhcaghkhi`, the Firefox add-on ID is
+  `extension@passkey.bond`, and the Android and iOS apps are `bond.passkey.app`.
+  Each starts with an empty vault.
+- **New AAGUID** `2391d29c-2806-4960-a51b-7c18e5da7976`, so sites that look the
+  authenticator up show Passkey.bond. Passkeys made under the old AAGUID keep
+  working.
+- **Moving your vault across.** Either join your existing sync chain with its
+  seed phrase (the sync protocol is unchanged), or export a backup from Fenko
+  Vault and import it. Then disable Fenko Vault, since two extensions both
+  answering WebAuthn requests get in each other's way.
+- **Fenko's relay is gone from the defaults.** New installs sync through
+  `relay.damus.io`, `nos.lol` and `relay.nostr.band`. Existing relay lists are
+  kept.
+- **Feedback** goes to support@passkey.bond, security reports to
+  security@passkey.bond.
+- The extension package and the Android app now include the LICENSE file.
 
 ### Lock the vault with a passphrase
 

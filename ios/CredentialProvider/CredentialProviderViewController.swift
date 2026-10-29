@@ -155,7 +155,7 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
 
     private func authenticateUser(completion: @escaping (Bool) -> Void) {
         let context = LAContext()
-        context.localizedReason = "Use a passkey from Fenko Vault"
+        context.localizedReason = "Use a passkey from Passkey.bond"
         var error: NSError?
         let policy: LAPolicy = .deviceOwnerAuthentication
         guard context.canEvaluatePolicy(policy, error: &error) else {

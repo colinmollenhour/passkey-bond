@@ -1,8 +1,8 @@
-package nz.fenko.passkeyvault;
+package bond.passkey.app;
 
 import org.json.JSONObject;
 
-public final class FenkoVaultProviderSelfTest {
+public final class PasskeyBondProviderSelfTest {
     public static void main(String[] args) throws Exception {
         JSONObject rp = new JSONObject()
                 .put("id", "example.com")

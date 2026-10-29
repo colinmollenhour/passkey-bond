@@ -15,7 +15,7 @@ import { PNG_DATA_URL_PREFIX } from './store';
 const FAVICON_PERMISSION = 'favicon';
 const FAVICON_PATH = '/_favicon/';
 const FAVICON_PIXELS = 32;
-const UNCACHED_PROBE_URL = 'https://fenko-vault-uncached-probe.invalid/';
+const UNCACHED_PROBE_URL = 'https://passkey-bond-uncached-probe.invalid/';
 const WWW_PREFIX = 'www.';
 
 let defaultIconBytes: Uint8Array | null | undefined;

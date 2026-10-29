@@ -12,17 +12,17 @@ import { base64ToUint8Array } from '../utils/base64';
 import { backupSourceOf, hasBackupFlags, normalizeBackupFlags } from '../sync/backup-flags';
 import { buildOtpauthUri } from './otpauth';
 import { buildCxf } from './formats/cxf';
-import { passkeysToCsv, totpToCsv } from './formats/fenko';
+import { passkeysToCsv, totpToCsv } from './formats/passkey-bond';
 import { PortableOtp, PortablePasskey } from './types';
 import { StoredPasskeyRecord } from './import';
 
 const JSON_MIME = 'application/json';
 const CSV_MIME = 'text/csv';
 const TEXT_MIME = 'text/plain';
-const EXPORTER_RP_ID = 'fenko.nz';
-const EXPORTER_NAME = 'Fenko Vault';
+const EXPORTER_RP_ID = 'passkey.bond';
+const EXPORTER_NAME = 'Passkey.bond';
 
-export type ExportFormat = 'fenko-json' | 'cxf' | 'otpauth-txt' | 'totp-csv' | 'passkey-csv';
+export type ExportFormat = 'passkey-bond-json' | 'cxf' | 'otpauth-txt' | 'totp-csv' | 'passkey-csv';
 
 export interface VaultSnapshot {
   passkeys: StoredPasskeyRecord[];
@@ -44,9 +44,9 @@ export interface ExportFormatInfo {
 
 export const EXPORT_FORMATS: ExportFormatInfo[] = [
   {
-    id: 'fenko-json',
-    label: 'Fenko Vault backup (JSON)',
-    hint: 'Everything, ready to restore into another Fenko Vault.',
+    id: 'passkey-bond-json',
+    label: 'Passkey.bond backup (JSON)',
+    hint: 'Everything, ready to restore into Passkey.bond on another device.',
     includes: 'both',
   },
   {
@@ -119,7 +119,7 @@ export function buildExport(format: ExportFormat, vault: VaultSnapshot): ExportF
   switch (format) {
     case 'cxf':
       return {
-        fileName: `fenko-vault-cxf-${stamp}.json`,
+        fileName: `passkey-bond-cxf-${stamp}.json`,
         mimeType: JSON_MIME,
         content: JSON.stringify(
           buildCxf({
@@ -135,29 +135,29 @@ export function buildExport(format: ExportFormat, vault: VaultSnapshot): ExportF
 
     case 'otpauth-txt':
       return {
-        fileName: `fenko-vault-mfa-${stamp}.txt`,
+        fileName: `passkey-bond-mfa-${stamp}.txt`,
         mimeType: TEXT_MIME,
         content: otp.map(buildOtpauthUri).join('\n') + '\n',
       };
 
     case 'totp-csv':
       return {
-        fileName: `fenko-vault-mfa-${stamp}.csv`,
+        fileName: `passkey-bond-mfa-${stamp}.csv`,
         mimeType: CSV_MIME,
         content: totpToCsv(otp),
       };
 
     case 'passkey-csv':
       return {
-        fileName: `fenko-vault-passkeys-${stamp}.csv`,
+        fileName: `passkey-bond-passkeys-${stamp}.csv`,
         mimeType: CSV_MIME,
         content: passkeysToCsv(passkeys),
       };
 
-    case 'fenko-json':
+    case 'passkey-bond-json':
     default:
       return {
-        fileName: `fenko-vault-export-${stamp}.json`,
+        fileName: `passkey-bond-export-${stamp}.json`,
         mimeType: JSON_MIME,
         content: JSON.stringify(
           {

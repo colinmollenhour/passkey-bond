@@ -84,8 +84,8 @@ before(async () => {
 });
 
 // Chrome's account of a message from the popup, an extension page.
-const EXTENSION_ORIGIN = 'chrome-extension://fenkovaulttest';
-const POPUP = { id: 'fenkovaulttest', url: `${EXTENSION_ORIGIN}/popup.html` };
+const EXTENSION_ORIGIN = 'chrome-extension://passkeybondtest';
+const POPUP = { id: 'passkeybondtest', url: `${EXTENSION_ORIGIN}/popup.html` };
 
 function env(code) {
   const storage = new Map();

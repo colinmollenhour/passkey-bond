@@ -1,5 +1,5 @@
 /**
- * Content Script for Fenko Vault
+ * Content Script for Passkey.bond
  *
  * This script is injected into web pages to intercept WebAuthn API calls
  * and communicate with the background script.
@@ -122,7 +122,7 @@ class ContentScript {
   private setupPageCommunication(): void {
     window.addEventListener('message', async (event) => {
       if (event.source !== window) return;
-      if (event.data?.source === 'PASSKEY_VAULT_PAGE') {
+      if (event.data?.source === 'PASSKEY_BOND_PAGE') {
         this.handlePageMessage(event.data);
       }
     });
@@ -339,7 +339,7 @@ class ContentScript {
         if (dialog.outcome !== 'approved') {
           window.postMessage(
             {
-              source: 'PASSKEY_VAULT_CONTENT',
+              source: 'PASSKEY_BOND_CONTENT',
               type: 'PASSKEY_CREATE_RESPONSE',
               requestId,
               result: {
@@ -384,7 +384,7 @@ class ContentScript {
           );
           window.postMessage(
             {
-              source: 'PASSKEY_VAULT_CONTENT',
+              source: 'PASSKEY_BOND_CONTENT',
               type: 'PASSKEY_CREATE_RESPONSE',
               requestId,
               result: { success: true, credential },
@@ -402,7 +402,7 @@ class ContentScript {
           }
           window.postMessage(
             {
-              source: 'PASSKEY_VAULT_CONTENT',
+              source: 'PASSKEY_BOND_CONTENT',
               type: 'PASSKEY_CREATE_RESPONSE',
               requestId,
               result: response,
@@ -415,7 +415,7 @@ class ContentScript {
         _showErrorNotification(t('pagePasskeyError'), msg);
         window.postMessage(
           {
-            source: 'PASSKEY_VAULT_CONTENT',
+            source: 'PASSKEY_BOND_CONTENT',
             type: 'PASSKEY_CREATE_RESPONSE',
             requestId,
             result: { success: false, error: msg },
@@ -522,7 +522,7 @@ class ContentScript {
           }
           window.postMessage(
             {
-              source: 'PASSKEY_VAULT_CONTENT',
+              source: 'PASSKEY_BOND_CONTENT',
               type: 'PASSKEY_GET_RESPONSE',
               requestId,
               result: {
@@ -560,7 +560,7 @@ class ContentScript {
           );
           window.postMessage(
             {
-              source: 'PASSKEY_VAULT_CONTENT',
+              source: 'PASSKEY_BOND_CONTENT',
               type: 'PASSKEY_GET_RESPONSE',
               requestId,
               result: { success: true, credential },
@@ -574,7 +574,7 @@ class ContentScript {
           );
           window.postMessage(
             {
-              source: 'PASSKEY_VAULT_CONTENT',
+              source: 'PASSKEY_BOND_CONTENT',
               type: 'PASSKEY_GET_RESPONSE',
               requestId,
               result: { ...response, blockNativeFallback: true },
@@ -587,7 +587,7 @@ class ContentScript {
         _showErrorNotification(t('pageSignInFailed'), msg);
         window.postMessage(
           {
-            source: 'PASSKEY_VAULT_CONTENT',
+            source: 'PASSKEY_BOND_CONTENT',
             type: 'PASSKEY_GET_RESPONSE',
             requestId,
             result: {
@@ -653,7 +653,7 @@ class ContentScript {
   private setupActivationListeners(): void {
     // Listen for custom activation events
     window.addEventListener('vault-activate', () => {
-      console.log('Fenko Vault: Activation event received');
+      console.log('Passkey.bond: Activation event received');
       this.activateEmergencyUI();
     });
 
@@ -862,7 +862,7 @@ class ContentScript {
   private postPassthroughResponse(type: string, requestId: string, reason: string): void {
     window.postMessage(
       {
-        source: 'PASSKEY_VAULT_CONTENT',
+        source: 'PASSKEY_BOND_CONTENT',
         type,
         requestId,
         result: {
@@ -879,7 +879,7 @@ class ContentScript {
   private postBlockedResponse(type: string, requestId: string, error: string): void {
     window.postMessage(
       {
-        source: 'PASSKEY_VAULT_CONTENT',
+        source: 'PASSKEY_BOND_CONTENT',
         type,
         requestId,
         result: {

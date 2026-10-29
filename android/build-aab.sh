@@ -9,7 +9,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
 BUILD_TOOLS="${ANDROID_BUILD_TOOLS:-$ANDROID_HOME/build-tools/36.0.0}"
 PLATFORM="${ANDROID_PLATFORM:-$ANDROID_HOME/platforms/android-36/android.jar}"
-APP_ID="nz.fenko.passkeyvault"
+APP_ID="bond.passkey.app"
 VERSION_CODE="${VERSION_CODE:-1}"
 VERSION_NAME="${VERSION_NAME:-$(node -p "require('$ROOT/package.json').version")}"
 
@@ -28,7 +28,7 @@ COMPILED="$OUT/compiled"
 MODULE="$OUT/module"
 DIST="$ROOT/android/dist"
 KEY_DIR="$ROOT/android/signing"
-KEYSTORE="$KEY_DIR/passkey-vault.jks"
+KEYSTORE="$KEY_DIR/passkey-bond.jks"
 KS_PASS="${ANDROID_KEYSTORE_PASSWORD:-android}"
 
 rm -rf "$OUT"
@@ -53,6 +53,7 @@ cp "$ROOT/android/web/src/index.html" "$ASSETS/index.html"
 cp "$ROOT/android/web/src/styles.css" "$ASSETS/styles.css"
 cp -r "$ROOT/android/web/src/fonts" "$ASSETS/fonts"
 cp "$ROOT/android/web/src/icon.png" "$ASSETS/icon.png"
+cp "$ROOT/LICENSE" "$ASSETS/LICENSE.txt"
 cp "$ROOT/node_modules/jsqr/dist/jsQR.js" "$ASSETS/jsQR.js"
 
 # 2. Compile + link resources in PROTO format (required by the bundle format).
@@ -99,11 +100,11 @@ if [ ! -f "$KEYSTORE" ]; then
     -keystore "$KEYSTORE" \
     -storepass "$KS_PASS" \
     -keypass "$KS_PASS" \
-    -alias passkey-vault \
+    -alias passkey-bond \
     -keyalg RSA \
     -keysize 3072 \
     -validity 10000 \
-    -dname "CN=Fenko Vault Android Dev,O=Fenko,L=Auckland,C=NZ" >/dev/null
+    -dname "CN=Passkey.bond Android,O=Passkey.bond" >/dev/null
 fi
 
 jarsigner \
@@ -112,9 +113,9 @@ jarsigner \
   -keypass "$KS_PASS" \
   -sigalg SHA256withRSA \
   -digestalg SHA-256 \
-  -signedjar "$DIST/fenko-vault-${VERSION_NAME}.aab" \
+  -signedjar "$DIST/passkey-bond-${VERSION_NAME}.aab" \
   "$OUT/app.aab" \
-  passkey-vault
+  passkey-bond
 
-jarsigner -verify "$DIST/fenko-vault-${VERSION_NAME}.aab" >/dev/null
-echo "$DIST/fenko-vault-${VERSION_NAME}.aab"
+jarsigner -verify "$DIST/passkey-bond-${VERSION_NAME}.aab" >/dev/null
+echo "$DIST/passkey-bond-${VERSION_NAME}.aab"

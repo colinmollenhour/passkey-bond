@@ -1,6 +1,6 @@
 import { cleanSyncConfig } from '../sync/config';
 /**
- * Secure Storage Module for Fenko Vault
+ * Secure Storage Module for Passkey.bond
  * Provides encrypted storage for sensitive data like seed hashes and passkeys
  */
 
@@ -58,7 +58,7 @@ const VAULT_STORAGE_KEYS = [
   STORAGE_KEYS.ENCRYPTION_SALT,
 ];
 
-const CHECK_VALUE = 'passkey-vault-check';
+const CHECK_VALUE = 'passkey-bond-check';
 
 /** chrome.storage.local key holding the auto-lock timeout in minutes; 0 means never. */
 export const AUTO_LOCK_SETTING_KEY = 'auto_lock_timeout';

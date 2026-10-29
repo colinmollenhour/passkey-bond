@@ -28,7 +28,7 @@ export class UnsupportedBackupError extends Error {
   readonly code = 'UNSUPPORTED_BACKUP';
 
   constructor(detail: string) {
-    super(`This backup was made by a newer version of Fenko Vault (${detail}).`);
+    super(`This backup was made by a newer version of Passkey.bond (${detail}).`);
     this.name = 'UnsupportedBackupError';
   }
 }

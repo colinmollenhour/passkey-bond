@@ -71,7 +71,7 @@ describe('a malicious page', () => {
       new MessageEvent('message', {
         source: window,
         data: {
-          source: 'PASSKEY_VAULT_PAGE',
+          source: 'PASSKEY_BOND_PAGE',
           type: 'PASSKEY_GET_REQUEST',
           requestId,
           payload: {

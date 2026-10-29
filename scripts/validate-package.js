@@ -16,7 +16,7 @@ if (!zipPathArg || !targetArg) {
 const zipPath = path.resolve(root, zipPathArg);
 const target = targetArg.toLowerCase();
 // Set by the release workflow, whose packages go to the stores.
-const release = process.env.PASSKEY_VAULT_RELEASE === '1';
+const release = process.env.PASSKEY_BOND_RELEASE === '1';
 const validTargets = new Set(['chrome', 'firefox']);
 
 if (!validTargets.has(target)) {
@@ -84,6 +84,7 @@ function main() {
     'icons/icon16.png',
     'icons/icon48.png',
     'icons/icon128.png',
+    'LICENSE',
   ];
 
   for (const file of requiredFiles) {
@@ -143,7 +144,7 @@ function main() {
   );
   assert(manifest.name === '__MSG_appName__', `Unexpected manifest name: ${manifest.name}`);
   assert(
-    enMessages.appName?.message === 'Fenko Vault | Passkey and MFA Manager',
+    enMessages.appName?.message === 'Passkey.bond | Passkey and MFA Manager',
     `Unexpected localized app name: ${enMessages.appName?.message}`
   );
   assert(manifest.icons?.['16'] === 'icons/icon16.png', 'Manifest icon16 path mismatch');
