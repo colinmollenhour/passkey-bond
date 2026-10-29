@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Privacy · Passkey.bond</title>
+  <meta name="description" content="Passkey.bond collects nothing. Your passkeys and codes stay on your devices.">
+  <meta name="theme-color" content="#111111">
+  <link rel="canonical" href="https://passkey.bond/privacy">
+  <link rel="preload" href="/assets/fonts/bodoni-moda.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/jost.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="Passkey.bond home">
+        <img class="brand__mark" src="/assets/img/mark-32.svg" alt="" width="34" height="34">
+        <span class="brand__name">Passkey<em>.bond</em></span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a class="nav-hide-sm" href="/#how">How it works</a>
+        <a href="/security">Security</a>
+        <a class="nav-hide-sm" href="/#pricing">Pricing</a>
+        <a class="nav-cta" href="/download">Download</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero hero--page" aria-labelledby="page-title">
+      <canvas class="hero__bg" data-guilloche data-cx="0.88" data-cy="0.42" data-r="0.2" aria-hidden="true"></canvas>
+      <div class="wrap">
+        <p class="eyebrow reveal">Privacy</p>
+        <h1 id="page-title" class="reveal reveal--2">We collect <em>nothing.</em></h1>
+        <p class="lede reveal reveal--3">Not because we promise not to look, but because nothing ever reaches us. Last updated 29 October 2026.</p>
+      </div>
+    </section>
+
+    <section class="section section--ivory" aria-label="Privacy policy">
+      <div class="wrap wrap--narrow prose">
+        <div class="notice" role="note"><strong>Placeholder.</strong> This privacy policy is a draft written to describe how the software works today. It has not been reviewed by a lawyer and will be replaced before the apps are published in any store.</div>
+        <h2>The short version</h2>
+        <p>Passkey.bond has no account system and no servers. Your passkeys, two-factor codes and settings are stored on your own devices. We, the people who make Passkey.bond, cannot see them, and we don't collect analytics, crash reports or usage data of any kind.</p>
+
+        <h2>What stays on your device</h2>
+        <ul>
+          <li>Your passkeys, including their private keys.</li>
+          <li>Your two-factor code secrets.</li>
+          <li>Your settings, your sync phrase and the list of relays you use.</li>
+        </ul>
+        <p>This data lives in your browser's extension storage or in the phone app's private storage. If you set a PIN, passphrase or device lock, it is encrypted there.</p>
+
+        <h2>Network connections the apps make</h2>
+        <ul>
+          <li><b>Sync relays, only if you turn sync on.</b> Your devices send end-to-end encrypted messages through public Nostr relays run by independent operators. The relays can see your IP address, when your devices connect, and an identifier for your sync chain. They cannot read what you store. Each relay has its own privacy policy, and you can choose which relays to use.</li>
+          <li><b>Websites you sign in to.</b> When a site asks for a passkey, the extension may read that site's own <code>/.well-known/webauthn</code> file and its own icon. These requests go only to the site you are on.</li>
+        </ul>
+        <p>Nothing else. There are no calls to Passkey.bond, because there is no Passkey.bond server to call.</p>
+
+        <h2>Purchases</h2>
+        <p>The phone apps are sold through Google Play and the App Store. Those stores handle payment and share with us only what they share with every developer, such as aggregate sales figures. We don't receive your payment details.</p>
+
+        <h2>This website</h2>
+        <p>passkey.bond sets no cookies and runs no analytics. Fonts and images are served from this site, not from third parties. The hosting provider may keep standard server logs, such as IP addresses and pages requested, for security and operations.</p>
+
+        <h2>Email</h2>
+        <p>If you write to <a href="mailto:support@passkey.bond">support@passkey.bond</a> or <a href="mailto:security@passkey.bond">security@passkey.bond</a>, we keep the conversation only as long as we need it to help you.</p>
+
+        <h2>Children</h2>
+        <p>Passkey.bond doesn't knowingly collect data from anyone, children included.</p>
+
+        <h2>Changes</h2>
+        <p>If this policy changes, the new version will be posted here with a new date. The source code is public, so any change in what the apps do is public too.</p>
+
+        <h2>Contact</h2>
+        <p>Questions about privacy: <a href="mailto:support@passkey.bond">support@passkey.bond</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <p class="brand brand--footer"><img class="brand__mark" src="/assets/img/mark-32.svg" alt="" width="28" height="28"><span class="brand__name">Passkey<em>.bond</em></span></p>
+          <p>Passkeys and two-factor codes, kept on your own devices.</p>
+        </div>
+        <div>
+          <h2>Product</h2>
+          <ul>
+            <li><a href="/download">Download</a></li>
+            <li><a href="/security">Security</a></li>
+            <li><a href="/#pricing">Pricing</a></li>
+            <li><a href="https://github.com/colinmollenhour/passkey-bond">Source code</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Legal</h2>
+          <ul>
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms</a></li>
+            <li><a href="https://github.com/colinmollenhour/passkey-bond/blob/main/LICENSE">Licence</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Contact</h2>
+          <ul>
+            <li><a href="mailto:support@passkey.bond">support@passkey.bond</a></li>
+            <li><a href="mailto:security@passkey.bond">security@passkey.bond</a></li>
+            <li><a href="https://github.com/colinmollenhour/passkey-bond/issues">Report a bug</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-base">
+        <p>&copy; 2026 Colin Mollenhour</p>
+        <p>This site sets no cookies and runs no analytics.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/guilloche.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Security · Passkey.bond</title>
+  <meta name="description" content="How Passkey.bond protects your passkeys: local key generation, AES-256-GCM with scrypt, end-to-end encrypted sync over public Nostr relays, and no servers of our own.">
+  <meta name="theme-color" content="#111111">
+  <link rel="canonical" href="https://passkey.bond/security">
+  <link rel="icon" href="/assets/img/mark-16.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://passkey.bond/security">
+  <meta property="og:title" content="Security · Passkey.bond">
+  <meta property="og:description" content="Zero servers, zero accounts, zero trackers. The full security design, with links to the code.">
+  <meta property="og:image" content="https://passkey.bond/assets/img/icon-512.png">
+  <link rel="preload" href="/assets/fonts/bodoni-moda.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/jost.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="Passkey.bond home">
+        <img class="brand__mark" src="/assets/img/mark-32.svg" alt="" width="34" height="34">
+        <span class="brand__name">Passkey<em>.bond</em></span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a class="nav-hide-sm" href="/#how">How it works</a>
+        <a href="/security" aria-current="page">Security</a>
+        <a class="nav-hide-sm" href="/#pricing">Pricing</a>
+        <a class="nav-cta" href="/download">Download</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero hero--page" aria-labelledby="sec-title">
+      <canvas class="hero__bg" data-guilloche data-cx="0.88" data-cy="0.42" data-r="0.2" aria-hidden="true"></canvas>
+      <div class="wrap">
+        <p class="eyebrow reveal">Security</p>
+        <h1 id="sec-title" class="reveal reveal--2">Cut close. <em>Sewn tight.</em></h1>
+        <p class="lede reveal reveal--3">The full design, for those who like to check the stitching. Every claim here points at the code that keeps it. Read it, test it, try to break it, and tell us if you do.</p>
+        <div class="stats reveal reveal--4">
+          <div class="stat"><b>0</b><span>servers of ours</span></div>
+          <div class="stat"><b>0</b><span>accounts to breach</span></div>
+          <div class="stat"><b>0</b><span>analytics or trackers</span></div>
+          <div class="stat"><b>MIT</b><span>open source, every line</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--black section--rule" aria-labelledby="sync-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Sync, step by step</p>
+          <h2 id="sync-title">What travels, <em>and who can read it.</em></h2>
+          <p class="lede">This is the homepage animation with the protocol labels left in. Step through it, or switch relays off to see that any one working relay is enough.</p>
+        </div>
+        <div class="viz" data-relay-viz data-detail="true">
+          <div class="viz__stage">
+            <svg role="img" aria-label="Animation: a passkey created on a laptop is encrypted with AES-256-GCM inside a signed Nostr event, published to three public relays that see only ciphertext, the chain tag and timing, then delivered to a phone that verifies, decrypts and merges it. Duplicate copies are ignored. No Passkey.bond server is involved."></svg>
+          </div>
+          <div class="viz__bar">
+            <p class="viz__caption" aria-live="off"></p>
+            <div class="viz__controls" role="group" aria-label="Animation controls">
+              <button class="viz__btn" type="button" data-act="prev" aria-label="Previous step"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2 L4 7 L9 12" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+              <button class="viz__btn" type="button" data-act="play" aria-label="Pause"></button>
+              <button class="viz__btn" type="button" data-act="next" aria-label="Next step"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M5 2 L10 7 L5 12" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+              <div class="viz__beats"></div>
+            </div>
+          </div>
+          <div class="viz__relays" role="group" aria-label="Relays">
+            <span>Default relays:</span>
+            <button class="relay-toggle" type="button" aria-pressed="true">relay.damus.io</button>
+            <button class="relay-toggle" type="button" aria-pressed="true">nos.lol</button>
+            <button class="relay-toggle" type="button" aria-pressed="true">relay.nostr.band</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--ivory" aria-label="Security design">
+      <div class="wrap">
+
+        <article class="file" id="keys">
+          <p class="file__tag"><b>01</b>Keys</p>
+          <div>
+            <h2>Made on your device. Kept there.</h2>
+            <p>When a site asks for a new passkey, Passkey.bond answers the WebAuthn call itself. It generates an <strong>ECDSA P-256 (ES256)</strong> key pair locally, builds a standard attestation response, and stores the private key in the browser's extension storage. To sign in, it signs the site's challenge with that key. The private key is never sent to the site, and never to us.</p>
+            <ul>
+              <li>Passkeys are bound to the site's domain (the relying party ID), so a look-alike phishing domain gets nothing. Related-origin requests are checked against the site's own <code>/.well-known/webauthn</code> list.</li>
+              <li>Each credential carries Passkey.bond's AAGUID <code>2391d29c-2806-4960-a51b-7c18e5da7976</code>, so sites can tell which authenticator holds it.</li>
+              <li>Two-factor codes (RFC 6238 TOTP and RFC 4226 HOTP) are computed locally with HMAC-SHA1, SHA-256 or SHA-512. QR codes are decoded on the device. Nothing is uploaded.</li>
+            </ul>
+            <p>Source: <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/crypto/webauthn.ts"><code>src/crypto/webauthn.ts</code></a>, <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/crypto/totp.ts"><code>src/crypto/totp.ts</code></a></p>
+          </div>
+        </article>
+
+        <article class="file" id="lock">
+          <p class="file__tag"><b>02</b>The lock</p>
+          <div>
+            <h2>AES-256-GCM behind a slow, memory-hard key.</h2>
+            <p>Set a PIN or passphrase and the vault moves into encrypted storage. The key is derived with <strong>scrypt</strong> at the OWASP-recommended cost, which takes 128 MiB of memory per guess, and the vault is sealed with <strong>AES-256-GCM</strong>.</p>
+            <div class="spec-wrap">
+              <table class="spec">
+                <tr><th scope="row">Cipher</th><td>AES-256-GCM, fresh 96-bit IV per write</td></tr>
+                <tr><th scope="row">Key derivation</th><td>scrypt, <code>N = 2^17, r = 8, p = 1</code> (128 MiB)</td></tr>
+                <tr><th scope="row">Parameters</th><td>Stored with the vault. Vaults sealed with weaker settings are re-keyed at the next unlock.</td></tr>
+                <tr><th scope="row">Phone</th><td>Unlocks with the system's own BiometricPrompt: face, fingerprint or screen lock. Locks itself again after 5 minutes by default.</td></tr>
+              </table>
+            </div>
+            <p>Source: <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/crypto/kdf-profile.ts"><code>src/crypto/kdf-profile.ts</code></a>, <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/crypto/secure-storage.ts"><code>src/crypto/secure-storage.ts</code></a></p>
+          </div>
+        </article>
+
+        <article class="file" id="chain">
+          <p class="file__tag"><b>03</b>The sync chain</p>
+          <div>
+            <h2>Twelve words. Three keys. No account.</h2>
+            <p>Sync is off until you turn it on. Turning it on generates a <strong>BIP-39</strong> phrase of 12 (or 24) words, which you type into your other devices. Every device holding the phrase is on the chain, and the phrase itself never leaves your devices. Each device derives the same three values from it:</p>
+<div class="derive"><span class="k">phrase</span>
+  └─ SHA-256
+     └─ scrypt  <span class="c">N=2^17, r=8, p=1  · 128 MiB per guess</span>
+        └─ HKDF-SHA256
+           ├─ <span class="k">chain ID</span>        <span class="c">the only identifier relays see</span>
+           ├─ <span class="k">AES-256-GCM key</span> <span class="c">seals every sync payload</span>
+           └─ <span class="k">secp256k1 key</span>   <span class="c">signs every Nostr event</span></div>
+            <p>Different phrases give unrelated keys. Checking one guessed phrase against a chain ID seen on a relay costs a full scrypt, so brute-forcing a phrase is out of reach. The construction is pinned by test vectors, so a refactor can't change it silently.</p>
+            <p>Source: <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/sync/chain-keys.ts"><code>src/sync/chain-keys.ts</code></a>, vectors in <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/tests/sync/chain-keys.test.ts"><code>tests/sync/chain-keys.test.ts</code></a></p>
+          </div>
+        </article>
+
+        <article class="file" id="wire">
+          <p class="file__tag"><b>04</b>On the wire</p>
+          <div>
+            <h2>What a relay sees. What it doesn't.</h2>
+            <p>Sync messages are ordinary Nostr events (NIP-01): kind <code>30078</code>, application data, tagged <code>d = pksync-v5-&lt;chainId&gt;</code> and signed with a <strong>BIP340 Schnorr</strong> signature. The content field is AES-GCM ciphertext. They go out to every configured relay, and two devices sync as long as they share one that works.</p>
+            <div class="split">
+              <div class="sees">
+                <h3>Visible to a relay</h3>
+                <ul>
+                  <li>Ciphertext</li>
+                  <li>The chain tag</li>
+                  <li>When events are sent</li>
+                  <li>The connecting IP address, as with any website</li>
+                </ul>
+              </div>
+              <div class="hidden">
+                <h3>Sealed inside the ciphertext</h3>
+                <ul>
+                  <li>Which sites you have passkeys for</li>
+                  <li>Usernames and private keys</li>
+                  <li>Device names</li>
+                  <li>How many entries you store</li>
+                </ul>
+              </div>
+            </div>
+            <p>The default relays are <code>relay.damus.io</code>, <code>nos.lol</code> and <code>relay.nostr.band</code>, all run by independent operators. Add or remove relays in Settings, or point your devices at a relay of your own.</p>
+            <p>Source: <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/sync/protocol.ts"><code>src/sync/protocol.ts</code></a>, <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/sync/transport.ts"><code>src/sync/transport.ts</code></a></p>
+          </div>
+        </article>
+
+        <article class="file" id="receive">
+          <p class="file__tag"><b>05</b>Receiving</p>
+          <div>
+            <h2>Trust nothing that arrives.</h2>
+            <ul>
+              <li><strong>Verify first.</strong> Each event's Schnorr signature and event ID hash are checked before anything is decrypted.</li>
+              <li><strong>Replays ignored.</strong> Event IDs already seen are dropped, so the same envelope from three relays is merged once.</li>
+              <li><strong>Decrypt or discard.</strong> Anything that doesn't authenticate under the chain key is thrown away. GCM's tag means a relay can't alter a payload undetected.</li>
+              <li><strong>Additive merge.</strong> A device adds entries it lacks and updates those with a newer creation time. Sync never deletes local data, so a hostile or broken peer can't wipe your vault.</li>
+            </ul>
+            <p>Source: <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/sync/sync-service.ts"><code>src/sync/sync-service.ts</code></a>, <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/sync/merge.ts"><code>src/sync/merge.ts</code></a></p>
+          </div>
+        </article>
+
+        <article class="file" id="backups">
+          <p class="file__tag"><b>06</b>Backups</p>
+          <div>
+            <h2>A file you can keep in a drawer.</h2>
+            <p>The password-protected backup uses the same AES-256-GCM and scrypt settings as the vault lock, with the KDF and its parameters recorded in the file header. A file from a newer version is refused with a clear message, never decrypted with the wrong settings. The extension and the phone apps share one format and one implementation.</p>
+            <p>Exports to other apps (CXF, <code>otpauth://</code>, CSV) are plaintext, because the receiving app expects that. Passkey.bond warns you about this when you export. Delete them once they are imported.</p>
+            <p>Source: <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/crypto/backup-crypto.ts"><code>src/crypto/backup-crypto.ts</code></a></p>
+          </div>
+        </article>
+
+        <article class="file" id="footprint">
+          <p class="file__tag"><b>07</b>Footprint</p>
+          <div>
+            <h2>Asks for little. Phones home never.</h2>
+            <div class="spec-wrap">
+              <table class="spec">
+                <tr><th scope="row"><code>storage</code></th><td>Holds the vault on your device.</td></tr>
+                <tr><th scope="row"><code>alarms</code></th><td>Locks the vault again after a spell of inactivity.</td></tr>
+                <tr><th scope="row"><code>favicon</code></th><td>Shows site icons from the browser's own cache, rather than a third-party icon service.</td></tr>
+                <tr><th scope="row"><code>https://*/*</code></th><td>Needed to answer passkey requests on any secure site. The only plain <code>http</code> pages it runs on are <code>localhost</code> and <code>127.0.0.1</code>, for developers.</td></tr>
+              </table>
+            </div>
+            <ul>
+              <li>Manifest V3, with a content security policy of <code>script-src 'self'</code>: no remote code and no <code>eval</code>.</li>
+              <li>No analytics, crash reporting or telemetry of any kind. The Firefox build declares no data collection.</li>
+              <li>The only network requests it makes: Nostr relays, if you turn sync on; a site's own <code>/.well-known/webauthn</code> file, when that site asks for a related-origin passkey; and the site's own icon, normally answered from the browser cache.</li>
+              <li>Cryptography comes from Paul Miller's <code>@noble</code> libraries (ciphers, hashes, secp256k1): small, dependency-free and widely reviewed. Nothing home-made.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="file" id="separation">
+          <p class="file__tag"><b>08</b>Separation</p>
+          <div>
+            <h2>Two vaults, two locks, two break-ins.</h2>
+            <p>Multi-factor authentication works because an attacker has to steal two different things. Most password managers will also store your TOTP seeds and passkeys, and many people let them. That puts the password and the second factor behind the same master password, in the same encrypted blob, usually on the same company's servers. Crack that one vault and both factors fall together.</p>
+            <p>This isn't hypothetical. In 2022 attackers copied encrypted LastPass customer vaults out of the company's cloud storage. A stolen vault can be attacked offline indefinitely, and any vault whose master password gives way surrenders everything in it.</p>
+            <ul>
+              <li><strong>Keep passwords in your password manager</strong> and second factors (TOTP codes, and passkeys used as a second factor) in Passkey.bond. Breaching either one yields half a login.</li>
+              <li><strong>No central copy to steal.</strong> Passkey.bond has no server, so there is no store of everyone's vaults to take in one go. Sync relays hold only ciphertext under keys derived from each chain's own phrase.</li>
+              <li><strong>Different keys, different places.</strong> The Passkey.bond vault is locked by its own PIN, passphrase or device biometrics, never by your password manager's master password.</li>
+            </ul>
+            <p>For a site where a passkey is the only way to sign in, the passkey is the whole login wherever it's kept. Separation adds nothing there. What protects it is the lack of a server-side vault to steal.</p>
+          </div>
+        </article>
+
+        <article class="file" id="limits">
+          <p class="file__tag"><b>09</b>The fine print</p>
+          <div>
+            <h2>What it can't protect you from.</h2>
+            <p>Good security tells you where it stops.</p>
+            <ul>
+              <li><strong>No lock means no encryption at rest.</strong> Without a PIN or passphrase, the vault sits unencrypted in your browser profile. Set one.</li>
+              <li><strong>Short PINs can be cracked offline.</strong> Someone with a copy of your browser profile can try every 6-digit PIN within hours on a GPU, however slow scrypt is. A short PIN guards against someone at your unlocked computer. Against a stolen disk, use four or more random words, or 10+ digits.</li>
+              <li><strong>Your sync phrase is the whole vault.</strong> Anyone who has it can join your chain and receive everything. Store it like the vault itself.</li>
+              <li><strong>Relays see metadata.</strong> They can see that a chain exists, when its devices talk, and from which IP addresses. They can't see what's inside.</li>
+              <li><strong>Malware on your device wins.</strong> Software that controls your unlocked browser or phone can do what you can do. No password manager survives that.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="file" id="report">
+          <p class="file__tag"><b>10</b>Disclosure</p>
+          <div>
+            <h2>Found a flaw? Tell us quietly.</h2>
+            <p>Email <a href="mailto:security@passkey.bond">security@passkey.bond</a> with the details and how to reproduce it. We'll acknowledge it, fix it, and credit you if you'd like. Please give us a reasonable chance to ship a fix before you publish.</p>
+            <p>For anything that isn't sensitive, <a href="https://github.com/colinmollenhour/passkey-bond/issues">open an issue on GitHub</a>.</p>
+          </div>
+        </article>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <p class="brand brand--footer"><img class="brand__mark" src="/assets/img/mark-32.svg" alt="" width="28" height="28"><span class="brand__name">Passkey<em>.bond</em></span></p>
+          <p>Passkeys and two-factor codes, kept on your own devices.</p>
+        </div>
+        <div>
+          <h2>Product</h2>
+          <ul>
+            <li><a href="/download">Download</a></li>
+            <li><a href="/security">Security</a></li>
+            <li><a href="/#pricing">Pricing</a></li>
+            <li><a href="https://github.com/colinmollenhour/passkey-bond">Source code</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Legal</h2>
+          <ul>
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms</a></li>
+            <li><a href="https://github.com/colinmollenhour/passkey-bond/blob/main/LICENSE">Licence</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Contact</h2>
+          <ul>
+            <li><a href="mailto:support@passkey.bond">support@passkey.bond</a></li>
+            <li><a href="mailto:security@passkey.bond">security@passkey.bond</a></li>
+            <li><a href="https://github.com/colinmollenhour/passkey-bond/issues">Report a bug</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-base">
+        <p>&copy; 2026 Colin Mollenhour</p>
+        <p>This site sets no cookies and runs no analytics.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/guilloche.js" defer></script>
+  <script src="/assets/relay-viz.js" defer></script>
+</body>
+</html>

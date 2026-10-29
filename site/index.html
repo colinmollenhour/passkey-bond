@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Passkey.bond: passkeys and 2FA codes, kept discreetly</title>
+  <meta name="description" content="Passkey.bond keeps your passkeys and two-factor codes on your own devices and syncs them without a server. No account, no cloud. Free for Chrome, Edge, Brave, Opera and Firefox.">
+  <meta name="theme-color" content="#111111">
+  <link rel="canonical" href="https://passkey.bond/">
+  <link rel="icon" href="/assets/img/mark-16.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://passkey.bond/">
+  <meta property="og:title" content="Passkey.bond">
+  <meta property="og:description" content="Your passkeys and 2FA codes, kept on your own devices. No account, no cloud.">
+  <meta property="og:image" content="https://passkey.bond/assets/img/icon-512.png">
+  <link rel="preload" href="/assets/fonts/bodoni-moda.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/jost.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="Passkey.bond home">
+        <img class="brand__mark" src="/assets/img/mark-32.svg" alt="" width="34" height="34">
+        <span class="brand__name">Passkey<em>.bond</em></span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a class="nav-hide-sm" href="#companion">Why separate</a>
+        <a class="nav-hide-sm" href="#how">How it works</a>
+        <a href="/security">Security</a>
+        <a class="nav-hide-sm" href="#pricing">Pricing</a>
+        <a class="nav-cta" href="/download">Download</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <canvas class="hero__bg" data-guilloche data-anchor=".medallion" aria-hidden="true"></canvas>
+      <div class="wrap">
+        <div class="hero__grid">
+          <div class="hero__copy">
+            <p class="eyebrow reveal">Passkeys &amp; two-factor codes</p>
+            <h1 id="hero-title" class="reveal reveal--2">Your passkeys, <em>kept discreetly.</em></h1>
+            <p class="lede reveal reveal--3">Passkey.bond keeps your passkeys and 2FA codes on your own devices, and syncs them without a server in sight. No account. No cloud. Nobody to ask for them.</p>
+            <div class="reveal reveal--4">
+              <div class="hero__actions">
+                <a class="btn btn--gold" href="/download#chrome">Add to your browser &middot; Free</a>
+                <a class="btn btn--ghost" href="/download#android">Get the phone app</a>
+              </div>
+              <p class="hero__fine">Works alongside your password manager, in Chrome, Edge, Brave, Opera and Firefox. <a href="https://github.com/colinmollenhour/passkey-bond">Open source</a> under the MIT licence.</p>
+            </div>
+          </div>
+          <div class="medallion reveal--mark" aria-hidden="true">
+            <div class="medallion__disc"></div>
+            <img src="/assets/img/mark.svg" alt="" width="190" height="190">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--ivory" aria-labelledby="promise-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">The short version</p>
+          <h2 id="promise-title">Nothing to <em>hand over.</em></h2>
+          <p class="lede">We built Passkey.bond so there is nothing for us to lose, leak or sell. That isn't a policy. It's the design.</p>
+        </div>
+        <div class="promises">
+          <div class="promise">
+            <h3>No account</h3>
+            <p>There's no sign-up and no Passkey.bond password to steal. Install it and you're done.</p>
+          </div>
+          <div class="promise">
+            <h3>No servers</h3>
+            <p>Your vault lives on your devices. When they sync, they pass sealed envelopes through public relays that can't open them.</p>
+          </div>
+          <div class="promise">
+            <h3>No secrets</h3>
+            <p>The code is open source. Anyone can read exactly what it does, line by line.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--navy" id="companion" aria-labelledby="companion-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">A companion, not a replacement</p>
+          <h2 id="companion-title">Don't keep both keys <em>on one ring.</em></h2>
+          <p class="lede">Two-factor codes and passkeys exist so that one stolen secret isn't enough. Keep them in the same password manager as your passwords, and a single breach of that vault hands over both.</p>
+        </div>
+
+        <div class="compare">
+          <figure class="ring ring--one">
+            <figcaption class="ring__label">Everything in one password manager</figcaption>
+            <div class="ring__diagram" aria-hidden="true">
+              <div class="safe">
+                <span class="safe__name">Password manager</span>
+                <span class="chip">Password</span>
+                <span class="chip">2FA code</span>
+                <span class="chip">Passkey</span>
+              </div>
+            </div>
+            <p class="ring__verdict"><span class="stamp stamp--bad">One breach</span> Every login, both factors.</p>
+            <p class="ring__text">Bitwarden, 1Password, LastPass and others will happily store 2FA codes and passkeys next to your passwords. Convenient, until the vault leaks. Then the second factor was never really a second factor.</p>
+          </figure>
+
+          <figure class="ring ring--two">
+            <figcaption class="ring__label">Passwords there. The rest here.</figcaption>
+            <div class="ring__diagram" aria-hidden="true">
+              <div class="safe">
+                <span class="safe__name">Password manager</span>
+                <span class="chip">Password</span>
+              </div>
+              <div class="safe safe--bond">
+                <span class="safe__name">Passkey.bond &middot; your devices</span>
+                <span class="chip">2FA code</span>
+                <span class="chip">Passkey</span>
+              </div>
+            </div>
+            <p class="ring__verdict"><span class="stamp stamp--good">One breach</span> Half a login. Useless on its own.</p>
+            <p class="ring__text">An attacker who gets into one still needs the other. And Passkey.bond has no server holding everyone's vaults, so there's no single break-in that exposes them all.</p>
+          </figure>
+        </div>
+
+        <aside class="case-note" aria-label="The LastPass breach">
+          <p class="case-note__tag">On record</p>
+          <p>In 2022, attackers stole encrypted copies of LastPass customers' vaults from its cloud storage. Copies like that can be attacked offline, for as long as the attackers like. A vault that never leaves your devices can't be taken in bulk.</p>
+        </aside>
+
+        <p class="companion-close">Keep your password manager for passwords. Use Passkey.bond for the keys that keep them honest.</p>
+      </div>
+    </section>
+
+    <section class="section section--black" aria-labelledby="sync-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">How sync works</p>
+          <h2 id="sync-title">Synced, <em>without a server.</em></h2>
+          <p class="lede">Your devices swap sealed envelopes through public relays, rather like leaving a locked case at a left-luggage office. The relays never hold a key. Neither do we.</p>
+        </div>
+
+        <div class="viz" data-relay-viz data-detail="false">
+          <div class="viz__stage">
+            <svg role="img" aria-label="Animation: a passkey saved on your laptop is sealed, copies are sent to three public relays that can only see unreadable ciphertext, and your phone collects a copy and opens it. A box labelled 'Our servers' stays empty throughout."></svg>
+          </div>
+          <div class="viz__bar">
+            <p class="viz__caption" aria-live="off"></p>
+            <div class="viz__controls" role="group" aria-label="Animation controls">
+              <button class="viz__btn" type="button" data-act="prev" aria-label="Previous step"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2 L4 7 L9 12" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+              <button class="viz__btn" type="button" data-act="play" aria-label="Pause"></button>
+              <button class="viz__btn" type="button" data-act="next" aria-label="Next step"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M5 2 L10 7 L5 12" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+              <div class="viz__beats"></div>
+            </div>
+          </div>
+          <div class="viz__relays" role="group" aria-label="Relays">
+            <span>One working relay is enough. Switch some off:</span>
+            <button class="relay-toggle" type="button" aria-pressed="true">relay.damus.io</button>
+            <button class="relay-toggle" type="button" aria-pressed="true">nos.lol</button>
+            <button class="relay-toggle" type="button" aria-pressed="true">relay.nostr.band</button>
+          </div>
+        </div>
+
+        <p class="after-viz"><a class="link-arrow" href="/security">The full specification, for the technically curious</a></p>
+      </div>
+    </section>
+
+    <section class="section section--ivory" id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">How it works</p>
+          <h2 id="how-title">Set up in a minute. <em>Then forget it's there.</em></h2>
+        </div>
+        <ol class="steps">
+          <li>
+            <h3>Install</h3>
+            <p>Add Passkey.bond to your browser. It's free, and there's nothing to sign up for.</p>
+          </li>
+          <li>
+            <h3>Sign in as usual</h3>
+            <p>When a site offers a passkey, Passkey.bond creates it and keeps it. Next time, one click signs you in.</p>
+          </li>
+          <li>
+            <h3>Add your phone</h3>
+            <p>Turn on sync and type your 12-word phrase into the phone app. Your devices now share one vault.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section--ivory section--tight" aria-labelledby="features-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">What's inside</p>
+          <h2 id="features-title">Everything a login needs. <em>Nothing it doesn't.</em></h2>
+        </div>
+        <div class="features">
+          <div class="feature">
+            <svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="10" cy="15" r="6"/><circle cx="10" cy="15" r="1.6"/><path d="M16 15 H28 M23 15 V20 M27 15 V19"/></svg>
+            <h3>Passkeys</h3>
+            <p>Sign in without passwords on any site that supports passkeys, with no pop-ups from the browser getting in the way.</p>
+          </div>
+          <div class="feature">
+            <svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="15" cy="15" r="12"/><path d="M15 7 V15 L20 18"/></svg>
+            <h3>Two-factor codes</h3>
+            <p>Live six-digit codes for every account. Add one by pasting a link or a screenshot of its QR code.</p>
+          </div>
+          <div class="feature">
+            <svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="6" y="13" width="18" height="13" rx="1.5"/><path d="M10 13 V9 a5 5 0 0 1 10 0 V13"/><path d="M15 18 V21"/></svg>
+            <h3>A proper lock</h3>
+            <p>Lock the vault with a PIN or passphrase on your computer, or your face, fingerprint or screen lock on your phone.</p>
+          </div>
+          <div class="feature">
+            <svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 8 H25 V25 H5 Z M5 13 H25"/><path d="M12 18 H18"/><path d="M8 8 L10 4 H20 L22 8"/></svg>
+            <h3>Encrypted backups</h3>
+            <p>Save a password-protected backup file and keep it somewhere safe. Restore it on any device, any time.</p>
+          </div>
+          <div class="feature">
+            <svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 15 H19 M14 10 L19 15 L14 20"/><path d="M17 5 H26 V25 H17"/></svg>
+            <h3>Easy to move in</h3>
+            <p>Move your passkeys and 2FA codes out of 1Password, Bitwarden, Proton Pass, Google Authenticator and a dozen more. Your passwords can stay put.</p>
+          </div>
+          <div class="feature">
+            <svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="7" width="17" height="12" rx="1"/><path d="M1 22 H22"/><rect x="21" y="10" width="7" height="13" rx="1.5"/></svg>
+            <h3>Wherever you sign in</h3>
+            <p>Chrome, Edge, Brave, Opera and Firefox on your computer. Android on your phone, with iPhone on the way.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--navy" id="pricing" aria-labelledby="pricing-title">
+      <div class="wrap">
+        <div class="section-head section-head--center">
+          <p class="eyebrow">Pricing</p>
+          <h2 id="pricing-title">Free on your computer. <em>Pay once</em> for your phone.</h2>
+          <p class="lede">No subscriptions, no tiers, no renewal reminders.</p>
+        </div>
+        <div class="pricing">
+          <div class="plan">
+            <p class="plan__name">Browser extension</p>
+            <p class="plan__price">Free</p>
+            <p class="plan__term">Not a trial. Not a cut-down version.</p>
+            <ul>
+              <li>Unlimited passkeys and 2FA codes</li>
+              <li>PIN or passphrase lock</li>
+              <li>Encrypted backups and sync</li>
+              <li>Import from a dozen other apps</li>
+            </ul>
+            <a class="btn btn--gold" href="/download#chrome">Add to your browser</a>
+            <p class="platforms">Chrome, Edge, Brave, Opera, Firefox</p>
+          </div>
+          <div class="plan plan--feature">
+            <p class="plan__name">Phone app</p>
+            <p class="plan__price">Pay <em>once</em></p>
+            <p class="plan__term">A single purchase. Yours for life.</p>
+            <ul>
+              <li>Your passkeys in your phone's sign-in sheet</li>
+              <li>Unlock with face, fingerprint or screen lock</li>
+              <li>Syncs with the browser extension</li>
+              <li>Every future update, no subscription</li>
+            </ul>
+            <a class="btn btn--ghost" href="/download#android">Get the phone app</a>
+            <p class="platforms">Android 14 and newer. iPhone in the works.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--ivory" aria-labelledby="faq-title">
+      <div class="wrap">
+        <div class="section-head section-head--center">
+          <p class="eyebrow">Questions</p>
+          <h2 id="faq-title">Asked, <em>and answered.</em></h2>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>Can Passkey.bond see my passkeys?</summary>
+            <div class="answer"><p>No. They never reach us. We don't run a server, so there is nowhere for them to go. When your devices sync, they send encrypted messages that only your devices can open.</p></div>
+          </details>
+          <details>
+            <summary>What if I lose my laptop or phone?</summary>
+            <div class="answer"><p>If sync is on, your other devices still have everything. Keep your 12-word sync phrase or a backup file somewhere safe, and you can restore onto a new device.</p><p>Without either, a lost device takes its vault with it. There's no "forgot password" link, because there's no account behind it.</p></div>
+          </details>
+          <details>
+            <summary>Why is the extension free and the phone app paid?</summary>
+            <div class="answer"><p>The extension is free, full stop. The phone app is a one-time purchase that pays for building and maintaining apps for Android and iPhone. Pay once and it's yours: no subscription, no renewals.</p></div>
+          </details>
+          <details>
+            <summary>Does it replace my password manager?</summary>
+            <div class="answer"><p>No, and that's deliberate. Keep your passwords in your password manager and your passkeys and 2FA codes in Passkey.bond. If either one is ever breached, the attacker has only half of what they need.</p></div>
+          </details>
+          <details>
+            <summary>Do I need the phone app?</summary>
+            <div class="answer"><p>No. The browser extension works on its own. The phone app is for when you also want your passkeys and codes on your phone.</p></div>
+          </details>
+          <details>
+            <summary>Is it safe to sync through public relays?</summary>
+            <div class="answer"><p>Yes. A relay only ever sees sealed, signed messages. It can't read them, and it can't change them without your devices noticing. If one relay goes down, your devices use the others. <a href="/security">The details are here.</a></p></div>
+          </details>
+          <details>
+            <summary>What happens if Passkey.bond goes away?</summary>
+            <div class="answer"><p>Your vault keeps working, because it never depended on us. The code is open source, and you can export everything in standard formats whenever you like.</p></div>
+          </details>
+          <details>
+            <summary>I already use Fenko Vault. Can I switch?</summary>
+            <div class="answer"><p>Yes. Passkey.bond grew out of Fenko Vault. Import a Fenko Vault backup, or join your existing sync chain with its phrase, and everything comes across.</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero closing" aria-labelledby="closing-title">
+      <canvas class="hero__bg" data-guilloche data-anchor=".closing__mark" aria-hidden="true"></canvas>
+      <div class="wrap">
+        <div class="closing__mark"><img src="/assets/img/mark.svg" alt="" width="84" height="84"></div>
+        <h2 id="closing-title">Your keys. <em>Your devices.</em></h2>
+        <p class="lede">Nobody else's business.</p>
+        <div class="hero__actions">
+          <a class="btn btn--gold" href="/download#chrome">Add to your browser &middot; Free</a>
+          <a class="btn btn--ghost" href="/download#android">Get the phone app</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <p class="brand brand--footer"><img class="brand__mark" src="/assets/img/mark-32.svg" alt="" width="28" height="28"><span class="brand__name">Passkey<em>.bond</em></span></p>
+          <p>Passkeys and two-factor codes, kept on your own devices.</p>
+        </div>
+        <div>
+          <h2>Product</h2>
+          <ul>
+            <li><a href="/download">Download</a></li>
+            <li><a href="/security">Security</a></li>
+            <li><a href="/#pricing">Pricing</a></li>
+            <li><a href="https://github.com/colinmollenhour/passkey-bond">Source code</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Legal</h2>
+          <ul>
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms</a></li>
+            <li><a href="https://github.com/colinmollenhour/passkey-bond/blob/main/LICENSE">Licence</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Contact</h2>
+          <ul>
+            <li><a href="mailto:support@passkey.bond">support@passkey.bond</a></li>
+            <li><a href="mailto:security@passkey.bond">security@passkey.bond</a></li>
+            <li><a href="https://github.com/colinmollenhour/passkey-bond/issues">Report a bug</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-base">
+        <p>&copy; 2026 Colin Mollenhour</p>
+        <p>This site sets no cookies and runs no analytics.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/guilloche.js" defer></script>
+  <script src="/assets/relay-viz.js" defer></script>
+</body>
+</html>
