@@ -136,8 +136,9 @@ npm run build
 
 The build downloads the two fonts into `tools/.fonts/` on first run (git
 ignores that folder). It rewrites every SVG and PNG in `docs/brand/`, and it
-also refreshes the AAGUID registry icons in `docs/aaguid/registry-entry.json`
-and `docs/aaguid/vault-icon.svg`.
+also refreshes the AAGUID icons (`docs/aaguid/vault-icon.svg` and
+`vault-icon-tiny-ps.svg`) and the two logo fields in
+`docs/aaguid/mds-statement.json`.
 
 The design began as option A1 (a Codex image-generation sketch) from a
 15-option review across Codex, Gemini and Grok, and was then redrawn by hand
@@ -152,4 +153,4 @@ The brand assets are ready, but the apps don't use them yet:
 - [ ] iOS app icon.
 - [ ] Interface colours: the popup, options, vault dialog, emergency UI and the Android web UI still use the old amber `#F5A623` on charcoal `#0D1117`.
 - [ ] Promo video styling in `scripts/capture-promo-video.js` (amber, Saira) and the Chrome Web Store banner (prompt in `docs/cws/promo-assets.md`).
-- [ ] AAGUID registry PR (the entry is ready in `docs/aaguid/`).
+- [ ] FIDO Metadata Service listing (the statement is ready in `docs/aaguid/`).

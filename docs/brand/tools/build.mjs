@@ -100,6 +100,45 @@ const DETAIL = {
 const svg = (body, vb = '0 0 512 512', extra = '') =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}"${extra}>${body}</svg>\n`;
 
+// SVG Tiny 1.2 path data has no arc command, so each circular arc (the only
+// kind these paths draw: rx = ry, no rotation) becomes cubic Beziers of at
+// most 90 degrees, which stay within 0.03% of the radius.
+function arcsToCubics(d) {
+  const f = (n) => +n.toFixed(2);
+  let x = 0, y = 0;
+  return d.replace(/([MLQAZ])([^MLQAZ]*)/g, (_, cmd, args) => {
+    const n = args.trim() ? args.trim().split(/[\s,]+/).map(Number) : [];
+    if (cmd !== 'A') {
+      if (n.length) [x, y] = n.slice(-2);
+      return cmd + args;
+    }
+    const [rx, ry, rot, large, sweep, x2, y2] = n;
+    if (rx !== ry || rot !== 0) throw new Error(`arcsToCubics: not a circular arc: A${args}`);
+    // Endpoint to centre parameterisation (SVG 1.1 appendix F.6.5).
+    const hx = (x - x2) / 2, hy = (y - y2) / 2, h2 = hx * hx + hy * hy;
+    const r = Math.max(rx, Math.sqrt(h2));
+    const coef = (large !== sweep ? 1 : -1) * Math.sqrt(Math.max(0, (r * r - h2) / h2));
+    const cx = coef * hy + (x + x2) / 2, cy = -coef * hx + (y + y2) / 2;
+    const a0 = Math.atan2(y - cy, x - cx);
+    let span = Math.atan2(y2 - cy, x2 - cx) - a0;
+    if (sweep && span < 0) span += 2 * Math.PI;
+    if (!sweep && span > 0) span -= 2 * Math.PI;
+    const parts = Math.ceil(Math.abs(span) / (Math.PI / 2) - 1e-9);
+    const step = span / parts, k = (4 / 3) * Math.tan(step / 4) * r;
+    let out = '';
+    for (let i = 0; i < parts; i++) {
+      const a1 = a0 + i * step, a2 = a1 + step;
+      const last = i === parts - 1;
+      const ex = last ? x2 : cx + r * Math.cos(a2), ey = last ? y2 : cy + r * Math.sin(a2);
+      out += `C${f(cx + r * Math.cos(a1) - k * Math.sin(a1))} ${f(cy + r * Math.sin(a1) + k * Math.cos(a1))}`;
+      out += ` ${f(cx + r * Math.cos(a2) + k * Math.sin(a2))} ${f(cy + r * Math.sin(a2) - k * Math.cos(a2))}`;
+      out += ` ${f(ex)} ${f(ey)}`;
+    }
+    [x, y] = [x2, y2];
+    return out;
+  });
+}
+
 // Full-colour mark: gold rim, navy keyhole, ivory shirt, navy bow tie.
 function markBody(level, c = {}) {
   const D = DETAIL[level];
@@ -112,8 +151,8 @@ function markBody(level, c = {}) {
 }
 
 // One-colour mark: the silhouette with the shirt front cut out and the bow
-// tie left solid, as a single even-odd path (no masks, so every renderer and
-// the AAGUID registry's "pure vector" rule are happy).
+// tie left solid, as a single even-odd path (no masks, so every renderer is
+// happy).
 function monoBody(level, color) {
   const D = DETAIL[level];
   let d = keyhole(D.key, D.rim) + shirt(D.shirt);
@@ -245,14 +284,24 @@ for (const px of [16, 32, 48, 128]) png(markFor(px), px, `png/extension/icon${px
 // Raster logo used by scripts/capture-promo-video.js.
 png(files['passkey-bond-mark.svg'], 512, 'passkey-bond-logo.png');
 
-// AAGUID registry icons: pure-vector SVG data URIs. The 32 px drawing, because
-// password managers show these at roughly 24-40 px; the gold rim keeps it
-// visible on both light and dark lists, so one drawing serves both themes.
+// AAGUID icons. vault-icon.svg is the app icon. The FIDO Metadata Service
+// statement embeds the mark as a data URL in its two logo fields: the 24-64 px
+// drawing, since password managers show it at about that size, and one
+// drawing for both themes, since the gold rim reads on dark lists and the navy
+// body on light ones. MDS takes only the SVG Tiny Portable/Secure profile,
+// whose path data has no arcs (see arcsToCubics).
 write(path.relative(BRAND, path.join(AAGUID, 'vault-icon.svg')), files['passkey-bond-icon.svg']);
-const regPath = path.join(AAGUID, 'registry-entry.json');
-const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
-const uri = 'data:image/svg+xml;base64,' + Buffer.from(files['passkey-bond-mark-32.svg'].trim()).toString('base64');
-for (const entry of Object.values(reg)) { entry.icon_light = uri; entry.icon_dark = uri; }
-fs.writeFileSync(regPath, JSON.stringify(reg, null, 2) + '\n');
+const tinyPs =
+  '<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny-ps" viewBox="0 0 512 512">' +
+  '<title>Passkey.bond</title>' +
+  markBody('32').replace(/ d="([^"]+)"/g, (_, d) => ` d="${arcsToCubics(d)}"`) +
+  '</svg>\n';
+write(path.relative(BRAND, path.join(AAGUID, 'vault-icon-tiny-ps.svg')), tinyPs);
+const mdsPath = path.join(AAGUID, 'mds-statement.json');
+const mds = JSON.parse(fs.readFileSync(mdsPath, 'utf8'));
+const logo = 'data:image/svg+xml;base64,' + Buffer.from(tinyPs.trim()).toString('base64');
+mds.providerLogoLight = logo;
+mds.providerLogoDark = logo;
+fs.writeFileSync(mdsPath, JSON.stringify(mds, null, 2) + '\n');
 
 console.log('Wrote', Object.keys(files).length + Object.keys(lockups).length, 'SVGs and PNG exports to', BRAND);

@@ -5,9 +5,9 @@
 
 // Passkey.bond AAGUID — 2391d29c-2806-4960-a51b-7c18e5da7976 (random UUIDv4).
 // Stable authenticator-model identifier, byte-identical across web/Android/iOS,
-// reported so RPs display the "Passkey.bond" brand and icon via the
-// passkey-authenticator-aaguids registry. Intentionally non-zero under `none`
-// attestation. Canonical reference + registry submission: docs/aaguid/README.md.
+// reported so RPs display the "Passkey.bond" brand and icon via the FIDO
+// Metadata Service. Intentionally non-zero under `none` attestation.
+// Canonical reference + MDS submission: docs/aaguid/README.md.
 export const PASSKEY_BOND_AAGUID = new Uint8Array([
   0x23, 0x91, 0xd2, 0x9c, 0x28, 0x06, 0x49, 0x60, 0xa5, 0x1b, 0x7c, 0x18, 0xe5, 0xda, 0x79, 0x76,
 ]);

@@ -1,0 +1,32 @@
+{
+  "authenticatorVersion": 1,
+  "upv": [],
+  "tcDisplay": [],
+  "attestationRootCertificates": [],
+  "matcherProtection": [
+    "software"
+  ],
+  "keyProtection": [
+    "software"
+  ],
+  "authenticationAlgorithms": [
+    "secp256r1_ecdsa_sha256_raw"
+  ],
+  "publicKeyAlgAndEncodings": [
+    "cose"
+  ],
+  "legalHeader": "Submission of this statement and retrieval and use of this statement indicates acceptance of the appropriate agreement located at https://fidoalliance.org/metadata/metadata-legal-terms/.",
+  "aaguid": "2391d29c-2806-4960-a51b-7c18e5da7976",
+  "friendlyNames": {
+    "en-US": "Passkey.bond"
+  },
+  "description": "Passkey.bond: offline-first passkey and 2FA manager. ES256 passkeys in a locally encrypted vault, with PRF support, encrypted backups and end-to-end encrypted sync. Chrome, Edge, Firefox and Android.",
+  "protocolFamily": "fido2",
+  "schema": 3,
+  "providerLogoDark": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMiIgYmFzZVByb2ZpbGU9InRpbnktcHMiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48dGl0bGU+UGFzc2tleS5ib25kPC90aXRsZT48cGF0aCBmaWxsPSIjQzlBMjRBIiBkPSJNNDQuMzEgNDM3Ljk0TDEyNC45NCAyNzguNTlDNzQuMDYgMjEwLjk2IDgzLjAxIDExNS43MiAxNDUuNTkgNTguNzRDMjA4LjE3IDEuNzYgMzAzLjgzIDEuNzYgMzY2LjQxIDU4Ljc0QzQyOC45OSAxMTUuNzIgNDM3Ljk0IDIxMC45NiAzODcuMDYgMjc4LjU5TDQ2Ny42OSA0MzcuOTRDNDczLjk2IDQ1MC4zNCA0NzMuMzUgNDY1LjExIDQ2Ni4wOCA0NzYuOTVDNDU4LjggNDg4Ljc5IDQ0NS45IDQ5NiA0MzIgNDk2TDgwIDQ5NkM2Ni4xIDQ5NiA1My4yIDQ4OC43OSA0NS45MiA0NzYuOTVDMzguNjUgNDY1LjExIDM4LjA0IDQ1MC4zNCA0NC4zMSA0MzcuOTRaIi8+PHBhdGggZmlsbD0iIzE0MjEzRCIgZD0iTTgwIDQ1NkwxNzMuMDMgMjcyLjE1QzEzNC44OCAyMzcuOCAxMjEuODQgMTgzLjQ5IDE0MC4yNCAxMzUuNTZDMTU4LjYzIDg3LjYzIDIwNC42NiA1NiAyNTYgNTZDMzA3LjM0IDU2IDM1My4zNyA4Ny42MyAzNzEuNzYgMTM1LjU2QzM5MC4xNiAxODMuNDkgMzc3LjEyIDIzNy44IDMzOC45NyAyNzIuMTVMNDMyIDQ1Nkw4MCA0NTZaIi8+PHBhdGggZmlsbD0iI0Y0RUJEOSIgZD0iTTE4OCAyODJMMzI0IDI4MkwyNTYgNDM2WiIvPjxwYXRoIGZpbGw9IiMxNDIxM0QiIGQ9Ik0yMTQgMjg4TDI0NiAyOTguNDRMMjY2IDI5OC40NEwyOTggMjg4UTMwNSAzMDYgMjk4IDMyNEwyNjYgMzEzLjU2TDI0NiAzMTMuNTZMMjE0IDMyNFEyMDcgMzA2IDIxNCAyODhaIi8+PC9zdmc+",
+  "providerLogoLight": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMiIgYmFzZVByb2ZpbGU9InRpbnktcHMiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48dGl0bGU+UGFzc2tleS5ib25kPC90aXRsZT48cGF0aCBmaWxsPSIjQzlBMjRBIiBkPSJNNDQuMzEgNDM3Ljk0TDEyNC45NCAyNzguNTlDNzQuMDYgMjEwLjk2IDgzLjAxIDExNS43MiAxNDUuNTkgNTguNzRDMjA4LjE3IDEuNzYgMzAzLjgzIDEuNzYgMzY2LjQxIDU4Ljc0QzQyOC45OSAxMTUuNzIgNDM3Ljk0IDIxMC45NiAzODcuMDYgMjc4LjU5TDQ2Ny42OSA0MzcuOTRDNDczLjk2IDQ1MC4zNCA0NzMuMzUgNDY1LjExIDQ2Ni4wOCA0NzYuOTVDNDU4LjggNDg4Ljc5IDQ0NS45IDQ5NiA0MzIgNDk2TDgwIDQ5NkM2Ni4xIDQ5NiA1My4yIDQ4OC43OSA0NS45MiA0NzYuOTVDMzguNjUgNDY1LjExIDM4LjA0IDQ1MC4zNCA0NC4zMSA0MzcuOTRaIi8+PHBhdGggZmlsbD0iIzE0MjEzRCIgZD0iTTgwIDQ1NkwxNzMuMDMgMjcyLjE1QzEzNC44OCAyMzcuOCAxMjEuODQgMTgzLjQ5IDE0MC4yNCAxMzUuNTZDMTU4LjYzIDg3LjYzIDIwNC42NiA1NiAyNTYgNTZDMzA3LjM0IDU2IDM1My4zNyA4Ny42MyAzNzEuNzYgMTM1LjU2QzM5MC4xNiAxODMuNDkgMzc3LjEyIDIzNy44IDMzOC45NyAyNzIuMTVMNDMyIDQ1Nkw4MCA0NTZaIi8+PHBhdGggZmlsbD0iI0Y0RUJEOSIgZD0iTTE4OCAyODJMMzI0IDI4MkwyNTYgNDM2WiIvPjxwYXRoIGZpbGw9IiMxNDIxM0QiIGQ9Ik0yMTQgMjg4TDI0NiAyOTguNDRMMjY2IDI5OC40NEwyOTggMjg4UTMwNSAzMDYgMjk4IDMyNEwyNjYgMzEzLjU2TDI0NiAzMTMuNTZMMjE0IDMyNFEyMDcgMzA2IDIxNCAyODhaIi8+PC9zdmc+",
+  "attestationTypes": [
+    "none"
+  ],
+  "multiDeviceCredentialSupport": "implicit"
+}
