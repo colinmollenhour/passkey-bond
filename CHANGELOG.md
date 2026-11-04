@@ -102,6 +102,14 @@ Backup flags now belong to each passkey and sync with it to every device:
   toggles now apply only to passkeys created after a change.
 - **Android and iOS** sign with each passkey's own flags too, and a sync from
   an older build cannot strip them.
+- **A site that still refuses one gets a fix.** If a site rejects a passkey
+  because its synced setting differs from the one it registered, sign in again
+  with the same passkey within three minutes: the picker offers to retry with
+  the other setting, and saves it if you accept. While a passkey's setting is
+  only a guess, the page notice says "Passkey Sent" rather than "Signed In".
+  When a site refuses a new passkey because the vault already holds one for
+  that account, the message now says to remove the old one from the site
+  first.
 
 ### Sites can no longer read or click the vault's dialogs
 
@@ -156,6 +164,10 @@ passkey they never saw.
   behaviour.
 - The "Never" auto-lock option locked the vault immediately instead of
   keeping it unlocked.
+- Background work (startup, sync and credential repairs) no longer counts as
+  activity, so it can't keep the vault unlocked past its auto-lock timeout.
+  A lock can no longer be undone by a session save or an auto-lock check
+  that finishes after it.
 - Creating a sync chain failed about one time in 85 with "Invalid BIP39 word:
   undefined", on the extension and on Android. The word list is two words
   short of what a new phrase can need; the vault now picks another phrase.
