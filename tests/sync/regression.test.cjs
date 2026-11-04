@@ -73,7 +73,7 @@ before(async () => {
   backupCode = await bundle('src/crypto/backup-crypto.ts', '');
   backgroundCode = await bundle(
     'src/background/background.ts',
-    '\nexport { BackgroundService, syncService };',
+    '\nexport { BackgroundService, syncService, secureStorage };',
     'new BackgroundService();'
   );
   mobileCode = await bundle(
@@ -1902,6 +1902,24 @@ test('a running extension retries storing its v5 chain ID without starting over'
   assert.equal(relay.deletions.length, deletions);
   assert.equal(browser.storage.get('sync_legacy_cleanup').done, true);
   await browser.sync.disconnect();
+});
+
+test('moving a PIN-protected vault to its v5 chain ID leaves the auto-lock deadline alone', async () => {
+  const relay = fakeRelay();
+  const clock = sharedClock();
+  const browser = extensionDevice(relay, clock);
+  const vault = browser.api.secureStorage;
+  assert.equal(await vault.initialize('123456'), true);
+  await vault.storeSyncConfig({ ...browser.storage.get('sync_config') });
+  const activeAt = vault.activeAt;
+
+  // The sync service calls this when it finds the v4 chain ID, unattended.
+  clock.now += 60000;
+  await browser.owner.adoptSyncChainId(config.chainId, LEGACY_CHAIN_ID);
+
+  assert.equal((await vault.getSyncConfig('maintenance')).chainId, config.chainId);
+  assert.equal(browser.storage.get('sync_config').chainId, config.chainId);
+  assert.equal(vault.activeAt, activeAt);
 });
 
 test('an extension whose stored chain belongs to another seed refuses to sync', async () => {

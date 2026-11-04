@@ -845,9 +845,16 @@ class BackgroundService {
       if (config?.chainId === legacyChainId) writes[SYNC_CONFIG_KEY] = { ...config, chainId };
       if (chain?.id === legacyChainId) writes[SYNC_DEVICES_KEY] = { ...chain, id: chainId };
 
-      const stored = secureStorage.isStorageUnlocked() ? await secureStorage.getSyncConfig() : null;
+      // Sync runs this unattended, so it must not count as user activity.
+      const stored = secureStorage.isStorageUnlocked()
+        ? await secureStorage.getSyncConfig(StorageActivity.Maintenance)
+        : null;
       if (stored?.chainId === legacyChainId) {
-        await secureStorage.storeSyncConfig({ ...stored, chainId }, writes);
+        await secureStorage.storeSyncConfig(
+          { ...stored, chainId },
+          writes,
+          StorageActivity.Maintenance
+        );
       } else if (Object.keys(writes).length > 0) {
         await chrome.storage.local.set(writes);
       }
