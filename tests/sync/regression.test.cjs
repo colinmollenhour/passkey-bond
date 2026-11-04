@@ -1156,6 +1156,48 @@ test('the auto-lock alarm locks a live worker and reports it', async () => {
   assert.equal(w.session.size + w.alarms.size, 0);
 });
 
+test('maintenance reads do not extend a restored session', async () => {
+  const first = vaultWorker();
+  assert.equal(await first.vault.initialize('123456'), true);
+  await first.vault.storePasskeys([passkey]);
+  await first.vault.storeSyncConfig(config);
+  await first.settle();
+
+  const restarted = vaultWorker(first);
+  restarted.later(29 * 60000);
+  assert.equal(await restarted.vault.restoreSession(), true);
+  await restarted.vault.getPasskeys('maintenance');
+  await restarted.vault.getSyncConfig('maintenance');
+  await restarted.settle();
+
+  const expired = vaultWorker(first);
+  expired.later(31 * 60000);
+  assert.equal(await expired.vault.restoreSession(), false);
+});
+
+test('an alarm cannot restore a session after a manual lock', async () => {
+  const w = vaultWorker();
+  assert.equal(await w.vault.initialize('123456'), true);
+  await w.settle();
+
+  const saved = w.session.get('passext_unlocked_session');
+  let finishRead;
+  const pendingRead = new Promise((resolve) => {
+    finishRead = resolve;
+  });
+  w.context.chrome.storage.session.get = async () => {
+    await pendingRead;
+    return { passext_unlocked_session: saved };
+  };
+
+  const alarm = w.vault.lockIfIdle();
+  await w.vault.lock();
+  finishRead();
+  await alarm;
+
+  assert.equal(w.vault.isStorageUnlocked(), false);
+});
+
 test('"Never" keeps the vault unlocked instead of locking at once', async () => {
   const w = vaultWorker();
   w.storage.set('auto_lock_timeout', 0);
@@ -1186,9 +1228,30 @@ test('locking clears the saved session and alarm', async () => {
   assert.equal(await w.vault.initialize('123456'), true);
   await w.settle();
   assert.equal(w.session.size, 1);
-  w.vault.lock();
+  await w.vault.lock();
   await w.settle();
   assert.equal(w.session.size + w.alarms.size, 0);
+  assert.equal(await vaultWorker(w).vault.restoreSession(), false);
+});
+
+test('lock stays locked when a pending session save finishes late', async () => {
+  const w = vaultWorker();
+  let finishSave;
+  const waitForSave = new Promise((resolve) => {
+    finishSave = resolve;
+  });
+  w.context.chrome.storage.session.set = (values) =>
+    waitForSave.then(() => {
+      for (const [key, value] of Object.entries(values)) {
+        w.session.set(key, value);
+      }
+    });
+
+  assert.equal(await w.vault.initialize('123456'), true);
+  const locked = w.vault.lock();
+  finishSave();
+  await locked;
+
   assert.equal(await vaultWorker(w).vault.restoreSession(), false);
 });
 
