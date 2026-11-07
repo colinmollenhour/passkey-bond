@@ -4,8 +4,7 @@ import SwiftUI
 struct PasskeyBondApp: App {
     var body: some Scene {
         WindowGroup {
-            WebVaultView()
-                .ignoresSafeArea(.keyboard)
+            VaultHomeView()
         }
     }
 }
