@@ -81,8 +81,8 @@ Passkey.bond is built for people who want their passkeys and 2FA codes to stay p
 
 ### Pricing
 
-Paid app, one-time purchase. Price not yet set. Keep "free" out of the store
-copy.
+Paid app, one-time purchase of US$2.95 (set the other countries from it in
+Play Console's pricing template). Keep "free" out of the store copy.
 
 ---
 

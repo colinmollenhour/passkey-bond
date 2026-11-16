@@ -66,7 +66,8 @@ files. These things will need updating at launch:
 
 - Store links: the "coming soon" labels in `download/index.html`. The home
   page buttons link to `/download#…`, so they don't need changing.
-- Mobile price: the site says "one-time purchase" without a figure.
+- Mobile price: US$2.95 once for Android and iPhone, on the home page
+  (pricing and FAQ), `download/` and `terms/`.
 - `privacy/` and `terms/`: replace the drafts after legal review and remove
   the placeholder notices.
 - GitHub links assume `github.com/colinmollenhour/passkey-bond`, and the
