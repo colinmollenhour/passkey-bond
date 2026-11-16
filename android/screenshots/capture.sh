@@ -3,8 +3,13 @@
 #
 #   ./android/screenshots/capture.sh            # build the APK, then capture
 #   ./android/screenshots/capture.sh --no-build # reuse android/dist/*.apk
+#   ./android/screenshots/capture.sh --verify-webauthn  # check passkeys instead
 #
 # Output: android/play/screenshots/*.png (1080x2400). Needs Docker and /dev/kvm.
+# --verify-webauthn runs the provider self-test, then registers and signs in
+# on webauthn.io in Chrome with Passkey.bond as the provider. It exits 0 on
+# pass, 1 on failure, 3 when webauthn.io can't be reached (inconclusive), and
+# leaves evidence in android/screenshots/out/verify/.
 # See android/screenshots/README.md.
 set -euo pipefail
 
@@ -13,11 +18,13 @@ IMAGE="${SCREENSHOT_IMAGE:-passkey-bond-screenshots:36}"
 STAGE="$ROOT/android/screenshots/out"
 DEST="$ROOT/android/play/screenshots"
 BUILD=1
+MODE=capture
 
 for arg in "$@"; do
   case "$arg" in
     --no-build) BUILD=0 ;;
-    -h|--help) sed -n '2,9p' "$0"; exit 0 ;;
+    --verify-webauthn) MODE=verify-webauthn ;;
+    -h|--help) sed -n '2,14p' "$0"; exit 0 ;;
     *) echo "unknown option: $arg" >&2; exit 2 ;;
   esac
 done
@@ -46,6 +53,19 @@ fi
 
 rm -rf "$STAGE"
 mkdir -p "$STAGE"
+if [ "$MODE" = verify-webauthn ]; then
+  echo "[verify] running emulator"
+  status=0
+  run -e MODE="$MODE" -e OUT_DIR=/src/android/screenshots/out/verify "$IMAGE" \
+    ./android/screenshots/run.sh || status=$?
+  case "$status" in
+    0) echo "[verify] PASS in $(( $(date +%s) - start ))s" ;;
+    3) echo "[verify] INCONCLUSIVE: webauthn.io was not reachable; the provider self-test passed" ;;
+    *) echo "[verify] FAIL (exit $status); evidence in $STAGE/verify" ;;
+  esac
+  exit "$status"
+fi
+
 echo "[capture] running emulator"
 run -e OUT_DIR=/src/android/screenshots/out "$IMAGE" ./android/screenshots/run.sh
 

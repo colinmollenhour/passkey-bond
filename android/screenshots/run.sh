@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # Runs inside the screenshot container (see capture.sh): boots a fresh headless
-# emulator, installs the APK, sets up a clean status bar, then hands over to
-# driver.mjs, which seeds demo data and takes the shots.
+# emulator, installs the APK, sets up a clean status bar, then hands over by
+# MODE: capture (default) runs driver.mjs, which seeds demo data and takes the
+# shots; verify-webauthn runs the provider self-test and verify-webauthn.mjs;
+# hold leaves the emulator running for debugging (docker exec into it).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 APK="${APK:-$ROOT/android/dist/passkey-bond-android-signed.apk}"
-OUT_DIR="${OUT_DIR:?}"
+MODE="${MODE:-capture}"
+OUT_DIR="${OUT_DIR:-/tmp/out}"
 DEVICE="${AVD_DEVICE:-pixel_7}"
 PKG=bond.passkey.app
 
@@ -115,6 +118,28 @@ adb shell am start -W -n "$PKG/.MainActivity" > /dev/null
 # driver.mjs sends the demo commands before every shot.
 adb shell settings put global sysui_demo_allowed 1
 
-OUT_DIR="$OUT_DIR" node "$ROOT/android/screenshots/driver.mjs"
+case "$MODE" in
+  capture)
+    OUT_DIR="$OUT_DIR" node "$ROOT/android/screenshots/driver.mjs"
+    ;;
+  verify-webauthn)
+    log "provider self-test"
+    selftest=$(ANDROID_PLATFORM="$ANDROID_HOME/platforms/android-36/android.jar" \
+      ANDROID_BUILD_TOOLS="$ANDROID_HOME/build-tools/36.0.0" \
+      TMPDIR=/tmp "$ROOT/android/provider-selftest.sh" 2>&1) || true
+    echo "$selftest"
+    if ! printf '%s\n' "$selftest" | grep -q '"ok":true'; then
+      echo "[verify] FAIL: provider self-test did not report ok" >&2
+      exit 1
+    fi
+    OUT_DIR="$OUT_DIR" node "$ROOT/android/screenshots/verify-webauthn.mjs"
+    ;;
+  hold)
+    log "holding the emulator; stop the container to end"
+    trap - EXIT
+    sleep infinity
+    ;;
+  *) echo "unknown MODE: $MODE" >&2; exit 2 ;;
+esac
 
 log "done in $(( $(date +%s) - start ))s"

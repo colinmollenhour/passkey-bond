@@ -23,6 +23,24 @@ The set is replaced only when a run succeeds. A failed run leaves what it captur
 
 06 and 07 need webauthn.io to be reachable. If they fail, the run still succeeds without them, logs `skipped the Chrome passkey shots`, and keeps a screenshot of the moment in `android/screenshots/out/debug/`.
 
+## Verify passkeys end to end
+
+```bash
+./android/screenshots/capture.sh --verify-webauthn             # build the APK, then verify
+./android/screenshots/capture.sh --verify-webauthn --no-build
+```
+
+This uses the same emulator setup, takes about 2 minutes and doesn't touch the screenshots. It:
+
+1. Runs `android/provider-selftest.sh` on the emulator, which must report `"ok":true`.
+2. Sets a device PIN, opens webauthn.io in Chrome with Passkey.bond as the Credential Manager provider, and registers a new passkey (`passkeybond-verify-<time>`). It taps Continue on the system sheet and enters the PIN when asked. webauthn.io must answer "Success! Now try to authenticate...".
+3. Signs in with that passkey, with no username (discoverable), which must land on webauthn.io/profile ("You're logged in!").
+4. Fails if logcat shows Chrome rejecting the provider's response (`MojoClassFromJSON`, FIDO request errors).
+
+It ends with `[verify] PASS` (exit 0), `FAIL` (exit 1), or `INCONCLUSIVE` (exit 3) when webauthn.io can't be reached. Evidence goes to `android/screenshots/out/verify/`: a screenshot of each sheet and result, and `logcat.txt` with the Credential Manager and Chrome lines. The PIN prompt is a secure window, so it isn't captured.
+
+For debugging, `MODE=hold` leaves the emulator running after setup. Start the container the way `capture.sh` does, with `-e MODE=hold --name shots-dbg`, then use `docker exec shots-dbg adb ...`.
+
 ## Requirements
 
 - Docker and `/dev/kvm` (the emulator runs with KVM inside the container).
@@ -38,7 +56,7 @@ The release APK doesn't enable WebView debugging. The `google_apis` system image
 
 Demo data is fake: well-known public services and `example.com` accounts. Creating the sync chain connects to the app's default Nostr relays and publishes one encrypted bundle for a throwaway chain. The passkey sheets are only shown and then dismissed, so nothing is registered on webauthn.io.
 
-To change the shots, edit `driver.mjs`: the demo data is in `demoBackup()` and `MANUAL_TOTP`, and `main()` lists the shots in order.
+To change the shots, edit `driver.mjs` (shared adb, CDP and uiautomator helpers are in `device.mjs`): the demo data is in `demoBackup()` and `MANUAL_TOTP`, and `main()` lists the shots in order.
 
 ## Known quirks
 
