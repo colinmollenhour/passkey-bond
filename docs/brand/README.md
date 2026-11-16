@@ -146,11 +146,9 @@ as vectors.
 
 ## Rollout status
 
-The brand assets are ready, but the apps don't use them yet:
-
-- [ ] Extension icons: copy `png/extension/icon16/48/128.png` into `src/icons/` (the manifest also accepts a 32).
-- [ ] Android launcher icons (`android/app/src/main/res/mipmap-*`) and Play listing icon (`android/play/icon-512.png`).
-- [ ] iOS app icon.
-- [ ] Interface colours: the popup, options, vault dialog, emergency UI and the Android web UI still use the old amber `#F5A623` on charcoal `#0D1117`.
-- [ ] Promo video styling in `scripts/capture-promo-video.js` (amber, Saira) and the Chrome Web Store banner (prompt in `docs/cws/promo-assets.md`).
+- [x] Extension icons: `src/icons/icon16/32/48/128.png` are the `png/extension/` exports.
+- [x] Android launcher icons: the build writes the adaptive icon's foreground and monochrome (themed icon) layers and the legacy `ic_launcher.png` into `android/app/src/main/res/mipmap-*`, the in-app mark `android/web/src/icon.png`, and the Play listing icon `android/play/icon-512.png`. The icon tile is ivory, or tuxedo black in dark mode (`@color/icon_background`).
+- [ ] iOS app icon: the iOS project has no asset catalog yet.
+- [x] Interface: the popup, options, vault dialog, emergency and import pages, in-page prompts and the Android web UI use the brand colours, Jost for the interface and the Bodoni Moda wordmark. The fonts are bundled in `src/assets/fonts/` and `android/web/src/fonts/`.
+- [x] Store assets: `scripts/capture-assets.js` (Chrome Web Store screenshots and promo tiles) and `scripts/capture-promo-video.js` use the brand colours and type.
 - [ ] FIDO Metadata Service listing (the statement is ready in `docs/aaguid/`).

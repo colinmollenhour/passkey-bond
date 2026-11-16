@@ -164,7 +164,7 @@ class EmergencyUIController {
         width: 100%;
         height: 100%;
         z-index: 999999;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: 'Jost', 'Futura', 'Century Gothic', system-ui, sans-serif;
       }
 
       #passext-emergency-ui.passext-hidden {
@@ -184,8 +184,8 @@ class EmergencyUIController {
       }
 
       .passext-modal {
-        background: #0D1117;
-        border: 1px solid rgba(245, 166, 35, 0.35);
+        background: #111111;
+        border: 1px solid rgba(201, 162, 74, 0.35);
         border-radius: 18px;
         width: 90%;
         max-width: 500px;
@@ -199,18 +199,18 @@ class EmergencyUIController {
         justify-content: space-between;
         align-items: center;
         padding: 1rem;
-        border-bottom: 1px solid rgba(209, 217, 224, 0.16);
+        border-bottom: 1px solid rgba(201, 162, 74, 0.16);
       }
 
       .passext-header h2 {
         margin: 0;
-        color: #F5A623;
+        color: #c9a24a;
       }
 
       .passext-close {
         background: none;
         border: none;
-        color: #888;
+        color: #8c857a;
         font-size: 1.5rem;
         cursor: pointer;
         padding: 0;
@@ -219,7 +219,7 @@ class EmergencyUIController {
       }
 
       .passext-close:hover {
-        color: #fff;
+        color: #fbf7ef;
       }
 
       .passext-content {
@@ -236,7 +236,7 @@ class EmergencyUIController {
 
       .passext-tabs {
         display: flex;
-        border-bottom: 1px solid rgba(209, 217, 224, 0.16);
+        border-bottom: 1px solid rgba(201, 162, 74, 0.16);
         margin-bottom: 1rem;
       }
 
@@ -245,14 +245,14 @@ class EmergencyUIController {
         padding: 0.75rem;
         background: none;
         border: none;
-        color: #888;
+        color: #8c857a;
         cursor: pointer;
         border-bottom: 2px solid transparent;
       }
 
       .passext-tab.active {
-        color: #F5A623;
-        border-bottom-color: #F5A623;
+        color: #c9a24a;
+        border-bottom-color: #c9a24a;
       }
 
       .passext-tab-content {
@@ -270,7 +270,7 @@ class EmergencyUIController {
       label {
         display: block;
         margin-bottom: 0.5rem;
-        color: #ccc;
+        color: #b9b1a3;
       }
 
       input[type="password"],
@@ -279,8 +279,8 @@ class EmergencyUIController {
         padding: 0.5rem;
         border: 1px solid #30363D;
         border-radius: 10px;
-        background: #161B22;
-        color: #fff;
+        background: #14213d;
+        color: #fbf7ef;
         box-sizing: border-box;
       }
 
@@ -289,8 +289,8 @@ class EmergencyUIController {
       }
 
       button {
-        background: #D4920A;
-        color: #fff;
+        background: #14213d;
+        color: #fbf7ef;
         border: none;
         padding: 0.5rem 1rem;
         border-radius: 10px;
@@ -300,25 +300,25 @@ class EmergencyUIController {
       }
 
       button:hover {
-        background: #357abd;
+        background: #14213d;
       }
 
       button.passext-danger {
-        background: #CF222E;
+        background: #6b1e2a;
       }
 
       button.passext-danger:hover {
-        background: #ff5252;
+        background: #8a2a38;
       }
 
       .passext-error {
-        color: #F85149;
+        color: #e07a86;
         margin-top: 0.5rem;
         font-size: 0.875rem;
       }
 
       .passext-success {
-        color: #3FB950;
+        color: #6fb592;
         margin-top: 0.5rem;
         font-size: 0.875rem;
       }
@@ -337,7 +337,7 @@ class EmergencyUIController {
         justify-content: space-between;
         align-items: center;
         padding: 0.5rem;
-        border-bottom: 1px solid #333;
+        border-bottom: 1px solid #2b3a5c;
       }
 
       .passext-list-item:last-child {
@@ -345,7 +345,7 @@ class EmergencyUIController {
       }
 
       h3 {
-        color: #F5A623;
+        color: #c9a24a;
         margin-top: 0;
       }
     `;

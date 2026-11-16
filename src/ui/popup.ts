@@ -373,24 +373,24 @@ import { checkBackupPassword } from '../crypto/backup-format';
       switch (status.connectionStatus) {
         case 'connected':
           badge.textContent = t('popupSyncSynced');
-          badge.style.background = '#10b981';
-          badge.style.color = '#fff';
+          badge.style.background = '#0f3d2e';
+          badge.style.color = '#fbf7ef';
           break;
         case 'connecting':
           badge.textContent = t('popupSyncing');
-          badge.style.background = '#f59e0b';
-          badge.style.color = '#000';
+          badge.style.background = '#c9a24a';
+          badge.style.color = '#111111';
           break;
         case 'error':
           badge.textContent = t('popupSyncError');
-          badge.style.background = '#ef4444';
-          badge.style.color = '#fff';
+          badge.style.background = '#6b1e2a';
+          badge.style.color = '#fbf7ef';
           badge.title = status.lastError || t('commonUnknown');
           break;
         default:
           badge.textContent = t('popupSyncOffline');
-          badge.style.background = '#666';
-          badge.style.color = '#fff';
+          badge.style.background = '#5f6878';
+          badge.style.color = '#fbf7ef';
       }
 
       if (status.pendingChanges > 0) {
@@ -1044,10 +1044,10 @@ import { checkBackupPassword } from '../crypto/backup-format';
           <p class="modal-message">${popupEscapeHtml(message)}</p>
           <p class="modal-message modal-hint">${popupEscapeHtml(t('popupBackupPasswordHint'))}</p>
           <input type="password" id="prompt-password" placeholder="${popupEscapeHtml(t('popupPromptPasswordPlaceholder'))}"
-            style="width: 100%; padding: 8px; border: 1px solid #333; background: #1a1a1a; color: #fff; border-radius: 4px; font-size: 13px; box-sizing: border-box; margin-bottom: 8px" />
+            style="width: 100%; padding: 8px; border: 1px solid #2b3a5c; background: #14213d; color: #fbf7ef; border-radius: 4px; font-size: 13px; box-sizing: border-box; margin-bottom: 8px" />
           <input type="password" id="prompt-password-confirm" placeholder="${popupEscapeHtml(t('popupConfirmPasswordPlaceholder'))}"
-            style="width: 100%; padding: 8px; border: 1px solid #333; background: #1a1a1a; color: #fff; border-radius: 4px; font-size: 13px; box-sizing: border-box; margin-bottom: 4px" />
-          <div id="prompt-error" style="color: #ef4444; font-size: 12px; margin-bottom: 8px; display: none"></div>
+            style="width: 100%; padding: 8px; border: 1px solid #2b3a5c; background: #14213d; color: #fbf7ef; border-radius: 4px; font-size: 13px; box-sizing: border-box; margin-bottom: 4px" />
+          <div id="prompt-error" style="color: #e07a86; font-size: 12px; margin-bottom: 8px; display: none"></div>
           <div class="modal-actions">
             <button class="btn btn-secondary" id="prompt-cancel">${t('commonCancel')}</button>
             <button class="btn btn-primary" id="prompt-ok">${t('popupEncryptAndExport')}</button>
@@ -1125,7 +1125,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
       left: 50%;
       transform: translateX(-50%);
       padding: 10px 16px;
-      background: ${type === 'success' ? '#10b981' : '#ef4444'};
+      background: ${type === 'success' ? '#0f3d2e' : '#6b1e2a'};
       color: white;
       border-radius: 6px;
       font-size: 13px;

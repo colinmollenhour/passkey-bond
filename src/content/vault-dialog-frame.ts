@@ -90,7 +90,7 @@ function hostStyles(kind: VaultDialogKind, zoom: number): string {
       height: 100%;
       border: 0;
       border-radius: 14px;
-      box-shadow: 0 24px 60px rgba(13, 17, 23, 0.18);
+      box-shadow: 0 24px 60px rgba(17, 17, 17, 0.18);
       background: transparent;
       color-scheme: normal;
     }

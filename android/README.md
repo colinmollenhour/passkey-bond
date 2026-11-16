@@ -45,7 +45,7 @@ Supported Android versions:
 - Pull-to-refresh on the vault triggers a sync.
 - Nostr sync matching the extension protocol. Default relays are the public Nostr relays `wss://relay.damus.io`, `wss://nos.lol`, and `wss://relay.nostr.band`; Passkey.bond runs no relay of its own.
 - Encrypted backup export/import in the same format as the extension (`src/crypto/backup-crypto.ts`: AES-256-GCM, key from scrypt with its parameters in the file; older PBKDF2 backups still import); raw JSON backup retained.
-- Passkey.bond branding: Saira font (bundled, SIL OFL), dark theme, adaptive launcher icon that follows the system light/dark theme.
+- Passkey.bond branding: Jost and Bodoni Moda fonts (bundled, SIL OFL), dark theme, adaptive launcher icon that follows the system light/dark theme.
 - About panel in Tools: open-source/no-warranty statement, privacy summary, and links to passkey.bond, its terms and privacy policy, and the support and security addresses.
 
 ## Verified On Device

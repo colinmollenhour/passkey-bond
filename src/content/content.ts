@@ -728,26 +728,26 @@ class ContentScript {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: #0D1117;
-      color: #E6EDF3;
+      background: #111111;
+      color: #f4ebd9;
       padding: 20px;
-      border: 1px solid rgba(245,166,35,0.35);
+      border: 1px solid rgba(201, 162, 74, 0.35);
       border-radius: 16px;
       z-index: 999999;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      font-family: Arial, sans-serif;
+      font-family: 'Jost', 'Futura', 'Century Gothic', system-ui, sans-serif;
     `;
 
     modal.innerHTML = `
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c9a24a" stroke-width="2">
         <rect x="3" y="11" width="18" height="11" rx="2"></rect>
         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
       </svg>
       <h3>${t('appName')}</h3>
       <p>${t('emergencyActivated')}</p>
       <button onclick="this.parentElement.remove()" style="
-        background: #D4920A;
-        color: #ffffff;
+        background: #c9a24a;
+        color: #111111;
         border: none;
         padding: 8px 16px;
         border-radius: 10px;

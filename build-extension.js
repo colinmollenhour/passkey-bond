@@ -219,7 +219,7 @@ async function buildForTarget(browserTarget) {
   console.log('🎨 Processing icons...');
 
   const sourceIconsDir = path.join('src', 'icons');
-  const iconSizes = [16, 48, 128];
+  const iconSizes = [16, 32, 48, 128];
 
   for (const size of iconSizes) {
     const sourcePath = path.join(sourceIconsDir, `icon${size}.png`);

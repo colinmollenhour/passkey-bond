@@ -66,10 +66,10 @@ public final class MainActivity extends Activity {
         webView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        webView.setBackgroundColor(0xFF0D1117);
+        webView.setBackgroundColor(0xFF111111);
 
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(0xFF0D1117);
+        root.setBackgroundColor(0xFF111111);
         root.addView(webView);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().setDecorFitsSystemWindows(false);

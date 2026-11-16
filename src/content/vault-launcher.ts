@@ -35,33 +35,33 @@ const STYLES = `
   .card {
     box-sizing: border-box;
     padding: 12px 16px;
-    border: 1px solid #d1d9e0;
+    border: 1px solid #d8ccb4;
     border-radius: 14px;
-    background: #f6f8fa;
-    color: #1f2328;
-    box-shadow: 0 24px 60px rgba(13, 17, 23, 0.18);
-    font: 13px 'Courier New', Courier, monospace;
+    background: #f4ebd9;
+    color: #14213d;
+    box-shadow: 0 24px 60px rgba(17, 17, 17, 0.18);
+    font: 13px 'Jost', 'Futura', 'Century Gothic', system-ui, sans-serif;
   }
   .title { margin: 0; font-size: 15px; font-weight: 700; text-transform: uppercase; }
-  .subtitle { margin: 2px 0 10px; font-size: 11px; color: #59636e; overflow-wrap: anywhere; }
+  .subtitle { margin: 2px 0 10px; font-size: 11px; color: #3b4660; overflow-wrap: anywhere; }
   .actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   button {
     padding: 10px 12px;
-    border: 1px solid #d1d9e0;
+    border: 1px solid #d8ccb4;
     border-radius: 14px;
-    background: #fff;
-    color: #1f2328;
+    background: #fbf7ef;
+    color: #14213d;
     font: inherit;
     font-weight: 700;
     text-transform: uppercase;
     cursor: pointer;
   }
-  button.primary { grid-column: 1 / -1; background: #d4920a; border-color: #d4920a; color: #fff; }
-  button:focus-visible { outline: 2px solid rgba(212, 146, 10, 0.35); outline-offset: 2px; }
-  :host([data-theme='dark']) .card { background: #0d1117; border-color: #30363d; color: #e6edf3; }
-  :host([data-theme='dark']) .subtitle { color: #8d96a0; }
-  :host([data-theme='dark']) button { background: #161b22; border-color: #30363d; color: #e6edf3; }
-  :host([data-theme='dark']) button.primary { background: #f5a623; border-color: #f5a623; color: #0d1117; }
+  button.primary { grid-column: 1 / -1; background: #14213d; border-color: #14213d; color: #fbf7ef; }
+  button:focus-visible { outline: 2px solid rgba(201, 162, 74, 0.35); outline-offset: 2px; }
+  :host([data-theme='dark']) .card { background: #111111; border-color: #30363d; color: #f4ebd9; }
+  :host([data-theme='dark']) .subtitle { color: #b9b1a3; }
+  :host([data-theme='dark']) button { background: #14213d; border-color: #30363d; color: #f4ebd9; }
+  :host([data-theme='dark']) button.primary { background: #c9a24a; border-color: #c9a24a; color: #111111; }
 `;
 
 export function showLauncher(rpId: string, theme: 'light' | 'dark'): Launcher {

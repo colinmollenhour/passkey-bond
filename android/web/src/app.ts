@@ -1738,7 +1738,7 @@ function render(): void {
         <div class="brand">
           <img class="brand-mark" src="icon.png" alt="" aria-hidden="true" />
           <div>
-            <h1>Passkey.bond</h1>
+            <h1><span class="wordmark">Passkey<em>.bond</em></span></h1>
             <p class="muted">${getPasskeys().length} passkeys, ${getTotpEntries().length} 2FA codes</p>
           </div>
         </div>
@@ -2158,7 +2158,7 @@ function renderTools(): string {
         <div class="brand">
           <img class="brand-mark" src="icon.png" alt="" aria-hidden="true" />
           <div>
-            <h2 class="about-title">Passkey.bond</h2>
+            <h2 class="about-title"><span class="wordmark">Passkey<em>.bond</em></span></h2>
             <p class="muted">Version ${escapeHtml(__APP_VERSION__)} &middot; Colin Mollenhour</p>
           </div>
         </div>
@@ -2188,7 +2188,7 @@ function renderTools(): string {
           <a href="https://passkey.bond/privacy">Privacy Policy</a>
         </nav>
         <p class="muted">
-          Built with open source: Saira (SIL OFL 1.1), jsQR, and noble cryptography (MIT).
+          Built with open source: Jost and Bodoni Moda (SIL OFL 1.1), jsQR, and noble cryptography (MIT).
           Passkey.bond source is MIT licensed.
         </p>
       </div>

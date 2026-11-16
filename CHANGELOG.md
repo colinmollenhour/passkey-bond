@@ -33,6 +33,10 @@ over it:
 - **Feedback** goes to support@passkey.bond, security reports to
   security@passkey.bond.
 - The extension package and the Android app now include the LICENSE file.
+- **A new look.** The icon is a gold-rimmed navy keyhole framing a dinner
+  shirt and bow tie. The extension and the Android app use navy, ivory and
+  gold, the Jost typeface, and a Bodoni Moda wordmark. On Android 13 and newer
+  the launcher icon follows your themed-icon colours.
 
 ### Lock the vault with a passphrase
 

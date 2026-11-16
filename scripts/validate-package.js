@@ -82,6 +82,7 @@ function main() {
     'vault-dialog.css',
     '_locales/en/messages.json',
     'icons/icon16.png',
+    'icons/icon32.png',
     'icons/icon48.png',
     'icons/icon128.png',
     'LICENSE',
@@ -148,6 +149,7 @@ function main() {
     `Unexpected localized app name: ${enMessages.appName?.message}`
   );
   assert(manifest.icons?.['16'] === 'icons/icon16.png', 'Manifest icon16 path mismatch');
+  assert(manifest.icons?.['32'] === 'icons/icon32.png', 'Manifest icon32 path mismatch');
   assert(manifest.icons?.['48'] === 'icons/icon48.png', 'Manifest icon48 path mismatch');
   assert(manifest.icons?.['128'] === 'icons/icon128.png', 'Manifest icon128 path mismatch');
 
@@ -182,7 +184,7 @@ function main() {
     }
   }
 
-  for (const size of [16, 48, 128]) {
+  for (const size of [16, 32, 48, 128]) {
     const entry = `icons/icon${size}.png`;
     const packagedIcon = readZipEntry(entry);
     const sourceIcon = fs.readFileSync(path.join(root, 'src', 'icons', `icon${size}.png`));

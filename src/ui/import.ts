@@ -294,15 +294,15 @@ import {
       overlay.style.cssText =
         'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999';
       overlay.innerHTML = `
-        <div style="background:#222;padding:20px;border-radius:8px;width:300px;max-width:90%">
-          <h3 style="margin:0 0 8px;color:#fff;font-size:15px">${t('importEnterBackupPassword')}</h3>
-          <p style="margin:0 0 12px;color:#999;font-size:13px">${t('importPasswordDesc')}</p>
+        <div style="background:#1b2a4a;padding:20px;border-radius:8px;width:300px;max-width:90%">
+          <h3 style="margin:0 0 8px;color:#fbf7ef;font-size:15px">${t('importEnterBackupPassword')}</h3>
+          <p style="margin:0 0 12px;color:#8c857a;font-size:13px">${t('importPasswordDesc')}</p>
           <input type="password" id="import-pw" placeholder="${t('commonPassword')}" autocomplete="off"
-            style="width:100%;padding:8px;border:1px solid #444;background:#1a1a1a;color:#fff;border-radius:4px;font-size:13px;box-sizing:border-box;margin-bottom:8px" />
-          <div id="import-pw-error" style="color:#ef4444;font-size:12px;margin-bottom:8px;display:none"></div>
+            style="width:100%;padding:8px;border:1px solid #3b4a6b;background:#14213d;color:#fbf7ef;border-radius:4px;font-size:13px;box-sizing:border-box;margin-bottom:8px" />
+          <div id="import-pw-error" style="color:#e07a86;font-size:12px;margin-bottom:8px;display:none"></div>
           <div style="display:flex;gap:8px">
-            <button id="import-pw-cancel" style="flex:1;padding:8px;border:1px solid #444;background:transparent;color:#ccc;border-radius:4px;cursor:pointer">${t('commonCancel')}</button>
-            <button id="import-pw-ok" style="flex:1;padding:8px;border:none;background:#FCD34D;color:#000;border-radius:4px;cursor:pointer;font-weight:600">${t('importDecrypt')}</button>
+            <button id="import-pw-cancel" style="flex:1;padding:8px;border:1px solid #3b4a6b;background:transparent;color:#b9b1a3;border-radius:4px;cursor:pointer">${t('commonCancel')}</button>
+            <button id="import-pw-ok" style="flex:1;padding:8px;border:none;background:#c9a24a;color:#111111;border-radius:4px;cursor:pointer;font-weight:600">${t('importDecrypt')}</button>
           </div>
         </div>
       `;

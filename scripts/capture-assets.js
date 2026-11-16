@@ -31,7 +31,7 @@ const CWS_W = 1280;
 const CWS_H = 800;
 const CWS_TOP_MARGIN = 36;
 const CWS_BOTTOM_STRIP_H = 110;
-const CWS_BG = '#0d0d0d'; // dark canvas — makes black/yellow UI pop
+const CWS_BG = '#111111'; // tuxedo black, the brand's dark canvas
 
 // Popup is 360×400 per CSS; add some breathing room for the page chrome
 const POPUP_W = 400;
@@ -523,6 +523,10 @@ async function captureCWS() {
   const setup = await extPage(ctx, id, 'popup.html');
   await injectPasskeys(setup, MOCK_PASSKEYS);
   await injectTotp(setup, MOCK_TOTP);
+  // The no-recovery warning makes the popup too tall to show at a legible size.
+  await setup.evaluate(
+    () => new Promise((r) => chrome.storage.local.set({ vault_warning_dismissed: true }, r))
+  );
   await setup.close();
 
   // Scales container to fill ~90% of CWS_H, centered on CWS_BG canvas.
@@ -566,7 +570,7 @@ async function captureCWS() {
           width: ${CWS_W}px !important;
           height: ${CWS_H}px !important;
           min-height: ${CWS_H}px !important;
-          background: linear-gradient(160deg, #0a0a0a 0%, #111008 60%, #1a1200 100%) !important;
+          background: #111111 !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
@@ -575,23 +579,13 @@ async function captureCWS() {
           padding: ${CWS_TOP_MARGIN}px 0 ${CWS_BOTTOM_STRIP_H}px 0 !important;
           position: relative !important;
         }
-        /* dot-grid texture */
-        body::before {
-          content: '' !important;
-          position: fixed !important;
-          inset: 0 !important;
-          background-image: radial-gradient(circle, rgba(252,211,77,0.08) 1px, transparent 1px) !important;
-          background-size: 28px 28px !important;
-          pointer-events: none !important;
-          z-index: 0 !important;
-        }
-        /* yellow corner accents */
+        /* gold corner accent */
         body::after {
           content: '' !important;
           position: fixed !important;
           top: ${CWS_TOP_MARGIN}px !important; left: 0 !important;
           width: 120px !important; height: 4px !important;
-          background: #fcd34d !important;
+          background: #c9a24a !important;
           z-index: 2 !important;
         }
         /* Keep the popup at its real 360px width — never stretch to the canvas */
@@ -605,52 +599,32 @@ async function captureCWS() {
         .sync-settings,
         .import-container {
           zoom: ${zoom.toFixed(3)} !important;
+          /* Long pages are cropped at the bottom, never pushed off the top. */
+          max-height: ${containerHeight}px !important;
+          overflow: hidden !important;
           box-shadow:
             0 32px 120px rgba(0,0,0,0.85),
-            0 0 0 1px rgba(252,211,77,0.15),
-            0 0 60px rgba(252,211,77,0.06) !important;
+            0 0 0 1px rgba(201,162,74,0.15) !important;
           position: relative !important;
           z-index: 1 !important;
         }
       `,
     });
 
-    // Inject tagline strip + right-side accent line
+    await addTaglineStrip(page, tagline, CWS_BOTTOM_STRIP_H);
+    // right-side gold hairline
     await page.evaluate(
-      ({ text, topMargin, bottomStripHeight }) => {
-        // bottom strip
-        const strip = document.createElement('div');
-        strip.style.cssText = `
-        position: fixed; bottom: 0; left: 0; right: 0; height: 110px;
-        background: #fcd34d;
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0 56px;
-        z-index: 10;
-        border-top: 3px solid #000;
-      `;
-        strip.innerHTML = `
-        <span style="font-family:'Courier New',monospace;font-size:18px;font-weight:700;
-          text-transform:uppercase;letter-spacing:2px;color:#000;max-width:700px">
-          ${text}
-        </span>
-        <span style="font-family:'Courier New',monospace;font-size:13px;font-weight:700;
-          letter-spacing:1px;color:#000;opacity:0.5">
-          Passkey.bond
-        </span>
-      `;
-        document.body.appendChild(strip);
-
-        // right-side yellow accent bar
+      ({ topMargin, bottomStripHeight }) => {
         const bar = document.createElement('div');
         bar.style.cssText = `
-        position: fixed; top: ${topMargin}px; right: 0; width: 4px;
+        position: fixed; top: ${topMargin}px; right: 0; width: 1px;
         height: calc(100% - ${topMargin}px - ${bottomStripHeight}px);
-        background: linear-gradient(to bottom, #fcd34d, transparent);
+        background: rgba(201,162,74,0.28);
         z-index: 10;
       `;
         document.body.appendChild(bar);
       },
-      { text: tagline, topMargin: CWS_TOP_MARGIN, bottomStripHeight: CWS_BOTTOM_STRIP_H }
+      { topMargin: CWS_TOP_MARGIN, bottomStripHeight: CWS_BOTTOM_STRIP_H }
     );
 
     await page.waitForTimeout(150);
@@ -736,26 +710,7 @@ async function captureCWS() {
     // Inject tagline strip
     const tagline = TAGLINES['cws-04-settings.png'] || '';
     await addOptionsCwsChrome(p);
-    await p.evaluate(
-      ({ text }) => {
-        const strip = document.createElement('div');
-        strip.style.cssText = `
-        position: fixed; bottom: 0; left: 0; right: 0; height: 80px;
-        background: #fcd34d;
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0 56px; z-index: 10000;
-        border-top: 3px solid #000;
-      `;
-        strip.innerHTML = `
-        <span style="font-family:'Courier New',monospace;font-size:18px;font-weight:700;
-          text-transform:uppercase;letter-spacing:2px;color:#000;max-width:700px">${text}</span>
-        <span style="font-family:'Courier New',monospace;font-size:13px;font-weight:700;
-          letter-spacing:1px;color:#000;opacity:0.5">Passkey.bond</span>
-      `;
-        document.body.appendChild(strip);
-      },
-      { text: tagline }
-    );
+    await addTaglineStrip(p, tagline, 80);
 
     await p.waitForTimeout(150);
     const file = path.join(CWS_DIR, 'cws-04-settings.png');
@@ -789,26 +744,7 @@ async function captureCWS() {
     await addOptionsCwsChrome(p);
 
     const tagline = TAGLINES['cws-07-settings-dark.png'] || '';
-    await p.evaluate(
-      ({ text }) => {
-        const strip = document.createElement('div');
-        strip.style.cssText = `
-        position: fixed; bottom: 0; left: 0; right: 0; height: 80px;
-        background: #fcd34d;
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0 56px; z-index: 10000;
-        border-top: 3px solid #000;
-      `;
-        strip.innerHTML = `
-        <span style="font-family:'Courier New',monospace;font-size:18px;font-weight:700;
-          text-transform:uppercase;letter-spacing:2px;color:#000;max-width:700px">${text}</span>
-        <span style="font-family:'Courier New',monospace;font-size:13px;font-weight:700;
-          letter-spacing:1px;color:#000;opacity:0.5">Passkey.bond</span>
-      `;
-        document.body.appendChild(strip);
-      },
-      { text: tagline }
-    );
+    await addTaglineStrip(p, tagline, 80);
 
     const file = path.join(CWS_DIR, 'cws-07-settings-dark.png');
     await p.screenshot({ path: file, clip: { x: 0, y: 0, width: CWS_W, height: CWS_H } });
@@ -820,6 +756,30 @@ async function captureCWS() {
   console.log(`\n  Saved to ${CWS_DIR}`);
 }
 
+// Caption band under a store screenshot: navy, a gold hairline, the caption
+// in tracked Jost capitals and the wordmark in Bodoni Moda (docs/brand/README.md).
+async function addTaglineStrip(page, text, height) {
+  await page.evaluate(
+    ({ text, height }) => {
+      const strip = document.createElement('div');
+      strip.style.cssText = `
+        position: fixed; bottom: 0; left: 0; right: 0; height: ${height}px;
+        background: #14213d; border-top: 1px solid #c9a24a;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 56px; z-index: 10000;
+      `;
+      strip.innerHTML = `
+        <span style="font-family:'Jost',sans-serif;font-size:20px;font-weight:500;
+          text-transform:uppercase;letter-spacing:0.14em;color:#f4ebd9;max-width:760px">${text}</span>
+        <span style="font-family:'Bodoni Moda',serif;font-size:28px;font-weight:500;
+          color:#f4ebd9">Passkey<em style="color:#c9a24a">.bond</em></span>
+      `;
+      document.body.appendChild(strip);
+    },
+    { text, height }
+  );
+}
+
 async function addOptionsCwsChrome(page) {
   await page.addStyleTag({
     content: `
@@ -829,7 +789,7 @@ async function addOptionsCwsChrome(page) {
         height: ${CWS_H}px !important;
         min-height: ${CWS_H}px !important;
         overflow: hidden !important;
-        background: linear-gradient(160deg, #0a0a0a 0%, #111008 60%, #1a1200 100%) !important;
+        background: #111111 !important;
         padding: ${CWS_TOP_MARGIN}px 0 80px !important;
       }
 
@@ -839,12 +799,12 @@ async function addOptionsCwsChrome(page) {
         height: calc(${CWS_H}px - ${CWS_TOP_MARGIN}px - 80px) !important;
         min-height: 0 !important;
         margin: 0 auto !important;
-        border: 1px solid rgba(252, 211, 77, 0.15) !important;
+        border: 1px solid rgba(201, 162, 74, 0.15) !important;
         border-radius: 8px !important;
         overflow: hidden !important;
         box-shadow:
           0 32px 120px rgba(0,0,0,0.85),
-          0 0 0 1px rgba(252,211,77,0.08) !important;
+          0 0 0 1px rgba(201,162,74,0.08) !important;
       }
 
       .sidebar {
@@ -893,18 +853,13 @@ async function capturePromoTiles() {
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
   width: 440px; height: 280px; overflow: hidden;
-  background: linear-gradient(160deg, #0a0a0a 0%, #111008 60%, #1a1200 100%);
-  font-family: 'Courier New', Courier, monospace;
+  background: #111111;
+  font-family: 'Jost', sans-serif;
   position: relative;
 }
-body::before {
-  content: ''; position: absolute; inset: 0;
-  background-image: radial-gradient(circle, rgba(252,211,77,0.08) 1px, transparent 1px);
-  background-size: 28px 28px; pointer-events: none;
-}
-.top-bar   { position: absolute; top: 0; left: 0; width: 80px; height: 4px; background: #fcd34d; }
-.right-bar { position: absolute; top: 0; right: 0; width: 4px; height: 100%; background: linear-gradient(to bottom, #fcd34d, transparent); }
-.bottom-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #fcd34d; }
+.top-bar   { position: absolute; top: 0; left: 0; width: 80px; height: 4px; background: #c9a24a; }
+.right-bar { position: absolute; top: 0; right: 0; width: 4px; height: 100%; background: rgba(201,162,74,0.28); }
+.bottom-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #c9a24a; }
 .content {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
@@ -913,12 +868,12 @@ body::before {
 }
 .icon-wrap {
   width: 40px; height: 40px;
-  border: 3px solid #fcd34d;
+  border: 3px solid #c9a24a;
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 6px;
 }
 .brand { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
-.tagline { font-size: 11px; font-weight: 700; color: #fcd34d; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1.7; }
+.tagline { font-size: 11px; font-weight: 700; color: #c9a24a; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1.7; }
 </style></head>
 <body>
   <div class="top-bar"></div>
@@ -927,7 +882,7 @@ body::before {
   <div class="content">
     <div class="icon-wrap">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-        fill="none" stroke="#fcd34d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        fill="none" stroke="#c9a24a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
         <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
       </svg>
@@ -969,19 +924,13 @@ body::before {
         html, body {
           width: 1400px !important; height: 560px !important;
           min-height: 560px !important;
-          background: linear-gradient(160deg, #0a0a0a 0%, #111008 60%, #1a1200 100%) !important;
+          background: #111111 !important;
           display: flex !important;
           align-items: center !important;
           justify-content: flex-end !important;
           overflow: hidden !important;
           margin: 0 !important; padding: 0 !important;
           position: relative !important;
-        }
-        body::before {
-          content: '' !important; position: fixed !important; inset: 0 !important;
-          background-image: radial-gradient(circle, rgba(252,211,77,0.08) 1px, transparent 1px) !important;
-          background-size: 28px 28px !important;
-          pointer-events: none !important; z-index: 0 !important;
         }
         .container {
           width: 360px !important;
@@ -992,8 +941,7 @@ body::before {
           margin-right: 110px !important;
           box-shadow:
             0 32px 120px rgba(0,0,0,0.85),
-            0 0 0 1px rgba(252,211,77,0.15),
-            0 0 60px rgba(252,211,77,0.06) !important;
+            0 0 0 1px rgba(201,162,74,0.15) !important;
         }
       `,
     });
@@ -1001,30 +949,30 @@ body::before {
     await p.evaluate(() => {
       const topBar = document.createElement('div');
       topBar.style.cssText =
-        'position:fixed;top:0;left:0;width:120px;height:4px;background:#fcd34d;z-index:10';
+        'position:fixed;top:0;left:0;width:120px;height:4px;background:#c9a24a;z-index:10';
       document.body.appendChild(topBar);
 
       const rightBar = document.createElement('div');
       rightBar.style.cssText =
-        'position:fixed;top:0;right:0;width:4px;height:100%;background:linear-gradient(to bottom,#fcd34d,transparent);z-index:10';
+        'position:fixed;top:0;right:0;width:4px;height:100%;background:rgba(201,162,74,0.28);z-index:10';
       document.body.appendChild(rightBar);
 
       const divider = document.createElement('div');
       divider.style.cssText =
-        'position:fixed;left:660px;top:8%;height:84%;width:1px;background:rgba(252,211,77,0.12);z-index:5';
+        'position:fixed;left:660px;top:8%;height:84%;width:1px;background:rgba(201,162,74,0.12);z-index:5';
       document.body.appendChild(divider);
 
       const text = document.createElement('div');
       text.style.cssText = `
         position:fixed; left:80px; top:50%; transform:translateY(-50%);
-        z-index:10; font-family:'Courier New',Courier,monospace;
+        z-index:10; font-family:'Jost',sans-serif;
       `;
       text.innerHTML = `
-        <div style="font-size:11px;font-weight:700;color:#fcd34d;letter-spacing:3px;
+        <div style="font-size:11px;font-weight:700;color:#c9a24a;letter-spacing:3px;
           text-transform:uppercase;margin-bottom:22px">Browser Extension</div>
         <div style="font-size:56px;font-weight:700;color:#fff;text-transform:uppercase;
           letter-spacing:-1px;line-height:1.05">Passkeys</div>
-        <div style="font-size:56px;font-weight:700;color:#fcd34d;text-transform:uppercase;
+        <div style="font-size:56px;font-weight:700;color:#c9a24a;text-transform:uppercase;
           letter-spacing:-1px;line-height:1.05;margin-bottom:28px">&amp; 2FA codes.</div>
         <div style="font-size:13px;font-weight:700;color:#fff;letter-spacing:2px;
           text-transform:uppercase;opacity:0.45">On your device. Nobody else.</div>

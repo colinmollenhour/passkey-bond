@@ -51,18 +51,18 @@ const STYLES = `
     padding: 14px 20px;
     border: 3px solid;
     border-radius: 14px;
-    box-shadow: 0 18px 48px rgba(13, 17, 23, 0.18);
-    font: 14px 'Courier New', Courier, monospace;
+    box-shadow: 0 18px 48px rgba(17, 17, 17, 0.18);
+    font: 14px 'Jost', 'Futura', 'Century Gothic', system-ui, sans-serif;
     animation: in 0.15s ease-out;
   }
   .toast.leaving { animation: out 0.15s ease-in forwards; }
   .icon { font-size: 20px; flex-shrink: 0; }
   .title { font-weight: 700; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
   .message { font-size: 13px; opacity: 0.9; overflow-wrap: anywhere; }
-  .success { background: #dafbe1; border-color: rgba(26, 127, 55, 0.28); color: #1a7f37; }
-  .info { background: #ddf4ff; border-color: rgba(9, 105, 218, 0.28); color: #0969da; }
-  .error { background: #ffebe9; border-color: rgba(207, 34, 46, 0.28); color: #cf222e; }
-  :host([data-theme='dark']) .toast { background: #161b22; border-color: #30363d; color: #e6edf3; }
+  .success { background: #dde9e2; border-color: rgba(15, 61, 46, 0.28); color: #0f3d2e; }
+  .info { background: #e3e6ee; border-color: rgba(20, 33, 61, 0.28); color: #14213d; }
+  .error { background: #f3dedf; border-color: rgba(107, 30, 42, 0.28); color: #6b1e2a; }
+  :host([data-theme='dark']) .toast { background: #14213d; border-color: #30363d; color: #f4ebd9; }
 `;
 
 let current: HTMLElement | null = null;

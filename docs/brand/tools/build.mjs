@@ -281,6 +281,25 @@ for (const [name, l] of Object.entries(lockups)) {
 }
 // Drop-in extension icons (src/icons uses icon16/48/128.png).
 for (const px of [16, 32, 48, 128]) png(markFor(px), px, `png/extension/icon${px}.png`);
+// Android launcher icons. The adaptive icon's foreground and monochrome
+// (themed icon) layers are 108 dp squares the launcher masks, so the mark sits
+// inside the central 66 dp safe zone; the tile colour is @color/icon_background
+// (ivory, tuxedo black at night). ic_launcher.png is the pre-Android 8 icon.
+const ANDROID_RES = path.resolve(BRAND, '../../android/app/src/main/res');
+const ANDROID_PLAY = path.resolve(BRAND, '../../android/play');
+const layer = (body) => svg(`<g transform="translate(118 112) scale(0.54)">${body}</g>`);
+const androidFg = layer(markBody('full'));
+const androidMono = layer(monoBody('full', '#FFFFFF'));
+for (const [dpi, scale] of Object.entries({ mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi: 3, xxxhdpi: 4 })) {
+  const dir = path.relative(BRAND, path.join(ANDROID_RES, `mipmap-${dpi}`));
+  png(androidFg, 108 * scale, `${dir}/ic_launcher_foreground.png`);
+  png(androidMono, 108 * scale, `${dir}/ic_launcher_monochrome.png`);
+  png(files['passkey-bond-icon.svg'], 48 * scale, `${dir}/ic_launcher.png`);
+}
+// The mark in the Android app's own header, lock screen and About page.
+png(files['passkey-bond-mark.svg'], 256, path.relative(BRAND, path.resolve(BRAND, '../../android/web/src/icon.png')));
+// Google Play wants a full square; it rounds the corners itself.
+png(svg(iconBody(COLORS.black).replace('rx="112" ', '')), 512, path.relative(BRAND, path.join(ANDROID_PLAY, 'icon-512.png')));
 // Raster logo used by scripts/capture-promo-video.js.
 png(files['passkey-bond-mark.svg'], 512, 'passkey-bond-logo.png');
 

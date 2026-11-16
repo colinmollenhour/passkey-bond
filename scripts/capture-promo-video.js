@@ -33,27 +33,28 @@ module.exports = async function capturePromo(api) {
     await p.locator('#vault-list').waitFor({ state: 'visible' });
     await p.addStyleTag({ content: `
       html, body { width:1280px!important; height:720px!important; max-height:none!important;
-        overflow:hidden!important; background:#0d1117!important; }
+        overflow:hidden!important; background:#111111!important; }
       #main-container, .auth-screen { position:absolute!important; left:770px; top:62px;
         width:400px!important; height:580px!important; max-height:580px; overflow:auto;
-        border:1px solid #30363d; border-radius:16px; box-shadow:0 28px 70px #0008; }
+        border:1px solid rgba(201,162,74,0.28); border-radius:16px; box-shadow:0 28px 70px #0008; }
       .modal-overlay { left:730px!important; width:500px!important; }
-      #promo-copy { position:absolute; left:76px; top:64px; width:590px; color:#e6edf3;
-        font-family:'Saira',sans-serif; }
-      #promo-brand { display:flex; gap:16px; align-items:center; font-size:25px; font-weight:600; }
+      #promo-copy { position:absolute; left:76px; top:64px; width:590px; color:#f4ebd9;
+        font-family:'Jost',sans-serif; }
+      #promo-brand { display:flex; gap:16px; align-items:center; font:500 30px 'Bodoni Moda',serif; }
+      #promo-brand em { font-style:italic; color:#c9a24a; }
       #promo-brand img { width:44px; height:55px; object-fit:contain; }
-      #promo-step { margin-top:94px; color:#f5a623; font-size:15px; letter-spacing:3px; }
-      #promo-title { font:normal 66px/1.06 Georgia,serif; margin:22px 0; letter-spacing:-2px; }
-      #promo-text { font-size:24px; line-height:1.5; color:#aeb8c4; max-width:540px; }
-      #promo-footer { position:absolute; left:76px; bottom:46px; color:#77828f;
-        font:15px 'Saira',sans-serif; letter-spacing:1px; }
-      #promo-line { position:absolute; left:76px; top:610px; width:60px; height:3px; background:#f5a623; }
+      #promo-step { margin-top:94px; color:#c9a24a; font-size:15px; font-weight:500; letter-spacing:0.14em; }
+      #promo-title { font:500 66px/1.06 'Bodoni Moda',Georgia,serif; margin:22px 0; letter-spacing:-1px; }
+      #promo-text { font-size:24px; line-height:1.5; color:#b9b1a3; max-width:540px; }
+      #promo-footer { position:absolute; left:76px; bottom:46px; color:#8c857a;
+        font:15px 'Jost',sans-serif; letter-spacing:1px; }
+      #promo-line { position:absolute; left:76px; top:610px; width:60px; height:3px; background:#c9a24a; }
     ` });
     const logo = fs.readFileSync(path.join(ROOT, 'docs/brand/passkey-bond-logo.png')).toString('base64');
     await p.evaluate((logoData) => {
       const copy = document.createElement('section');
       copy.id = 'promo-copy';
-      copy.innerHTML = `<div id="promo-brand"><img alt="" src="data:image/png;base64,${logoData}">Passkey.bond</div>
+      copy.innerHTML = `<div id="promo-brand"><img alt="" src="data:image/png;base64,${logoData}">Passkey<em>.bond</em></div>
         <div id="promo-step"></div><h1 id="promo-title"></h1><p id="promo-text"></p>`;
       document.body.append(copy);
       const footer = document.createElement('div');
