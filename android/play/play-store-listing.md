@@ -88,14 +88,14 @@ Play Console's pricing template). Keep "free" out of the store copy.
 
 ## 4. Graphics
 
-The Fenko-era phone screenshots showed the old branding and have been removed.
-Capture new ones before the first upload.
+`android/screenshots/capture.sh` captures the phone screenshots on a headless
+emulator (see its README).
 
 | Asset | Spec | File |
 |---|---|---|
 | App icon | 512×512 PNG | `android/play/icon-512.png` |
 | Feature graphic | 1024×500 PNG | `android/play/feature-graphic.png` |
-| Phone screenshots | 1080×2400 PNG | to be captured into `android/play/screenshots/` |
+| Phone screenshots | 1080×2400 PNG | `android/play/screenshots/01-vault.png` … `07-passkey-create.png` |
 
 Play requires 2–8 phone screenshots. Cover the vault, adding a 2FA code, sync,
 and the Tools/security screens.
