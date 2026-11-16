@@ -42,7 +42,7 @@ const STYLES = `
     box-shadow: 0 24px 60px rgba(17, 17, 17, 0.18);
     font: 13px 'Jost', 'Futura', 'Century Gothic', system-ui, sans-serif;
   }
-  .title { margin: 0; font-size: 15px; font-weight: 700; text-transform: uppercase; }
+  .title { margin: 0; font-size: 15px; font-weight: 600; }
   .subtitle { margin: 2px 0 10px; font-size: 11px; color: #3b4660; overflow-wrap: anywhere; }
   .actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   button {

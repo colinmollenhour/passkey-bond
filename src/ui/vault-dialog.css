@@ -105,9 +105,8 @@ body {
 
 .card-title {
   margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 600;
   color: var(--text);
 }
 
@@ -236,10 +235,9 @@ body {
 .passkey-name {
   display: block;
   overflow: hidden;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   text-overflow: ellipsis;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
