@@ -46,9 +46,24 @@ The banner uses the built-in image generation tool and
 > no gradients or glow, no rounded outer corners. Strong hierarchy and
 > legibility at 440x280 pixels. This is a finished brand banner, not a mockup.
 
-Save the generated master as `source/passkey-bond-banner.png`, then resize it
-to the store dimensions with ImageMagick. `npm run capture:promo` also uses
-this master for the small tile.
+The image generator redraws the logo and wordmark inaccurately, so only its
+gold line art is used. Generate at 3:2 with the logo as the reference image,
+pick the candidate with the cleanest line art, then composite a 1320 × 840
+master in a Playwright-rendered page:
+
+- Draw the generated image scaled to 840 px high, right-aligned, and repaint
+  everything left of the line art (including the generated logo and text)
+  flat `#111111`. Map the remaining pixels to a blend of `#111111` and
+  `#C9A24A` by brightness, so the background stays flat and the lines are
+  exactly brushed gold.
+- Place the real mark (`docs/brand/png/mark/passkey-bond-mark-1024.png`,
+  200 px wide) upper left, the real reversed wordmark
+  (`docs/brand/png/lockup/passkey-bond-wordmark-reversed@2x.png`, 780 px
+  wide) below it, and the tagline in Jost 400, 60 px, ivory, on two lines,
+  all on a 96–116 px left margin.
+
+Save the master as `source/passkey-bond-banner.png`. `npm run capture:promo`
+scales it to the 440 × 280 small tile.
 
 The marquee uses the built-in image generation tool with the small banner
 master as its reference. Prompt:
@@ -65,6 +80,10 @@ master as its reference. Prompt:
 > #111111, brushed gold #C9A24A, ivory #F4EBD9. No UI screenshot, extra words,
 > gradients, glow, mockup or rounded outer corners.
 
-Save the marquee master as `source/passkey-bond-marquee.png` and resize it to
-1400 × 560 with ImageMagick. `npm run capture:promo` also uses this master for
-the marquee tile.
+Generate at 16:9 and composite a 1400 × 560 master the same way as the
+banner: the generated image at its native 768 px height, right-aligned and
+shifted up 100 px; the real mark 132 px wide; the reversed wordmark 640 px
+wide; the tagline in Jost 400, 44 px, brushed gold.
+
+Save the master as `source/passkey-bond-marquee.png`. `npm run capture:promo`
+renders it as the 1400 × 560 marquee tile.
