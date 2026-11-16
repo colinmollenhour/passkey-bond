@@ -5,6 +5,7 @@ import {
   SYNC_EVENT_PREFIX,
   SYNC_SEND_INTERVAL_MS,
   SYNC_LOOKBACK_SECONDS,
+  DEFAULT_RELAYS,
 } from './protocol';
 import * as secp256k1 from '@noble/secp256k1';
 import { sha256 } from '@noble/hashes/sha256';
@@ -29,7 +30,7 @@ const MAX_PROCESSED_EVENTS = 1000; // Track last N event IDs for replay protecti
 // Public relays. Events are published to ALL relays and subscriptions run on
 // ALL relays — relays don't federate, so devices that only share one working
 // relay still sync.
-export const DEFAULT_RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.nostr.band'];
+export { DEFAULT_RELAYS };
 const CUSTOM_RELAYS_KEY = 'custom_relays';
 
 // Passkey data structure for sync

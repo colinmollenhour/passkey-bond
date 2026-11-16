@@ -45,7 +45,7 @@
       <div class="wrap wrap--narrow prose">
         <div class="notice" role="note"><strong>Placeholder.</strong> This privacy policy is a draft written to describe how the software works today. It has not been reviewed by a lawyer and will be replaced before the apps are published in any store.</div>
         <h2>The short version</h2>
-        <p>Passkey.bond has no account system and no servers. Your passkeys, two-factor codes and settings are stored on your own devices. We, the people who make Passkey.bond, cannot see them, and we don't collect analytics, crash reports or usage data of any kind.</p>
+        <p>Passkey.bond has no account system, and its only server is a sync relay that passes on encrypted messages it cannot read. Your passkeys, two-factor codes and settings are stored on your own devices. We, the people who make Passkey.bond, cannot see them, and we don't collect analytics, crash reports or usage data of any kind.</p>
 
         <h2>What stays on your device</h2>
         <ul>
@@ -57,10 +57,10 @@
 
         <h2>Network connections the apps make</h2>
         <ul>
-          <li><b>Sync relays, only if you turn sync on.</b> Your devices send end-to-end encrypted messages through public Nostr relays run by independent operators. The relays can see your IP address, when your devices connect, and an identifier for your sync chain. They cannot read what you store. Each relay has its own privacy policy, and you can choose which relays to use.</li>
+          <li><b>Sync relays, only if you turn sync on.</b> Your devices send end-to-end encrypted messages through Nostr relays: by default <code>relay.passkey.bond</code>, which we run, and two run by independent operators. The relays can see your IP address, when your devices connect, and an identifier for your sync chain. They cannot read what you store. Our relay keeps the encrypted messages so your other devices can collect them, and its host keeps standard connection logs. Each of the other relays has its own privacy policy, and you can choose which relays to use.</li>
           <li><b>Websites you sign in to.</b> When a site asks for a passkey, the extension may read that site's own <code>/.well-known/webauthn</code> file and its own icon. These requests go only to the site you are on.</li>
         </ul>
-        <p>Nothing else. There are no calls to Passkey.bond, because there is no Passkey.bond server to call.</p>
+        <p>Nothing else. Apart from our sync relay, the apps never contact Passkey.bond.</p>
 
         <h2>Purchases</h2>
         <p>The phone apps are sold through Google Play and the App Store. Those stores handle payment and share with us only what they share with every developer, such as aggregate sales figures. We don't receive your payment details.</p>

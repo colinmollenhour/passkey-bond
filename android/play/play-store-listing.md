@@ -106,8 +106,8 @@ and the Tools/security screens.
 
 - **Does your app collect or share any user data?** No.
 - Data stays on the device. Optional sync sends only end-to-end encrypted bundles
-  through public Nostr relays the user can change; Passkey.bond runs no server
-  and no relay.
+  through Nostr relays the user can change. The default list includes
+  relay.passkey.bond, which Passkey.bond runs and which can't decrypt them.
 - No analytics, no advertising, no tracking, no third-party data sharing.
 - **Data encrypted in transit:** Yes (sync is E2E encrypted).
 - **Users can request data deletion:** Not applicable — there is no account and no

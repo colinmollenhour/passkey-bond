@@ -27,9 +27,11 @@ over it:
   seed phrase (the sync protocol is unchanged), or export a backup from Fenko
   Vault and import it. Then disable Fenko Vault, since two extensions both
   answering WebAuthn requests get in each other's way.
-- **Fenko's relay is gone from the defaults.** New installs sync through
-  `relay.damus.io`, `nos.lol` and `relay.nostr.band`. Existing relay lists are
-  kept.
+- **New default relays.** Fenko's relay is gone. New installs sync through
+  `relay.passkey.bond`, which accepts only Passkey.bond sync events, plus
+  `relay.damus.io` and `nos.lol`; `relay.nostr.band` no longer answers.
+  Existing relay lists are kept, so add `wss://relay.passkey.bond` in Settings
+  to use it.
 - **Feedback** goes to support@passkey.bond, security reports to
   security@passkey.bond.
 - The extension package and the Android app now include the LICENSE file.

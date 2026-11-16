@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <title>Passkey.bond: passkeys and 2FA codes, kept discreetly</title>
-  <meta name="description" content="Passkey.bond keeps your passkeys and two-factor codes on your own devices and syncs them without a server. No account, no cloud. Free for Chrome, Edge, Brave, Opera and Firefox.">
+  <meta name="description" content="Passkey.bond keeps your passkeys and two-factor codes on your own devices and syncs them end-to-end encrypted. No account, no cloud. Free for Chrome, Edge, Brave, Opera and Firefox.">
   <meta name="theme-color" content="#111111">
   <link rel="canonical" href="https://passkey.bond/">
   <link rel="icon" href="/assets/img/mark-16.svg" type="image/svg+xml">
@@ -48,7 +48,7 @@
           <div class="hero__copy">
             <p class="eyebrow reveal">Passkeys &amp; two-factor codes</p>
             <h1 id="hero-title" class="reveal reveal--2">Your passkeys, <em>kept discreetly.</em></h1>
-            <p class="lede reveal reveal--3">Passkey.bond keeps your passkeys and 2FA codes on your own devices, and syncs them without a server in sight. No account. No cloud. Nobody to ask for them.</p>
+            <p class="lede reveal reveal--3">Passkey.bond keeps your passkeys and 2FA codes on your own devices, and syncs them through relays that can't open what they carry. No account. No cloud. Nobody to ask for them.</p>
             <div class="reveal reveal--4">
               <div class="hero__actions">
                 <a class="btn btn--gold" href="/download#chrome">Add to your browser &middot; Free</a>
@@ -78,8 +78,8 @@
             <p>There's no sign-up and no Passkey.bond password to steal. Install it and you're done.</p>
           </div>
           <div class="promise">
-            <h3>No servers</h3>
-            <p>Your vault lives on your devices. When they sync, they pass sealed envelopes through public relays that can't open them.</p>
+            <h3>No vault server</h3>
+            <p>Your vault lives on your devices. When they sync, they pass sealed envelopes through relays, ours among them, that can't open them.</p>
           </div>
           <div class="promise">
             <h3>No secrets</h3>
@@ -126,7 +126,7 @@
               </div>
             </div>
             <p class="ring__verdict"><span class="stamp stamp--good">One breach</span> Half a login. Useless on its own.</p>
-            <p class="ring__text">An attacker who gets into one still needs the other. And Passkey.bond has no server holding everyone's vaults, so there's no single break-in that exposes them all.</p>
+            <p class="ring__text">An attacker who gets into one still needs the other. And no server holds a readable copy of anyone's vault, so there's no single break-in that exposes them all.</p>
           </figure>
         </div>
 
@@ -143,13 +143,13 @@
       <div class="wrap">
         <div class="section-head">
           <p class="eyebrow">How sync works</p>
-          <h2 id="sync-title">Synced, <em>without a server.</em></h2>
-          <p class="lede">Your devices swap sealed envelopes through public relays, rather like leaving a locked case at a left-luggage office. The relays never hold a key. Neither do we.</p>
+          <h2 id="sync-title">Synced, <em>never opened.</em></h2>
+          <p class="lede">Your devices swap sealed envelopes through relays, rather like leaving a locked case at a left-luggage office. We run one of the offices, independent operators run the others, and none of them holds a key. Neither do we.</p>
         </div>
 
         <div class="viz" data-relay-viz data-detail="false">
           <div class="viz__stage">
-            <svg role="img" aria-label="Animation: a passkey saved on your laptop is sealed, copies are sent to three public relays that can only see unreadable ciphertext, and your phone collects a copy and opens it. A box labelled 'Our servers' stays empty throughout."></svg>
+            <svg role="img" aria-label="Animation: a passkey saved on your laptop is sealed, copies are sent to three relays, one run by Passkey.bond and two by independent operators, that can only see unreadable ciphertext, and your phone collects a copy and opens it. A box labelled 'Readable copies' stays empty throughout."></svg>
           </div>
           <div class="viz__bar">
             <p class="viz__caption" aria-live="off"></p>
@@ -162,9 +162,9 @@
           </div>
           <div class="viz__relays" role="group" aria-label="Relays">
             <span>One working relay is enough. Switch some off:</span>
+            <button class="relay-toggle" type="button" aria-pressed="true">relay.passkey.bond</button>
             <button class="relay-toggle" type="button" aria-pressed="true">relay.damus.io</button>
             <button class="relay-toggle" type="button" aria-pressed="true">nos.lol</button>
-            <button class="relay-toggle" type="button" aria-pressed="true">relay.nostr.band</button>
           </div>
         </div>
 
@@ -283,7 +283,7 @@
         <div class="faq">
           <details>
             <summary>Can Passkey.bond see my passkeys?</summary>
-            <div class="answer"><p>No. They never reach us. We don't run a server, so there is nowhere for them to go. When your devices sync, they send encrypted messages that only your devices can open.</p></div>
+            <div class="answer"><p>No. Without sync, nothing leaves your device. With sync on, your devices send encrypted messages through relays, including one we run, and only your devices hold the key to open them. Our relay sees the same sealed noise as everyone else's.</p></div>
           </details>
           <details>
             <summary>What if I lose my laptop or phone?</summary>

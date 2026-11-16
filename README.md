@@ -123,7 +123,7 @@ Every development build has the extension ID `odoehegfpkpmhicjkpdajlpdhcaghkhi`,
 
 ## How sync works
 
-Cross-device sync is optional and off by default. When you enable it, your devices exchange end-to-end encrypted messages over public [Nostr](https://github.com/nostr-protocol/nips) relays — there is no Passkey.bond account, no server that holds your vault, and nothing a relay operator can read.
+Cross-device sync is optional and off by default. When you enable it, your devices exchange end-to-end encrypted messages over [Nostr](https://github.com/nostr-protocol/nips) relays — there is no Passkey.bond account, no server that holds a readable vault, and nothing a relay operator can read, including us.
 
 **Setup.** Enabling sync generates a BIP-39 seed phrase (the "sync chain"). You type that phrase into your other devices; every device holding the phrase is on the chain. The phrase never leaves your devices.
 
@@ -139,9 +139,9 @@ Cross-device sync is optional and off by default. When you enable it, your devic
 
 | Relay | Operator |
 | --- | --- |
+| `wss://relay.passkey.bond` | Passkey.bond. Accepts only Passkey.bond sync events ([`relay/`](relay/)). |
 | `wss://relay.damus.io` | Damus |
 | `wss://nos.lol` | nos.lol |
-| `wss://relay.nostr.band` | nostr.band |
 
 You can add or remove relays in the extension options. The sync protocol is the same as Fenko Vault's, so Passkey.bond and Fenko Vault devices on one chain sync with each other as long as they share a relay.
 

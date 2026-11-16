@@ -10,8 +10,8 @@ Not yet published on the App Store; it will be a paid one-time purchase.
 > **Status: runs in the simulator; sync transport verified; provider not yet
 > device-tested.** Upstream Fenko Vault built it clean on Xcode 26.4 / iOS 26 SDK,
 > with the web app loading and the WKWebView connecting to a Nostr relay, so iOS
-> runs the identical, proven sync engine. The default relays are now the public
-> `wss://relay.damus.io`, `wss://nos.lol`, and `wss://relay.nostr.band`. The passkey crypto is checked by a
+> runs the identical, proven sync engine. The default relays are
+> `wss://relay.passkey.bond`, `wss://relay.damus.io`, and `wss://nos.lol`. The passkey crypto is checked by a
 > cross-platform test (named-curve PKCS8 import + sign/verify round-trip). What's
 > left: signing config + running the credential provider on a real device (needs
 > paid Apple membership). See [Known gaps](#known-gaps).

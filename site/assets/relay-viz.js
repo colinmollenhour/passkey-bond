@@ -1,7 +1,7 @@
-// "Synced without a server": a passkey saved on a laptop is sealed, copies go
-// to public Nostr relays that only ever hold ciphertext, and the phone picks
-// one up and opens it. The empty "Our servers" slot stays in view the whole
-// time. Visitors can switch relays off to see that one working relay is enough.
+// "Synced, never opened": a passkey saved on a laptop is sealed, copies go
+// to Nostr relays (ours and two independent ones) that only ever hold
+// ciphertext, and the phone picks one up and opens it. The empty "Readable
+// copies" slot stays in view the whole time. Visitors can switch relays off to see that one working relay is enough.
 //
 // Every frame is a pure function of (time, online relays, layout), so pause,
 // step and ?vizframe=<ms> screenshots all give the same picture.
@@ -11,9 +11,9 @@
   const NS = 'http://www.w3.org/2000/svg';
 
   const RELAYS = [
+    { name: 'relay.passkey.bond', short: 'passkey.bond' },
     { name: 'relay.damus.io', short: 'damus.io' },
     { name: 'nos.lol', short: 'nos.lol' },
-    { name: 'relay.nostr.band', short: 'nostr.band' },
   ];
 
   // Named beats on one clock (ms). The loop rests on the last beat.
@@ -47,11 +47,11 @@
     plain: [
       '<b>You save a passkey on your laptop.</b> It lives there, on your device.',
       '<b>Before it leaves, it is sealed</b> with a key that only your own devices share.',
-      '<b>Identical sealed copies go to three public relays</b>, run by independent operators, not by us. Any one of them is enough.',
+      '<b>Identical sealed copies go to three relays</b>: one we run, two run by independent operators. Any one of them is enough.',
       '<b>A relay sees sealed noise.</b> It can pass the envelope on. It cannot open it.',
       '<b>Your phone collects it</b> from whichever relays are online, and ignores the duplicate copies.',
       '<b>It opens with the same key</b>, and the passkey is ready on your phone too.',
-      '<b>No Passkey.bond server stored it, saw it or passed it on.</b> We don\u2019t run one.',
+      '<b>No server ever held a readable copy.</b> Not even ours: our relay saw the same sealed noise as the others.',
     ],
     detail: [
       '<b>A new ES256 key pair is created on the laptop</b> and stored in the vault.',
@@ -60,7 +60,7 @@
       '<b>Relays see ciphertext, the chain tag and timing.</b> No domains, usernames, device names or counts.',
       '<b>The phone’s subscriptions on each relay deliver the event.</b>',
       '<b>It checks the Schnorr signature and event ID, decrypts, and merges.</b> Copies from other relays are recognised as replays and ignored.',
-      '<b>Zero Passkey.bond servers involved.</b> Relays are interchangeable: add or remove them in Settings.',
+      '<b>No readable copy anywhere but your devices.</b> Relays are interchangeable, ours included: add or remove them in Settings.',
     ],
     noRelay: {
       2: '<b>Every relay is switched off</b>, so the sealed copies have nowhere to go.',
@@ -298,14 +298,14 @@
     svg.toggleAttribute('data-compact', L.compact);
     const refs = { out: [], inn: [], parked: [], pulse: [], relayG: [] };
 
-    // Ghost server: the slot where a sync service would usually sit.
+    // Ghost slot: where a sync service would usually keep readable vaults.
     const gh = L.ghost;
     refs.ghostRect = el('rect', { class: 'ghost', x: gh.x, y: gh.y, width: gh.w, height: gh.h, rx: 3 }, svg);
-    el('text', { class: 't-label', x: gh.x + gh.w / 2, y: gh.y + 26, 'text-anchor': 'middle' }, svg, 'Our servers');
+    el('text', { class: 't-label', x: gh.x + gh.w / 2, y: gh.y + 26, 'text-anchor': 'middle' }, svg, 'Readable copies');
     refs.ghostText = el('text', { class: 't-big', x: gh.x + gh.w / 2, y: gh.y + 60, 'text-anchor': 'middle', 'font-style': 'italic' }, svg, 'None');
 
     if (L.relaysLabel) {
-      el('text', { class: 't-label', x: L.relaysLabel.x, y: L.relaysLabel.y, 'text-anchor': 'middle' }, svg, 'Public relays');
+      el('text', { class: 't-label', x: L.relaysLabel.x, y: L.relaysLabel.y, 'text-anchor': 'middle' }, svg, 'Relays');
     }
 
     const lapCard = screenCard(L.laptop.screen, 12);

@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <title>Security · Passkey.bond</title>
-  <meta name="description" content="How Passkey.bond protects your passkeys: local key generation, AES-256-GCM with scrypt, end-to-end encrypted sync over public Nostr relays, and no servers of our own.">
+  <meta name="description" content="How Passkey.bond protects your passkeys: local key generation, AES-256-GCM with scrypt, end-to-end encrypted sync over Nostr relays, and no server that can read your vault.">
   <meta name="theme-color" content="#111111">
   <link rel="canonical" href="https://passkey.bond/security">
   <link rel="icon" href="/assets/img/mark-16.svg" type="image/svg+xml">
@@ -64,7 +64,7 @@
         </div>
         <div class="viz" data-relay-viz data-detail="true">
           <div class="viz__stage">
-            <svg role="img" aria-label="Animation: a passkey created on a laptop is encrypted with AES-256-GCM inside a signed Nostr event, published to three public relays that see only ciphertext, the chain tag and timing, then delivered to a phone that verifies, decrypts and merges it. Duplicate copies are ignored. No Passkey.bond server is involved."></svg>
+            <svg role="img" aria-label="Animation: a passkey created on a laptop is encrypted with AES-256-GCM inside a signed Nostr event, published to three relays that see only ciphertext, the chain tag and timing, then delivered to a phone that verifies, decrypts and merges it. Duplicate copies are ignored. No server ever holds a readable copy."></svg>
           </div>
           <div class="viz__bar">
             <p class="viz__caption" aria-live="off"></p>
@@ -77,9 +77,9 @@
           </div>
           <div class="viz__relays" role="group" aria-label="Relays">
             <span>Default relays:</span>
+            <button class="relay-toggle" type="button" aria-pressed="true">relay.passkey.bond</button>
             <button class="relay-toggle" type="button" aria-pressed="true">relay.damus.io</button>
             <button class="relay-toggle" type="button" aria-pressed="true">nos.lol</button>
-            <button class="relay-toggle" type="button" aria-pressed="true">relay.nostr.band</button>
           </div>
         </div>
       </div>
@@ -161,7 +161,7 @@
                 </ul>
               </div>
             </div>
-            <p>The default relays are <code>relay.damus.io</code>, <code>nos.lol</code> and <code>relay.nostr.band</code>, all run by independent operators. Add or remove relays in Settings, or point your devices at a relay of your own.</p>
+            <p>The default relays are <code>relay.passkey.bond</code>, which we run, and <code>relay.damus.io</code> and <code>nos.lol</code>, run by independent operators. Ours accepts Passkey.bond sync events and nothing else, and sees exactly what the others see. Add or remove relays in Settings, or point your devices at a relay of your own.</p>
             <p>Source: <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/sync/protocol.ts"><code>src/sync/protocol.ts</code></a>, <a href="https://github.com/colinmollenhour/passkey-bond/blob/main/src/sync/transport.ts"><code>src/sync/transport.ts</code></a></p>
           </div>
         </article>
@@ -219,10 +219,10 @@
             <p>This isn't hypothetical. In 2022 attackers copied encrypted LastPass customer vaults out of the company's cloud storage. A stolen vault can be attacked offline indefinitely, and any vault whose master password gives way surrenders everything in it.</p>
             <ul>
               <li><strong>Keep passwords in your password manager</strong> and second factors (TOTP codes, and passkeys used as a second factor) in Passkey.bond. Breaching either one yields half a login.</li>
-              <li><strong>No central copy to steal.</strong> Passkey.bond has no server, so there is no store of everyone's vaults to take in one go. Sync relays hold only ciphertext under keys derived from each chain's own phrase.</li>
+              <li><strong>No readable central copy.</strong> No server keeps vaults that a master password opens. Relays, ours included, hold only ciphertext under keys derived from each chain's own 12-word phrase, and each guess at a phrase costs a 128 MiB scrypt.</li>
               <li><strong>Different keys, different places.</strong> The Passkey.bond vault is locked by its own PIN, passphrase or device biometrics, never by your password manager's master password.</li>
             </ul>
-            <p>For a site where a passkey is the only way to sign in, the passkey is the whole login wherever it's kept. Separation adds nothing there. What protects it is the lack of a server-side vault to steal.</p>
+            <p>For a site where a passkey is the only way to sign in, the passkey is the whole login wherever it's kept. Separation adds nothing there. What protects it is the lack of a readable server-side vault to steal.</p>
           </div>
         </article>
 

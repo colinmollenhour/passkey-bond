@@ -6,6 +6,12 @@ export const SYNC_RECONNECT_MS = 5000;
 export const SYNC_LOOKBACK_SECONDS = 3600;
 export const MAX_SYNC_EVENTS = 1000;
 
+/**
+ * Relays for new installs and empty relay lists, shared by the extension and
+ * the phone apps. relay.passkey.bond accepts only these sync events (relay/).
+ */
+export const DEFAULT_RELAYS = ['wss://relay.passkey.bond', 'wss://relay.damus.io', 'wss://nos.lol'];
+
 export const SYNC_KEY_PREFIX = 'pkvault-sync-v5';
 export const SYNC_EVENT_PREFIX = 'pksync-v5';
 

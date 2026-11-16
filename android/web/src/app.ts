@@ -14,6 +14,7 @@ import {
   SYNC_RECONNECT_MS,
   SYNC_LOOKBACK_SECONDS,
   MAX_SYNC_EVENTS,
+  DEFAULT_RELAYS,
 } from '../../../src/sync/protocol';
 import {
   restoreRecord,
@@ -192,11 +193,6 @@ const RECYCLE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const FEEDBACK_URL = 'mailto:support@passkey.bond?subject=Passkey.bond%20feedback';
 
 let lastActivityAt = Date.now();
-const DEFAULT_RELAYS = [
-  'wss://relay.damus.io',
-  'wss://nos.lol',
-  'wss://relay.nostr.band',
-];
 
 const state = {
   tab: 'vault' as Tab,
@@ -2169,7 +2165,7 @@ function renderTools(): string {
         </p>
         <p class="muted">
           Your vault lives on this device. Optional sync sends only end-to-end encrypted bundles
-          through the relays you choose &mdash; there is no Passkey.bond server that can read your secrets.
+          through the relays you choose &mdash; no server can read your secrets, including our relay.
           No analytics, no tracking.
         </p>
         <h3>No warranty</h3>

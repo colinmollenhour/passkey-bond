@@ -43,7 +43,7 @@ Supported Android versions:
 - Vault lock via the device lock mechanism only (BiometricPrompt: face, fingerprint, or screen-lock credential). No app-specific PIN. Auto-lock timer (default 5 minutes, configurable in Tools).
 - Delete protection: long-press an item, confirm, and it moves to a recycle bin in Tools for 7 days before permanent removal.
 - Pull-to-refresh on the vault triggers a sync.
-- Nostr sync matching the extension protocol. Default relays are the public Nostr relays `wss://relay.damus.io`, `wss://nos.lol`, and `wss://relay.nostr.band`; Passkey.bond runs no relay of its own.
+- Nostr sync matching the extension protocol. Default relays are `wss://relay.passkey.bond` (ours, sync events only), `wss://relay.damus.io` and `wss://nos.lol` (`DEFAULT_RELAYS` in `src/sync/protocol.ts`).
 - Encrypted backup export/import in the same format as the extension (`src/crypto/backup-crypto.ts`: AES-256-GCM, key from scrypt with its parameters in the file; older PBKDF2 backups still import); raw JSON backup retained.
 - Passkey.bond branding: Jost and Bodoni Moda fonts (bundled, SIL OFL), dark theme, adaptive launcher icon that follows the system light/dark theme.
 - About panel in Tools: open-source/no-warranty statement, privacy summary, and links to passkey.bond, its terms and privacy policy, and the support and security addresses.

@@ -22,8 +22,7 @@ import {
   type ExportFormat,
 } from '../porting';
 import { checkVaultSecret, type VaultSecretProblem } from '../crypto/vault-secret';
-
-const DEFAULT_RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.nostr.band'];
+import { DEFAULT_RELAYS } from '../sync/protocol';
 
 interface DomainRules {
   mode: 'disabled' | 'all' | 'allowlist' | 'blocklist';
