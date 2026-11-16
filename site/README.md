@@ -30,8 +30,9 @@ pages, but static hosts do.
 
 The site runs on Railway (project `passkey.bond`, Dragonstone Labs workspace)
 as a Caddy container built from `Dockerfile` and `Caddyfile`, with the
-service's root directory set to `site/`. Railway redeploys when a push to
-`main` changes `site/**` (`railway.json`). Caddy serves `/security` without
+service's root directory set to `/site`. Railway redeploys when a push to
+`main` changes `/site/**`. That service config lives in Railway, not in a
+`railway.json`, which Railway has deprecated. Caddy serves `/security` without
 the trailing slash, redirects `/security/` and `www.passkey.bond` to the
 canonical URL, returns `404.html` for missing pages and sets the security
 headers, including the CSP from the pages' meta tags plus `frame-ancestors`.
