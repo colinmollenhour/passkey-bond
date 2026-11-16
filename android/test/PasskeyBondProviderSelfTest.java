@@ -34,7 +34,20 @@ public final class PasskeyBondProviderSelfTest {
         JSONObject regResponse = registrationJson.getJSONObject("response");
         require(regResponse.getString("clientDataJSON").length() > 20, "registration clientDataJSON missing");
         require(regResponse.getString("attestationObject").length() > 20, "attestationObject missing");
-        require(regResponse.getString("publicKey").length() > 20, "publicKey response missing");
+        // response.publicKey must be SubjectPublicKeyInfo DER that parses as the
+        // passkey's own key, as browsers require.
+        byte[] spki = android.util.Base64.decode(
+                regResponse.getString("publicKey"),
+                android.util.Base64.URL_SAFE | android.util.Base64.NO_PADDING | android.util.Base64.NO_WRAP);
+        java.security.PublicKey parsed = java.security.KeyFactory.getInstance("EC")
+                .generatePublic(new java.security.spec.X509EncodedKeySpec(spki));
+        byte[] raw = android.util.Base64.decode(passkey.publicKey, android.util.Base64.DEFAULT);
+        require(parsed instanceof java.security.interfaces.ECPublicKey, "publicKey is not an EC key");
+        java.security.spec.ECPoint w = ((java.security.interfaces.ECPublicKey) parsed).getW();
+        require(new java.math.BigInteger(1, java.util.Arrays.copyOfRange(raw, 1, 33)).equals(w.getAffineX())
+                && new java.math.BigInteger(1, java.util.Arrays.copyOfRange(raw, 33, 65)).equals(w.getAffineY()),
+                "publicKey response is not the passkey's key");
+        require(regResponse.getInt("publicKeyAlgorithm") == -7, "publicKeyAlgorithm mismatch");
 
         String authentication = WebAuthnNative.authenticationResponseJson(
                 passkey,

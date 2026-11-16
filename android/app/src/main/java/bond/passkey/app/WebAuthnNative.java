@@ -109,7 +109,9 @@ final class WebAuthnNative {
         response.put("clientDataJSON", base64Url(clientData));
         response.put("attestationObject", base64Url(attestationObject));
         response.put("authenticatorData", base64Url(authData));
-        response.put("publicKey", base64Url(coseKey));
+        // RegistrationResponseJSON carries the key as SubjectPublicKeyInfo DER,
+        // not COSE; Chrome rejects the whole response otherwise.
+        response.put("publicKey", base64Url(spkiPublicKey(publicKeyRaw)));
         response.put("publicKeyAlgorithm", -7);
         response.put("transports", new JSONArray().put("internal"));
 
@@ -268,6 +270,22 @@ final class WebAuthnNative {
         writeInt(out, -3);
         writeBytes(out, slice(rawPublicKey, 33, 32));
         return out.toByteArray();
+    }
+
+    // DER header of a P-256 SubjectPublicKeyInfo (id-ecPublicKey, prime256v1),
+    // followed by the 65-byte uncompressed point.
+    private static final byte[] P256_SPKI_PREFIX = {
+            0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, (byte) 0x86, 0x48, (byte) 0xce, 0x3d, 0x02, 0x01,
+            0x06, 0x08, 0x2a, (byte) 0x86, 0x48, (byte) 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00};
+
+    static byte[] spkiPublicKey(byte[] rawPublicKey) {
+        if (rawPublicKey.length != 65 || rawPublicKey[0] != 0x04) {
+            throw new IllegalArgumentException("Expected uncompressed P-256 public key");
+        }
+        byte[] out = new byte[P256_SPKI_PREFIX.length + rawPublicKey.length];
+        System.arraycopy(P256_SPKI_PREFIX, 0, out, 0, P256_SPKI_PREFIX.length);
+        System.arraycopy(rawPublicKey, 0, out, P256_SPKI_PREFIX.length, rawPublicKey.length);
+        return out;
     }
 
     private static byte[] rawPublicKey(ECPublicKey publicKey) {
