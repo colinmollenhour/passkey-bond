@@ -8,6 +8,8 @@ entries use the old names. The format follows
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-16
+
 ### Fenko Vault is now Passkey.bond
 
 Passkey.bond is a fork of Fenko Vault with its own name, icon and identifiers,

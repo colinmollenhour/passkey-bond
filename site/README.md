@@ -28,8 +28,20 @@ pages, but static hosts do.
 
 ## Deploy
 
-Publish the `site/` folder as the web root on any static host. For GitHub
-Pages with the custom domain, add a `CNAME` file containing `passkey.bond`.
+The site runs on Railway (project `passkey.bond`, Dragonstone Labs workspace)
+as a Caddy container built from `Dockerfile` and `Caddyfile`, with the
+service's root directory set to `site/`. Railway redeploys when a push to
+`main` changes `site/**` (`railway.json`). Caddy serves `/security` without
+the trailing slash, redirects `/security/` and `www.passkey.bond` to the
+canonical URL, returns `404.html` for missing pages and sets the security
+headers, including the CSP from the pages' meta tags plus `frame-ancestors`.
+
+To check the container locally:
+
+```sh
+docker build -t passkey-bond-site site
+docker run --rm -e PORT=8080 -p 8080:8080 passkey-bond-site
+```
 
 ## Animations
 

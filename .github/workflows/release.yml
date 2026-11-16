@@ -157,6 +157,9 @@ jobs:
     name: Publish to Chrome Web Store
     needs: build
     runs-on: ubuntu-latest
+    # Skipped until the store listing exists: set the repo variable
+    # CHROME_PUBLISH to 'true' once the CHROME_* secrets are in place.
+    if: ${{ vars.CHROME_PUBLISH == 'true' }}
     # Publishing jobs run in the "release" deployment environment, so a
     # maintainer can require reviewers (and keep the store credentials as
     # environment secrets) under Settings > Environments. Without a
@@ -233,6 +236,9 @@ jobs:
     name: Publish to Firefox Add-ons (AMO)
     needs: build
     runs-on: ubuntu-latest
+    # Skipped until the AMO listing exists: set the repo variable AMO_PUBLISH
+    # to 'true' once the AMO_JWT_* secrets are in place.
+    if: ${{ vars.AMO_PUBLISH == 'true' }}
     environment: release
 
     steps:
