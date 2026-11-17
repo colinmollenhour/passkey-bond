@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Passkey.bond — Passkey unlock</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body class="unlock-page" data-i18n-title="unlockPageTitle">
+    <!--
+      The passkey prompts for unlocking the vault run here, in a tab of their
+      own: #unlock, #enroll and #reset-secret pick the view.
+    -->
+    <main class="unlock-card">
+      <div class="auth-hero">
+        <div class="auth-hero-icon" aria-hidden="true">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- #unlock: open a locked vault -->
+      <section id="unlock-view" class="unlock-view" aria-labelledby="unlock-title" hidden>
+        <div class="auth-hero">
+          <h1 id="unlock-title" data-i18n="unlockHeading">Unlock the vault</h1>
+          <p id="unlock-help" class="auth-hint" data-i18n="unlockHelp">
+            Use a passkey that unlocks this vault, or your PIN or passphrase.
+          </p>
+        </div>
+        <div class="auth-form">
+          <p id="unlock-status" class="unlock-status" aria-live="polite" hidden></p>
+          <div id="unlock-error" class="field-error" role="alert" hidden></div>
+          <button type="button" id="passkey-unlock-btn" class="btn btn-primary btn-full" hidden>
+            <span data-i18n="popupUnlockWithPasskey">Unlock with passkey</span>
+          </button>
+          <button
+            type="button"
+            id="fallback-toggle"
+            class="btn btn-ghost btn-full"
+            aria-expanded="false"
+            aria-controls="fallback-form"
+            hidden
+          >
+            <span data-i18n="popupUsePinInstead">Use PIN or passphrase</span>
+          </button>
+          <form id="fallback-form" class="auth-form" hidden>
+            <div class="form-group">
+              <label for="fallback-secret" data-i18n="unlockSecretLabel">PIN or passphrase</label>
+              <input type="password" id="fallback-secret" maxlength="256" autocomplete="off" />
+            </div>
+            <button type="submit" id="fallback-unlock-btn" class="btn btn-secondary btn-full">
+              <span data-i18n="popupUnlock">Unlock</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- #enroll: add a passkey that unlocks the vault -->
+      <section id="enroll-view" class="unlock-view" aria-labelledby="enroll-title" hidden>
+        <div class="auth-hero">
+          <h1 id="enroll-title" data-i18n="unlockEnrollHeading">
+            Add a passkey that unlocks the vault
+          </h1>
+          <p class="auth-hint" data-i18n="unlockEnrollHelp">
+            The passkey is kept by your passkey provider, such as this device, a phone or a security
+            key. It is not stored in Passkey.bond. Your provider will ask twice: once to create the
+            passkey and once to confirm it.
+          </p>
+        </div>
+        <form id="enroll-form" class="auth-form">
+          <div id="enroll-secret-group" class="form-group">
+            <label for="enroll-secret" data-i18n="unlockEnrollSecretLabel"
+              >Current PIN or passphrase</label
+            >
+            <input type="password" id="enroll-secret" maxlength="256" autocomplete="off" />
+          </div>
+          <p
+            id="enroll-short-pin-warning"
+            class="vault-warning"
+            data-i18n="unlockShortPinWarning"
+            hidden
+          >
+            You are using a short PIN. To protect against a copied profile, change it to a
+            passphrase of four or more random words, or a PIN of at least 10 digits.
+          </p>
+          <div class="form-group">
+            <label for="enroll-name" data-i18n="unlockEnrollNameLabel">Name for this passkey</label>
+            <input type="text" id="enroll-name" maxlength="64" autocomplete="off" />
+          </div>
+          <p class="auth-note" data-i18n="unlockFallbackDisclosure">
+            Your PIN or passphrase still unlocks this vault. Someone with a copy of your browser
+            profile can guess it offline, so a passkey does not make a short PIN any safer.
+          </p>
+          <p id="enroll-status" class="unlock-status" aria-live="polite" hidden></p>
+          <div id="enroll-error" class="field-error" role="alert" hidden></div>
+          <button type="submit" id="enroll-create-btn" class="btn btn-primary btn-full">
+            <span data-i18n="unlockEnrollCreate">Create passkey</span>
+          </button>
+          <button type="button" id="enroll-confirm-btn" class="btn btn-primary btn-full" hidden>
+            <span data-i18n="unlockEnrollConfirm">Confirm passkey</span>
+          </button>
+        </form>
+        <div id="enroll-done" class="auth-form" hidden>
+          <p id="enroll-done-text" class="unlock-status" role="status"></p>
+          <button type="button" id="enroll-again-btn" class="btn btn-secondary btn-full">
+            <span data-i18n="unlockEnrollAgain">Add another passkey</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- #reset-secret: a passkey authorizes a new PIN or passphrase -->
+      <section id="reset-view" class="unlock-view" aria-labelledby="reset-title" hidden>
+        <div class="auth-hero">
+          <h1 id="reset-title" data-i18n="unlockResetHeading">Set a new PIN or passphrase</h1>
+          <p class="auth-hint" data-i18n="unlockResetHelp">
+            Forgot your PIN or passphrase? Choose a new one and confirm with a passkey that unlocks
+            this vault.
+          </p>
+        </div>
+        <form id="reset-form" class="auth-form">
+          <div class="form-group">
+            <label for="reset-secret-new" data-i18n="unlockResetNewLabel"
+              >New PIN or passphrase</label
+            >
+            <input
+              type="password"
+              id="reset-secret-new"
+              maxlength="256"
+              autocomplete="new-password"
+            />
+          </div>
+          <div class="form-group">
+            <label for="reset-secret-confirm" data-i18n="unlockResetConfirmLabel"
+              >Confirm PIN or passphrase</label
+            >
+            <input
+              type="password"
+              id="reset-secret-confirm"
+              maxlength="256"
+              autocomplete="new-password"
+            />
+          </div>
+          <p class="auth-note" data-i18n="vaultSecretHint">
+            A short PIN mainly stops someone using this computer while it is unlocked. Anyone with a
+            copy of your browser profile can try every 6-digit PIN within hours. To protect against
+            that, use a passphrase of four or more random words, or a PIN of at least 10 digits.
+          </p>
+          <button type="submit" id="reset-confirm-btn" class="btn btn-primary btn-full">
+            <span data-i18n="unlockResetConfirmBtn">Confirm with passkey</span>
+          </button>
+        </form>
+        <p id="reset-status" class="unlock-status" aria-live="polite" hidden></p>
+        <div id="reset-error" class="field-error" role="alert" hidden></div>
+      </section>
+
+      <!-- Shown instead of a view when it cannot be used right now -->
+      <section id="unavailable-view" class="unlock-view" hidden>
+        <p id="unavailable-text" class="unlock-status" role="status"></p>
+      </section>
+    </main>
+
+    <script src="unlock.js"></script>
+  </body>
+</html>

@@ -1295,3 +1295,88 @@ a.btn {
 .about-notice strong {
   color: var(--warning);
 }
+
+/* ---------- Passkey unlock ---------- */
+.card-actions[hidden] {
+  display: none;
+}
+
+.unlock-passkey-list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+}
+
+.unlock-passkey-list[hidden] {
+  display: none;
+}
+
+.unlock-passkey-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.unlock-passkey-row:first-child {
+  border-top: none;
+}
+
+.unlock-passkey-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.unlock-passkey-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.unlock-passkey-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.unlock-passkey-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* The secret prompt for removing one passkey, shown under its row */
+.unlock-passkey-remove {
+  margin: 0;
+  padding: 12px;
+  border-top: 1px solid var(--border-soft);
+  background: var(--bg-elev);
+}
+
+.unlock-passkey-remove .card-hint {
+  margin: 0;
+}
+
+.unlock-passkey-remove .card-actions {
+  margin-top: 4px;
+}
+
+#passkey-unlock-card > .field-error {
+  margin-bottom: 12px;
+}
+
+.unlock-passkey-reset {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--accent);
+}
+
+.unlock-passkey-reset[hidden] {
+  display: none;
+}

@@ -27,21 +27,39 @@
           </svg>
         </div>
         <h1><span data-i18n="popupVaultLocked">Vault Locked</span></h1>
-        <p class="auth-hint" data-i18n="popupUnlockHelp">Enter your PIN or passphrase to unlock.</p>
+        <p id="unlock-help" class="auth-hint" data-i18n="popupUnlockHelp">
+          Enter your PIN or passphrase to unlock.
+        </p>
       </div>
       <div class="auth-form">
-        <input
-          type="password"
-          id="unlock-password"
-          maxlength="256"
-          placeholder="PIN or passphrase"
-          data-i18n-placeholder="popupMasterPasswordPlaceholder"
-          autocomplete="off"
-        />
-        <div id="unlock-error" class="field-error" hidden></div>
-        <button type="button" id="unlock-btn" class="btn btn-primary btn-full">
-          <span data-i18n="popupUnlock">Unlock</span>
+        <!-- Shown when a passkey can unlock this vault: it opens the unlock page in a tab -->
+        <button type="button" id="unlock-passkey-btn" class="btn btn-primary btn-full" hidden>
+          <span data-i18n="popupUnlockWithPasskey">Unlock with passkey</span>
         </button>
+        <button
+          type="button"
+          id="unlock-use-secret-btn"
+          class="btn btn-ghost btn-full"
+          aria-expanded="false"
+          aria-controls="unlock-secret-form"
+          hidden
+        >
+          <span data-i18n="popupUsePinInstead">Use PIN or passphrase</span>
+        </button>
+        <div id="unlock-secret-form" class="auth-form">
+          <input
+            type="password"
+            id="unlock-password"
+            maxlength="256"
+            placeholder="PIN or passphrase"
+            data-i18n-placeholder="popupMasterPasswordPlaceholder"
+            autocomplete="off"
+          />
+          <div id="unlock-error" class="field-error" role="alert" hidden></div>
+          <button type="button" id="unlock-btn" class="btn btn-primary btn-full">
+            <span data-i18n="popupUnlock">Unlock</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -90,6 +108,9 @@
           A short PIN mainly stops someone using this computer while it is unlocked. Anyone with a
           copy of your browser profile can try every 6-digit PIN within hours. To protect against
           that, use a passphrase of four or more random words, or a PIN of at least 10 digits.
+        </p>
+        <p id="setup-passkey-note" class="auth-note" data-i18n="popupSetupPasskeyLater" hidden>
+          Afterwards you can add a passkey to unlock the vault.
         </p>
         <div id="setup-error" class="field-error" hidden></div>
         <button type="button" id="setup-btn" class="btn btn-primary btn-full">
@@ -208,6 +229,25 @@
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
+      </div>
+
+      <!-- Offered once the vault has a lock, is unlocked and no passkey unlocks it yet -->
+      <div class="passkey-offer" id="passkey-offer" hidden>
+        <div class="passkey-offer-text">
+          <strong data-i18n="popupPasskeyOfferTitle">Unlock with a passkey</strong>
+          <span data-i18n="popupPasskeyOfferBody">
+            Open your vault with your device, phone or security key instead of typing your PIN or
+            passphrase.
+          </span>
+        </div>
+        <div class="passkey-offer-actions">
+          <button type="button" id="passkey-offer-setup-btn" class="btn btn-primary btn-sm">
+            <span data-i18n="popupPasskeyOfferSetup">Set up</span>
+          </button>
+          <button type="button" id="passkey-offer-dismiss-btn" class="btn btn-ghost btn-sm">
+            <span data-i18n="popupPasskeyOfferDismiss">Not now</span>
+          </button>
+        </div>
       </div>
 
       <div class="search-container">

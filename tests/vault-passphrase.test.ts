@@ -139,7 +139,18 @@ describe('every page that asks for the secret', () => {
     ['popup.html', ['unlock-password', 'setup-password', 'setup-password-confirm']],
     [
       'options.html',
-      ['set-pw', 'set-pw-confirm', 'change-pw-current', 'change-pw-new', 'change-pw-confirm'],
+      [
+        'set-pw',
+        'set-pw-confirm',
+        'change-pw-current',
+        'change-pw-new',
+        'change-pw-confirm',
+        'passkey-unlock-remove-secret',
+      ],
+    ],
+    [
+      'unlock.html',
+      ['fallback-secret', 'enroll-secret', 'reset-secret-new', 'reset-secret-confirm'],
     ],
   ];
 
@@ -155,12 +166,16 @@ describe('every page that asks for the secret', () => {
     }
   });
 
-  it.each(['popup.html', 'options.html'])('%s explains what a short PIN does not stop', (name) => {
-    expect(page(name).querySelector('[data-i18n="vaultSecretHint"]')).not.toBeNull();
-  });
+  // unlock.html is where a passkey authorizes a new PIN or passphrase.
+  it.each(['popup.html', 'options.html', 'unlock.html'])(
+    '%s explains what a short PIN does not stop',
+    (name) => {
+      expect(page(name).querySelector('[data-i18n="vaultSecretHint"]')).not.toBeNull();
+    }
+  );
 
   it('checks the secret with the rule the background enforces', () => {
-    for (const file of ['src/ui/popup.ts', 'src/ui/options.ts']) {
+    for (const file of ['src/ui/popup.ts', 'src/ui/options.ts', 'src/ui/unlock.ts']) {
       const source = readFileSync(resolve(file), 'utf8');
       expect(source).toContain('checkVaultSecret(');
       expect(source).not.toMatch(/\\d\{4,12\}/);

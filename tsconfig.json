@@ -24,7 +24,8 @@
     "src/ui/passkey-ui.ts",
     "src/ui/emergency-ui.ts",
     "src/ui/popup.ts",
-    "src/ui/import.ts"
+    "src/ui/import.ts",
+    "src/ui/unlock.ts"
   ],
   "exclude": ["node_modules", "dist", "tests"]
 }

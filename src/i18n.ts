@@ -595,6 +595,97 @@ const en: TranslationMap = {
     'Did {rp} just reject this passkey? Some sites refuse one whose synced setting differs from when it was added, and this setting was a guess.',
   dialogRetryUseSynced: 'Try as a synced passkey (saved)',
   dialogRetryUseDeviceBound: 'Try as a device-bound passkey (saved)',
+  // Passkey unlock
+  popupUnlockWithPasskey: 'Unlock with passkey',
+  popupUsePinInstead: 'Use PIN or passphrase',
+  popupVaultDamaged:
+    "This vault's lock data is damaged and cannot be opened this way. Try your other unlock method, or restore from a backup.",
+  popupSetupPasskeyLater: 'Afterwards you can add a passkey to unlock the vault.',
+  popupPasskeyOfferTitle: 'Unlock with a passkey',
+  popupPasskeyOfferBody:
+    'Open your vault with your device, phone or security key instead of typing your PIN or passphrase.',
+  popupPasskeyOfferSetup: 'Set up',
+  popupPasskeyOfferDismiss: 'Not now',
+  unlockPageTitle: 'Passkey.bond — Passkey unlock',
+  unlockHeading: 'Unlock the vault',
+  unlockHelp: 'Use a passkey that unlocks this vault, or your PIN or passphrase.',
+  unlockSecretLabel: 'PIN or passphrase',
+  unlockSecretRequired: 'Enter your PIN or passphrase.',
+  unlockWaiting: 'Waiting for your passkey…',
+  unlockUnlocked: 'The vault is unlocked. You can close this tab.',
+  unlockEnrollHeading: 'Add a passkey that unlocks the vault',
+  unlockEnrollHelp:
+    'The passkey is kept by your passkey provider, such as this device, a phone or a security key. It is not stored in Passkey.bond. Your provider will ask twice: once to create the passkey and once to confirm it.',
+  unlockEnrollSecretLabel: 'Current PIN or passphrase',
+  unlockEnrollNameLabel: 'Name for this passkey',
+  unlockDefaultName: 'Passkey {n}',
+  unlockEnrollNameRequired: 'Enter a name for this passkey.',
+  unlockEnrollCreate: 'Create passkey',
+  unlockEnrollConfirm: 'Confirm passkey',
+  unlockEnrollVerifying: 'Checking your PIN or passphrase…',
+  unlockEnrollCreated:
+    'Passkey created. Confirm it to finish: your passkey provider will ask once more.',
+  unlockSaving: 'Saving…',
+  unlockEnrollDone: '“{name}” can now unlock this vault.',
+  unlockEnrollAgain: 'Add another passkey',
+  unlockFallbackDisclosure:
+    'Your PIN or passphrase still unlocks this vault. Someone with a copy of your browser profile can guess it offline, so a passkey does not make a short PIN any safer.',
+  unlockShortPinWarning:
+    'You are using a short PIN. To protect against a copied profile, change it to a passphrase of four or more random words, or a PIN of at least 10 digits.',
+  unlockResetHeading: 'Set a new PIN or passphrase',
+  unlockResetHelp:
+    'Forgot your PIN or passphrase? Choose a new one and confirm with a passkey that unlocks this vault.',
+  unlockResetNewLabel: 'New PIN or passphrase',
+  unlockResetConfirmLabel: 'Confirm PIN or passphrase',
+  unlockSecretsNoMatch: "The two entries don't match",
+  unlockResetConfirmBtn: 'Confirm with passkey',
+  unlockResetDone: 'Your new PIN or passphrase is set.',
+  unlockNeedsUnlocked: 'The vault is locked. Unlock it, then come back to this tab.',
+  unlockNoPasskey: 'No passkey is set up to unlock this vault.',
+  unlockErrVaultLocked:
+    'The vault locked while the passkey prompt was open. Unlock it and try again.',
+  unlockErrPasskeyUnknown: 'That passkey is no longer set up for this vault.',
+  unlockErrPasskeyMismatch:
+    'That passkey did not open the vault. Its saved data may be damaged. Nothing was changed; use your PIN or passphrase.',
+  unlockErrPasskeyDuplicate: 'This passkey is already set up.',
+  unlockErrPasskeyLimit: 'This vault already has the maximum of {max} passkeys.',
+  unlockErrVaultChanged: "The vault's lock changed while the prompt was open. Start again.",
+  unlockErrFormatPending:
+    'Lock the vault and unlock it once with your PIN or passphrase, then try again.',
+  unlockErrUnsupported: 'Passkey unlock is not available in this browser.',
+  unlockErrCancelled:
+    'The passkey prompt was cancelled, timed out, or no matching passkey was available. Try again, or use your PIN or passphrase.',
+  unlockErrNoPrfEnroll:
+    'This passkey provider cannot unlock the vault because it does not support the PRF extension. Nothing was saved in Passkey.bond. The passkey just created may remain at your provider; you can delete it there.',
+  unlockErrNoPrfUnlock:
+    'This passkey did not return the secret needed to unlock. Use your PIN or passphrase.',
+  unlockErrPrfUnstable:
+    'This passkey returned different secrets on two attempts, so it cannot unlock the vault. Nothing was saved.',
+  unlockErrExcluded: 'This passkey provider already holds a passkey for this vault.',
+  unlockErrBusy: 'Another passkey prompt is already open in a different tab.',
+  unlockErrGeneric: 'Something went wrong. Try again.',
+  optionsPasskeyUnlock: 'Passkey unlock',
+  optionsPasskeyUnlockDesc:
+    'Passkeys that unlock this vault. They are kept by your passkey provider, not in Passkey.bond.',
+  optionsPasskeySetSecretFirst: 'Set a PIN or passphrase first.',
+  optionsPasskeyLockedHint: 'Unlock the vault to manage the passkeys that unlock it.',
+  optionsPasskeyNone: 'No passkey unlocks this vault yet.',
+  optionsPasskeyAdded: 'Added {date}',
+  optionsPasskeyRename: 'Rename',
+  optionsPasskeyAdd: 'Add a passkey',
+  optionsPasskeyDamaged_one: '{count} saved passkey entry is damaged and cannot be used.',
+  optionsPasskeyDamaged_other: '{count} saved passkey entries are damaged and cannot be used.',
+  optionsPasskeyResetLink: 'Forgot your PIN or passphrase? Set a new one with a passkey',
+  optionsPasskeyRemoveConfirm: 'Remove passkey',
+  optionsPasskeyRemoveNote:
+    'Enter your PIN or passphrase to remove “{name}”. The passkey stays at your passkey provider until you delete it there, and it can still open an earlier copy of this browser profile.',
+  optionsTurnOffLock: 'Turn off vault lock',
+  optionsChangeKeepsKeyNote:
+    'While a passkey can unlock this vault, changing your PIN or passphrase does not re-encrypt the vault. To re-encrypt it, remove the passkeys, change the PIN or passphrase, then add them again.',
+  optionsRemoveConfirmWithPasskeys_one:
+    'Turn off the vault lock? Your vault will be stored unencrypted, and the {count} passkey that unlocks it will stop working. It will stay at your passkey provider until you delete it there.',
+  optionsRemoveConfirmWithPasskeys_other:
+    'Turn off the vault lock? Your vault will be stored unencrypted, and the {count} passkeys that unlock it will stop working. They stay at your passkey provider until you delete them there.',
 };
 
 const ru: TranslationMap = {
@@ -778,6 +869,100 @@ const ru: TranslationMap = {
   popupCopyWarnTitle: 'Скопировать данные ключа доступа?',
   popupCopyWarnMessage:
     'Будут скопированы сайт, ваше имя пользователя и открытый ключ. Закрытый ключ не копируется, поэтому войти с этими данными нельзя — но они показывают, какая у вас учётная запись на этом сайте, и их увидит любое приложение, читающее буфер обмена.',
+  // Passkey unlock
+  popupUnlockWithPasskey: 'Разблокировать с помощью passkey',
+  popupUsePinInstead: 'Ввести PIN-код или парольную фразу',
+  popupVaultDamaged:
+    'Данные блокировки этого хранилища повреждены, и открыть его этим способом нельзя. Попробуйте другой способ разблокировки или восстановите данные из резервной копии.',
+  popupSetupPasskeyLater: 'После этого можно добавить passkey для разблокировки хранилища.',
+  popupPasskeyOfferTitle: 'Разблокировка с помощью passkey',
+  popupPasskeyOfferBody:
+    'Открывайте хранилище с помощью устройства, телефона или ключа безопасности, не вводя PIN-код или парольную фразу.',
+  popupPasskeyOfferSetup: 'Настроить',
+  popupPasskeyOfferDismiss: 'Не сейчас',
+  unlockPageTitle: 'Passkey.bond — разблокировка с помощью passkey',
+  unlockHeading: 'Разблокировка хранилища',
+  unlockHelp:
+    'Используйте passkey, который разблокирует это хранилище, либо PIN-код или парольную фразу.',
+  unlockSecretLabel: 'PIN-код или парольная фраза',
+  unlockSecretRequired: 'Введите PIN-код или парольную фразу.',
+  unlockWaiting: 'Ожидание passkey…',
+  unlockUnlocked: 'Хранилище разблокировано. Эту вкладку можно закрыть.',
+  unlockEnrollHeading: 'Добавьте passkey для разблокировки хранилища',
+  unlockEnrollHelp:
+    'Passkey хранится у вашего провайдера passkey: на этом устройстве, в телефоне или на ключе безопасности. В Passkey.bond он не сохраняется. Провайдер спросит дважды: чтобы создать passkey и чтобы подтвердить его.',
+  unlockEnrollSecretLabel: 'Текущий PIN-код или парольная фраза',
+  unlockEnrollNameLabel: 'Название этого passkey',
+  unlockDefaultName: 'Passkey {n}',
+  unlockEnrollNameRequired: 'Введите название этого passkey.',
+  unlockEnrollCreate: 'Создать passkey',
+  unlockEnrollConfirm: 'Подтвердить passkey',
+  unlockEnrollVerifying: 'Проверка PIN-кода или парольной фразы…',
+  unlockEnrollCreated:
+    'Passkey создан. Подтвердите его, чтобы завершить: провайдер passkey спросит ещё раз.',
+  unlockSaving: 'Сохранение…',
+  unlockEnrollDone: '«{name}» теперь может разблокировать это хранилище.',
+  unlockEnrollAgain: 'Добавить ещё один passkey',
+  unlockFallbackDisclosure:
+    'PIN-код или парольная фраза по-прежнему разблокируют это хранилище. Тот, у кого есть копия вашего профиля браузера, может подобрать их офлайн, поэтому passkey не делает короткий PIN-код надёжнее.',
+  unlockShortPinWarning:
+    'Вы используете короткий PIN-код. Чтобы защититься на случай копирования профиля, замените его парольной фразой из четырёх или более случайных слов или PIN-кодом не короче 10 цифр.',
+  unlockResetHeading: 'Новый PIN-код или парольная фраза',
+  unlockResetHelp:
+    'Забыли PIN-код или парольную фразу? Задайте новые и подтвердите с помощью passkey, который разблокирует это хранилище.',
+  unlockResetNewLabel: 'Новый PIN-код или парольная фраза',
+  unlockResetConfirmLabel: 'Повторите PIN-код или парольную фразу',
+  unlockSecretsNoMatch: 'Введённые значения не совпадают',
+  unlockResetConfirmBtn: 'Подтвердить с помощью passkey',
+  unlockResetDone: 'Новый PIN-код или парольная фраза заданы.',
+  unlockNeedsUnlocked: 'Хранилище заблокировано. Разблокируйте его и вернитесь на эту вкладку.',
+  unlockNoPasskey: 'Для разблокировки этого хранилища не настроен ни один passkey.',
+  unlockErrVaultLocked:
+    'Хранилище заблокировалось, пока был открыт запрос passkey. Разблокируйте его и повторите попытку.',
+  unlockErrPasskeyUnknown: 'Этот passkey больше не настроен для этого хранилища.',
+  unlockErrPasskeyMismatch:
+    'Этот passkey не открыл хранилище. Возможно, сохранённые для него данные повреждены. Ничего не изменено; используйте PIN-код или парольную фразу.',
+  unlockErrPasskeyDuplicate: 'Этот passkey уже настроен.',
+  unlockErrPasskeyLimit: 'У этого хранилища уже максимальное число passkey: {max}.',
+  unlockErrVaultChanged: 'Блокировка хранилища изменилась, пока был открыт запрос. Начните заново.',
+  unlockErrFormatPending:
+    'Заблокируйте хранилище, один раз разблокируйте его PIN-кодом или парольной фразой и повторите попытку.',
+  unlockErrUnsupported: 'Разблокировка с помощью passkey недоступна в этом браузере.',
+  unlockErrCancelled:
+    'Запрос passkey был отменён, истекло время ожидания или подходящий passkey не найден. Повторите попытку или используйте PIN-код или парольную фразу.',
+  unlockErrNoPrfEnroll:
+    'Этот провайдер passkey не может разблокировать хранилище, так как не поддерживает расширение PRF. В Passkey.bond ничего не сохранено. Только что созданный passkey мог остаться у провайдера; его можно удалить там.',
+  unlockErrNoPrfUnlock:
+    'Этот passkey не вернул секрет, необходимый для разблокировки. Используйте PIN-код или парольную фразу.',
+  unlockErrPrfUnstable:
+    'Этот passkey вернул разные секреты при двух попытках, поэтому он не может разблокировать хранилище. Ничего не сохранено.',
+  unlockErrExcluded: 'У этого провайдера passkey уже есть passkey для этого хранилища.',
+  unlockErrBusy: 'Другой запрос passkey уже открыт в другой вкладке.',
+  unlockErrGeneric: 'Что-то пошло не так. Повторите попытку.',
+  optionsPasskeyUnlock: 'Разблокировка с помощью passkey',
+  optionsPasskeyUnlockDesc:
+    'Passkey, которые разблокируют это хранилище. Они хранятся у вашего провайдера passkey, а не в Passkey.bond.',
+  optionsPasskeySetSecretFirst: 'Сначала задайте PIN-код или парольную фразу.',
+  optionsPasskeyLockedHint:
+    'Разблокируйте хранилище, чтобы управлять passkey, которые его разблокируют.',
+  optionsPasskeyNone: 'Пока ни один passkey не разблокирует это хранилище.',
+  optionsPasskeyAdded: 'Добавлен {date}',
+  optionsPasskeyRename: 'Переименовать',
+  optionsPasskeyAdd: 'Добавить passkey',
+  optionsPasskeyDamaged_one: 'Повреждённых записей passkey, которые нельзя использовать: {count}.',
+  optionsPasskeyDamaged_other:
+    'Повреждённых записей passkey, которые нельзя использовать: {count}.',
+  optionsPasskeyResetLink: 'Забыли PIN-код или парольную фразу? Задайте новые с помощью passkey',
+  optionsPasskeyRemoveConfirm: 'Удалить passkey',
+  optionsPasskeyRemoveNote:
+    'Введите PIN-код или парольную фразу, чтобы удалить «{name}». Passkey останется у вашего провайдера passkey, пока вы не удалите его там, и по-прежнему сможет открыть более раннюю копию этого профиля браузера.',
+  optionsTurnOffLock: 'Отключить блокировку хранилища',
+  optionsChangeKeepsKeyNote:
+    'Пока passkey может разблокировать это хранилище, смена PIN-кода или парольной фразы не перешифровывает хранилище. Чтобы перешифровать его, удалите passkey, смените PIN-код или парольную фразу, а затем добавьте passkey снова.',
+  optionsRemoveConfirmWithPasskeys_one:
+    'Отключить блокировку хранилища? Хранилище будет храниться без шифрования, а passkey, который его разблокирует ({count}), перестанет работать. Он останется у вашего провайдера passkey, пока вы не удалите его там.',
+  optionsRemoveConfirmWithPasskeys_other:
+    'Отключить блокировку хранилища? Хранилище будет храниться без шифрования, а passkey, которые его разблокируют ({count}), перестанут работать. Они останутся у вашего провайдера passkey, пока вы не удалите их там.',
 };
 
 const zh_CN: TranslationMap = {
@@ -924,6 +1109,90 @@ const zh_CN: TranslationMap = {
   popupBackupPasswordHint:
     '任何拿到该文件的人都可以离线猜测密码，速度只受其硬件限制。请使用由四个或更多随机单词组成的密码短语。',
   importBackupNewerVersion: '此备份由更新版本的 Passkey.bond 创建。请更新扩展后再导入。',
+  // Passkey unlock
+  popupUnlockWithPasskey: '使用 passkey 解锁',
+  popupUsePinInstead: '使用 PIN 码或密码短语',
+  popupVaultDamaged:
+    '此保险库的锁定数据已损坏，无法通过这种方式打开。请尝试另一种解锁方式，或从备份恢复。',
+  popupSetupPasskeyLater: '设置后，你可以添加用于解锁保险库的 passkey。',
+  popupPasskeyOfferTitle: '使用 passkey 解锁',
+  popupPasskeyOfferBody: '用你的设备、手机或安全密钥打开保险库，无需输入 PIN 码或密码短语。',
+  popupPasskeyOfferSetup: '设置',
+  popupPasskeyOfferDismiss: '以后再说',
+  unlockPageTitle: 'Passkey.bond — passkey 解锁',
+  unlockHeading: '解锁保险库',
+  unlockHelp: '使用可解锁此保险库的 passkey，或使用 PIN 码或密码短语。',
+  unlockSecretLabel: 'PIN 码或密码短语',
+  unlockSecretRequired: '请输入 PIN 码或密码短语。',
+  unlockWaiting: '正在等待你的 passkey…',
+  unlockUnlocked: '保险库已解锁。你可以关闭此标签页。',
+  unlockEnrollHeading: '添加用于解锁保险库的 passkey',
+  unlockEnrollHelp:
+    'passkey 由你的 passkey 提供方保管，例如这台设备、手机或安全密钥，不会存入 Passkey.bond。提供方会询问两次：一次创建 passkey，一次确认。',
+  unlockEnrollSecretLabel: '当前 PIN 码或密码短语',
+  unlockEnrollNameLabel: '此 passkey 的名称',
+  unlockDefaultName: 'Passkey {n}',
+  unlockEnrollNameRequired: '请输入此 passkey 的名称。',
+  unlockEnrollCreate: '创建 passkey',
+  unlockEnrollConfirm: '确认 passkey',
+  unlockEnrollVerifying: '正在检查 PIN 码或密码短语…',
+  unlockEnrollCreated: 'passkey 已创建。请确认以完成设置：你的 passkey 提供方会再询问一次。',
+  unlockSaving: '正在保存…',
+  unlockEnrollDone: '“{name}”现在可以解锁此保险库。',
+  unlockEnrollAgain: '再添加一个 passkey',
+  unlockFallbackDisclosure:
+    '你的 PIN 码或密码短语仍然可以解锁此保险库。拿到你浏览器配置文件副本的人可以离线猜测它，因此 passkey 并不会让较短的 PIN 码更安全。',
+  unlockShortPinWarning:
+    '你正在使用较短的 PIN 码。为防范配置文件被复制，请改用由四个或更多随机单词组成的密码短语，或至少 10 位数字的 PIN 码。',
+  unlockResetHeading: '设置新的 PIN 码或密码短语',
+  unlockResetHelp: '忘记了 PIN 码或密码短语？请设置新的，并用可解锁此保险库的 passkey 确认。',
+  unlockResetNewLabel: '新的 PIN 码或密码短语',
+  unlockResetConfirmLabel: '确认 PIN 码或密码短语',
+  unlockSecretsNoMatch: '两次输入不一致',
+  unlockResetConfirmBtn: '使用 passkey 确认',
+  unlockResetDone: '新的 PIN 码或密码短语已设置。',
+  unlockNeedsUnlocked: '保险库已锁定。请先解锁，然后回到此标签页。',
+  unlockNoPasskey: '尚未设置可解锁此保险库的 passkey。',
+  unlockErrVaultLocked: '在 passkey 提示打开期间，保险库已锁定。请解锁后重试。',
+  unlockErrPasskeyUnknown: '该 passkey 已不再用于此保险库。',
+  unlockErrPasskeyMismatch:
+    '该 passkey 未能打开保险库，其保存的数据可能已损坏。未作任何更改；请使用 PIN 码或密码短语。',
+  unlockErrPasskeyDuplicate: '此 passkey 已设置。',
+  unlockErrPasskeyLimit: '此保险库的 passkey 已达上限（{max} 个）。',
+  unlockErrVaultChanged: '在提示打开期间，保险库的锁定方式已更改。请重新开始。',
+  unlockErrFormatPending: '请先锁定保险库，再用 PIN 码或密码短语解锁一次，然后重试。',
+  unlockErrUnsupported: '此浏览器不支持使用 passkey 解锁。',
+  unlockErrCancelled:
+    'passkey 提示已取消、已超时，或没有可用的匹配 passkey。请重试，或使用 PIN 码或密码短语。',
+  unlockErrNoPrfEnroll:
+    '此 passkey 提供方不支持 PRF 扩展，无法解锁保险库。Passkey.bond 中未保存任何内容。刚创建的 passkey 可能仍留在提供方处；你可以在那里将其删除。',
+  unlockErrNoPrfUnlock: '此 passkey 未返回解锁所需的密钥。请使用 PIN 码或密码短语。',
+  unlockErrPrfUnstable: '此 passkey 两次返回的密钥不同，因此无法解锁保险库。未保存任何内容。',
+  unlockErrExcluded: '此 passkey 提供方已保存了用于此保险库的 passkey。',
+  unlockErrBusy: '另一个标签页中已打开了 passkey 提示。',
+  unlockErrGeneric: '出了点问题。请重试。',
+  optionsPasskeyUnlock: 'passkey 解锁',
+  optionsPasskeyUnlockDesc:
+    '可解锁此保险库的 passkey。它们由你的 passkey 提供方保管，不存放在 Passkey.bond 中。',
+  optionsPasskeySetSecretFirst: '请先设置 PIN 码或密码短语。',
+  optionsPasskeyLockedHint: '请先解锁保险库，再管理可解锁它的 passkey。',
+  optionsPasskeyNone: '尚无可解锁此保险库的 passkey。',
+  optionsPasskeyAdded: '添加于 {date}',
+  optionsPasskeyRename: '重命名',
+  optionsPasskeyAdd: '添加 passkey',
+  optionsPasskeyDamaged_one: '有 {count} 条已保存的 passkey 记录已损坏，无法使用。',
+  optionsPasskeyDamaged_other: '有 {count} 条已保存的 passkey 记录已损坏，无法使用。',
+  optionsPasskeyResetLink: '忘记了 PIN 码或密码短语？使用 passkey 设置新的',
+  optionsPasskeyRemoveConfirm: '移除 passkey',
+  optionsPasskeyRemoveNote:
+    '输入 PIN 码或密码短语以移除“{name}”。该 passkey 仍会保留在你的 passkey 提供方处，直到你在那里将其删除；它仍可打开此浏览器配置文件的早期副本。',
+  optionsTurnOffLock: '关闭保险库锁定',
+  optionsChangeKeepsKeyNote:
+    '只要有 passkey 可以解锁此保险库，更改 PIN 码或密码短语就不会重新加密保险库。如需重新加密，请先移除这些 passkey，更改 PIN 码或密码短语，然后再重新添加。',
+  optionsRemoveConfirmWithPasskeys_one:
+    '要关闭保险库锁定吗？保险库将以未加密方式存储，可解锁它的 {count} 个 passkey 将失效。在你从 passkey 提供方处删除之前，它们仍会保留在那里。',
+  optionsRemoveConfirmWithPasskeys_other:
+    '要关闭保险库锁定吗？保险库将以未加密方式存储，可解锁它的 {count} 个 passkey 将失效。在你从 passkey 提供方处删除之前，它们仍会保留在那里。',
 };
 
 const ar: TranslationMap = {
@@ -1066,6 +1335,95 @@ const ar: TranslationMap = {
     'يستطيع أي شخص يحصل على الملف تجربة كلمات المرور دون اتصال وبالسرعة التي يسمح بها عتاده. استخدم عبارة مرور من أربع كلمات عشوائية أو أكثر.',
   importBackupNewerVersion:
     'أُنشئت هذه النسخة الاحتياطية بإصدار أحدث من Passkey.bond. حدّث الإضافة لاستيرادها.',
+  // Passkey unlock
+  popupUnlockWithPasskey: 'الفتح بمفتاح مرور',
+  popupUsePinInstead: 'استخدام رمز PIN أو عبارة المرور',
+  popupVaultDamaged:
+    'بيانات قفل هذه الخزنة تالفة ولا يمكن فتحها بهذه الطريقة. جرّب طريقة الفتح الأخرى، أو استعد نسخة احتياطية.',
+  popupSetupPasskeyLater: 'بعد ذلك يمكنك إضافة مفتاح مرور لفتح الخزنة.',
+  popupPasskeyOfferTitle: 'الفتح بمفتاح مرور',
+  popupPasskeyOfferBody:
+    'افتح خزنتك بجهازك أو هاتفك أو مفتاح الأمان بدلًا من كتابة رمز PIN أو عبارة المرور.',
+  popupPasskeyOfferSetup: 'إعداد',
+  popupPasskeyOfferDismiss: 'ليس الآن',
+  unlockPageTitle: 'Passkey.bond — الفتح بمفتاح مرور',
+  unlockHeading: 'فتح الخزنة',
+  unlockHelp: 'استخدم مفتاح مرور يفتح هذه الخزنة، أو رمز PIN أو عبارة المرور.',
+  unlockSecretLabel: 'رمز PIN أو عبارة المرور',
+  unlockSecretRequired: 'أدخل رمز PIN أو عبارة المرور.',
+  unlockWaiting: 'في انتظار مفتاح المرور…',
+  unlockUnlocked: 'الخزنة مفتوحة. يمكنك إغلاق هذا التبويب.',
+  unlockEnrollHeading: 'إضافة مفتاح مرور يفتح الخزنة',
+  unlockEnrollHelp:
+    'يُحفظ مفتاح المرور لدى مزوّد مفاتيح المرور لديك، مثل هذا الجهاز أو هاتف أو مفتاح أمان، ولا يُخزَّن في Passkey.bond. سيسألك المزوّد مرتين: مرة لإنشاء المفتاح ومرة لتأكيده.',
+  unlockEnrollSecretLabel: 'رمز PIN أو عبارة المرور الحالية',
+  unlockEnrollNameLabel: 'اسم لمفتاح المرور هذا',
+  unlockDefaultName: 'مفتاح المرور {n}',
+  unlockEnrollNameRequired: 'أدخل اسمًا لمفتاح المرور هذا.',
+  unlockEnrollCreate: 'إنشاء مفتاح مرور',
+  unlockEnrollConfirm: 'تأكيد مفتاح المرور',
+  unlockEnrollVerifying: 'جارٍ التحقق من رمز PIN أو عبارة المرور…',
+  unlockEnrollCreated: 'أُنشئ مفتاح المرور. أكّده للإنهاء: سيسألك مزوّد مفاتيح المرور مرة أخرى.',
+  unlockSaving: 'جارٍ الحفظ…',
+  unlockEnrollDone: 'أصبح «{name}» قادرًا على فتح هذه الخزنة.',
+  unlockEnrollAgain: 'إضافة مفتاح مرور آخر',
+  unlockFallbackDisclosure:
+    'ما زال رمز PIN أو عبارة المرور يفتح هذه الخزنة. من لديه نسخة من ملف تعريف متصفحك يستطيع تخمينه دون اتصال، لذا لا يجعل مفتاح المرور رمز PIN القصير أكثر أمانًا.',
+  unlockShortPinWarning:
+    'أنت تستخدم رمز PIN قصيرًا. للحماية من نسخ ملف التعريف، غيّره إلى عبارة مرور من أربع كلمات عشوائية أو أكثر، أو رمز PIN من 10 أرقام على الأقل.',
+  unlockResetHeading: 'تعيين رمز PIN أو عبارة مرور جديدة',
+  unlockResetHelp: 'نسيت رمز PIN أو عبارة المرور؟ اختر جديدًا وأكّد بمفتاح مرور يفتح هذه الخزنة.',
+  unlockResetNewLabel: 'رمز PIN أو عبارة المرور الجديدة',
+  unlockResetConfirmLabel: 'تأكيد رمز PIN أو عبارة المرور',
+  unlockSecretsNoMatch: 'الإدخالان غير متطابقين',
+  unlockResetConfirmBtn: 'التأكيد بمفتاح المرور',
+  unlockResetDone: 'تم تعيين رمز PIN أو عبارة المرور الجديدة.',
+  unlockNeedsUnlocked: 'الخزنة مقفلة. افتحها ثم عُد إلى هذا التبويب.',
+  unlockNoPasskey: 'لم يُعدّ أي مفتاح مرور لفتح هذه الخزنة.',
+  unlockErrVaultLocked: 'قُفلت الخزنة أثناء فتح طلب مفتاح المرور. افتحها وحاول مرة أخرى.',
+  unlockErrPasskeyUnknown: 'مفتاح المرور هذا لم يعد مُعدًّا لهذه الخزنة.',
+  unlockErrPasskeyMismatch:
+    'مفتاح المرور هذا لم يفتح الخزنة. قد تكون بياناته المحفوظة تالفة. لم يتغير شيء؛ استخدم رمز PIN أو عبارة المرور.',
+  unlockErrPasskeyDuplicate: 'مفتاح المرور هذا مُعدّ بالفعل.',
+  unlockErrPasskeyLimit: 'بلغت هذه الخزنة الحد الأقصى من مفاتيح المرور ({max}).',
+  unlockErrVaultChanged: 'تغيّر قفل الخزنة أثناء فتح الطلب. ابدأ من جديد.',
+  unlockErrFormatPending:
+    'اقفل الخزنة وافتحها مرة واحدة برمز PIN أو عبارة المرور، ثم حاول مرة أخرى.',
+  unlockErrUnsupported: 'الفتح بمفتاح مرور غير متاح في هذا المتصفح.',
+  unlockErrCancelled:
+    'أُلغي طلب مفتاح المرور أو انتهت مهلته أو لم يتوفر مفتاح مرور مطابق. حاول مرة أخرى، أو استخدم رمز PIN أو عبارة المرور.',
+  unlockErrNoPrfEnroll:
+    'مزوّد مفاتيح المرور هذا لا يستطيع فتح الخزنة لأنه لا يدعم امتداد PRF. لم يُحفظ شيء في Passkey.bond. قد يبقى مفتاح المرور الذي أُنشئ للتو لدى المزوّد؛ يمكنك حذفه هناك.',
+  unlockErrNoPrfUnlock:
+    'مفتاح المرور هذا لم يُرجع السر اللازم للفتح. استخدم رمز PIN أو عبارة المرور.',
+  unlockErrPrfUnstable:
+    'أرجع مفتاح المرور هذا سرّين مختلفين في محاولتين، لذا لا يستطيع فتح الخزنة. لم يُحفظ شيء.',
+  unlockErrExcluded: 'مزوّد مفاتيح المرور هذا لديه بالفعل مفتاح مرور لهذه الخزنة.',
+  unlockErrBusy: 'يوجد طلب مفتاح مرور آخر مفتوح بالفعل في تبويب مختلف.',
+  unlockErrGeneric: 'حدث خطأ ما. حاول مرة أخرى.',
+  optionsPasskeyUnlock: 'الفتح بمفتاح مرور',
+  optionsPasskeyUnlockDesc:
+    'مفاتيح المرور التي تفتح هذه الخزنة. تُحفظ لدى مزوّد مفاتيح المرور لديك، لا في Passkey.bond.',
+  optionsPasskeySetSecretFirst: 'عيّن رمز PIN أو عبارة مرور أولًا.',
+  optionsPasskeyLockedHint: 'افتح الخزنة لإدارة مفاتيح المرور التي تفتحها.',
+  optionsPasskeyNone: 'لا يوجد بعد مفتاح مرور يفتح هذه الخزنة.',
+  optionsPasskeyAdded: 'أُضيف في {date}',
+  optionsPasskeyRename: 'إعادة التسمية',
+  optionsPasskeyAdd: 'إضافة مفتاح مرور',
+  optionsPasskeyDamaged_one: 'يوجد إدخال مفتاح مرور محفوظ واحد ({count}) تالف ولا يمكن استخدامه.',
+  optionsPasskeyDamaged_other:
+    'عدد إدخالات مفاتيح المرور المحفوظة التالفة التي لا يمكن استخدامها: {count}.',
+  optionsPasskeyResetLink: 'نسيت رمز PIN أو عبارة المرور؟ عيّن جديدًا بمفتاح مرور',
+  optionsPasskeyRemoveConfirm: 'إزالة مفتاح المرور',
+  optionsPasskeyRemoveNote:
+    'أدخل رمز PIN أو عبارة المرور لإزالة «{name}». يبقى مفتاح المرور لدى مزوّد مفاتيح المرور إلى أن تحذفه هناك، ويظل قادرًا على فتح نسخة أقدم من ملف تعريف المتصفح هذا.',
+  optionsTurnOffLock: 'إيقاف قفل الخزنة',
+  optionsChangeKeepsKeyNote:
+    'ما دام مفتاح مرور يستطيع فتح هذه الخزنة، فإن تغيير رمز PIN أو عبارة المرور لا يعيد تشفير الخزنة. لإعادة تشفيرها، أزل مفاتيح المرور، غيّر رمز PIN أو عبارة المرور، ثم أضفها مجددًا.',
+  optionsRemoveConfirmWithPasskeys_one:
+    'هل تريد إيقاف قفل الخزنة؟ ستُخزَّن خزنتك دون تشفير، وسيتوقف مفتاح المرور الذي يفتحها ({count}) عن العمل. يبقى لدى مزوّد مفاتيح المرور إلى أن تحذفه هناك.',
+  optionsRemoveConfirmWithPasskeys_other:
+    'هل تريد إيقاف قفل الخزنة؟ ستُخزَّن خزنتك دون تشفير، وستتوقف مفاتيح المرور التي تفتحها ({count}) عن العمل. تبقى لدى مزوّد مفاتيح المرور إلى أن تحذفها هناك.',
 };
 
 const fa: TranslationMap = {
@@ -1297,6 +1655,101 @@ const fa: TranslationMap = {
   popupCopyWarnTitle: 'جزئیات پس‌کلید کپی شود؟',
   popupCopyWarnMessage:
     'نشانی سایت، نام کاربری و کلید عمومی کپی می‌شود. کلید خصوصی در آن نیست، پس نمی‌توان با آن وارد شد — اما نشان می‌دهد چه حسابی در این سایت دارید و هر برنامه‌ای که کلیپ‌بورد را بخواند آن را می‌بیند.',
+  // Passkey unlock
+  popupUnlockWithPasskey: 'باز کردن با کلید عبور',
+  popupUsePinInstead: 'استفاده از پین یا عبارت عبور',
+  popupVaultDamaged:
+    'داده‌های قفل این گاوصندوق آسیب دیده است و از این راه باز نمی‌شود. روش دیگر باز کردن را امتحان کنید یا از پشتیبان بازیابی کنید.',
+  popupSetupPasskeyLater: 'پس از آن می‌توانید کلید عبوری برای باز کردن گاوصندوق اضافه کنید.',
+  popupPasskeyOfferTitle: 'باز کردن با کلید عبور',
+  popupPasskeyOfferBody:
+    'گاوصندوق را به‌جای وارد کردن پین یا عبارت عبور، با دستگاه، تلفن یا کلید امنیتی خود باز کنید.',
+  popupPasskeyOfferSetup: 'راه‌اندازی',
+  popupPasskeyOfferDismiss: 'اکنون نه',
+  unlockPageTitle: 'Passkey.bond — باز کردن با کلید عبور',
+  unlockHeading: 'باز کردن گاوصندوق',
+  unlockHelp:
+    'از کلید عبوری که این گاوصندوق را باز می‌کند، یا از پین یا عبارت عبور خود استفاده کنید.',
+  unlockSecretLabel: 'پین یا عبارت عبور',
+  unlockSecretRequired: 'پین یا عبارت عبور خود را وارد کنید.',
+  unlockWaiting: 'در انتظار کلید عبور شما…',
+  unlockUnlocked: 'گاوصندوق باز است. می‌توانید این زبانه را ببندید.',
+  unlockEnrollHeading: 'افزودن کلید عبوری که گاوصندوق را باز می‌کند',
+  unlockEnrollHelp:
+    'کلید عبور نزد ارائه‌دهندهٔ کلید عبور شما می‌ماند، مانند همین دستگاه، تلفن یا کلید امنیتی، و در Passkey.bond ذخیره نمی‌شود. ارائه‌دهنده دو بار می‌پرسد: یک بار برای ساختن کلید و یک بار برای تأیید آن.',
+  unlockEnrollSecretLabel: 'پین یا عبارت عبور فعلی',
+  unlockEnrollNameLabel: 'نام این کلید عبور',
+  unlockDefaultName: 'کلید عبور {n}',
+  unlockEnrollNameRequired: 'نامی برای این کلید عبور وارد کنید.',
+  unlockEnrollCreate: 'ساختن کلید عبور',
+  unlockEnrollConfirm: 'تأیید کلید عبور',
+  unlockEnrollVerifying: 'در حال بررسی پین یا عبارت عبور…',
+  unlockEnrollCreated:
+    'کلید عبور ساخته شد. برای پایان کار آن را تأیید کنید: ارائه‌دهندهٔ کلید عبور یک بار دیگر می‌پرسد.',
+  unlockSaving: 'در حال ذخیره…',
+  unlockEnrollDone: '«{name}» اکنون می‌تواند این گاوصندوق را باز کند.',
+  unlockEnrollAgain: 'افزودن کلید عبور دیگر',
+  unlockFallbackDisclosure:
+    'پین یا عبارت عبور شما همچنان این گاوصندوق را باز می‌کند. کسی که نسخه‌ای از نمایهٔ مرورگر شما را دارد می‌تواند آن را به‌صورت آفلاین حدس بزند، پس کلید عبور پین کوتاه را امن‌تر نمی‌کند.',
+  unlockShortPinWarning:
+    'شما از پین کوتاه استفاده می‌کنید. برای محافظت در برابر کپی شدن نمایه، آن را به عبارت عبوری با چهار واژهٔ تصادفی یا بیشتر، یا پینی با دست‌کم ۱۰ رقم تغییر دهید.',
+  unlockResetHeading: 'تعیین پین یا عبارت عبور جدید',
+  unlockResetHelp:
+    'پین یا عبارت عبور را فراموش کرده‌اید؟ مورد جدیدی انتخاب کنید و با کلید عبوری که این گاوصندوق را باز می‌کند تأیید کنید.',
+  unlockResetNewLabel: 'پین یا عبارت عبور جدید',
+  unlockResetConfirmLabel: 'تأیید پین یا عبارت عبور',
+  unlockSecretsNoMatch: 'دو مقدار واردشده یکسان نیستند',
+  unlockResetConfirmBtn: 'تأیید با کلید عبور',
+  unlockResetDone: 'پین یا عبارت عبور جدید شما تعیین شد.',
+  unlockNeedsUnlocked: 'گاوصندوق قفل است. آن را باز کنید و سپس به این زبانه برگردید.',
+  unlockNoPasskey: 'هیچ کلید عبوری برای باز کردن این گاوصندوق تنظیم نشده است.',
+  unlockErrVaultLocked:
+    'هنگامی که درخواست کلید عبور باز بود، گاوصندوق قفل شد. آن را باز کنید و دوباره امتحان کنید.',
+  unlockErrPasskeyUnknown: 'آن کلید عبور دیگر برای این گاوصندوق تنظیم نشده است.',
+  unlockErrPasskeyMismatch:
+    'آن کلید عبور گاوصندوق را باز نکرد. شاید داده‌های ذخیره‌شدهٔ آن آسیب دیده باشد. چیزی تغییر نکرد؛ از پین یا عبارت عبور خود استفاده کنید.',
+  unlockErrPasskeyDuplicate: 'این کلید عبور پیش‌تر تنظیم شده است.',
+  unlockErrPasskeyLimit: 'این گاوصندوق به بیشینهٔ تعداد کلیدهای عبور ({max}) رسیده است.',
+  unlockErrVaultChanged: 'هنگامی که درخواست باز بود، قفل گاوصندوق تغییر کرد. از نو شروع کنید.',
+  unlockErrFormatPending:
+    'گاوصندوق را قفل کنید و یک بار با پین یا عبارت عبور باز کنید، سپس دوباره امتحان کنید.',
+  unlockErrUnsupported: 'باز کردن با کلید عبور در این مرورگر در دسترس نیست.',
+  unlockErrCancelled:
+    'درخواست کلید عبور لغو شد، زمانش تمام شد یا کلید عبور مطابقی در دسترس نبود. دوباره امتحان کنید یا از پین یا عبارت عبور خود استفاده کنید.',
+  unlockErrNoPrfEnroll:
+    'این ارائه‌دهندهٔ کلید عبور نمی‌تواند گاوصندوق را باز کند، چون از افزونهٔ PRF پشتیبانی نمی‌کند. چیزی در Passkey.bond ذخیره نشد. کلید عبوری که هم‌اکنون ساخته شد ممکن است نزد ارائه‌دهنده بماند؛ می‌توانید آن را همان‌جا حذف کنید.',
+  unlockErrNoPrfUnlock:
+    'این کلید عبور راز لازم برای باز کردن را برنگرداند. از پین یا عبارت عبور خود استفاده کنید.',
+  unlockErrPrfUnstable:
+    'این کلید عبور در دو تلاش رازهای متفاوتی برگرداند، پس نمی‌تواند گاوصندوق را باز کند. چیزی ذخیره نشد.',
+  unlockErrExcluded: 'این ارائه‌دهندهٔ کلید عبور از پیش کلید عبوری برای این گاوصندوق دارد.',
+  unlockErrBusy: 'درخواست کلید عبور دیگری هم‌اکنون در زبانه‌ای دیگر باز است.',
+  unlockErrGeneric: 'مشکلی پیش آمد. دوباره امتحان کنید.',
+  optionsPasskeyUnlock: 'باز کردن با کلید عبور',
+  optionsPasskeyUnlockDesc:
+    'کلیدهای عبوری که این گاوصندوق را باز می‌کنند. آن‌ها نزد ارائه‌دهندهٔ کلید عبور شما می‌مانند، نه در Passkey.bond.',
+  optionsPasskeySetSecretFirst: 'ابتدا پین یا عبارت عبور تعیین کنید.',
+  optionsPasskeyLockedHint: 'برای مدیریت کلیدهای عبوری که گاوصندوق را باز می‌کنند، آن را باز کنید.',
+  optionsPasskeyNone: 'هنوز هیچ کلید عبوری این گاوصندوق را باز نمی‌کند.',
+  optionsPasskeyAdded: 'افزوده‌شده در {date}',
+  optionsPasskeyRename: 'تغییر نام',
+  optionsPasskeyAdd: 'افزودن کلید عبور',
+  optionsPasskeyDamaged_one:
+    '{count} ورودی ذخیره‌شدهٔ کلید عبور آسیب دیده است و قابل استفاده نیست.',
+  optionsPasskeyDamaged_other:
+    '{count} ورودی ذخیره‌شدهٔ کلید عبور آسیب دیده است و قابل استفاده نیست.',
+  optionsPasskeyResetLink:
+    'پین یا عبارت عبور را فراموش کرده‌اید؟ با کلید عبور مورد جدیدی تعیین کنید',
+  optionsPasskeyRemoveConfirm: 'حذف کلید عبور',
+  optionsPasskeyRemoveNote:
+    'برای حذف «{name}» پین یا عبارت عبور خود را وارد کنید. کلید عبور تا وقتی آن را نزد ارائه‌دهنده حذف نکنید همان‌جا می‌ماند و همچنان می‌تواند نسخه‌ای قدیمی‌تر از این نمایهٔ مرورگر را باز کند.',
+  optionsTurnOffLock: 'خاموش کردن قفل گاوصندوق',
+  optionsChangeKeepsKeyNote:
+    'تا وقتی کلید عبوری بتواند این گاوصندوق را باز کند، تغییر پین یا عبارت عبور گاوصندوق را دوباره رمزگذاری نمی‌کند. برای رمزگذاری دوباره، کلیدهای عبور را حذف کنید، پین یا عبارت عبور را تغییر دهید و سپس آن‌ها را دوباره اضافه کنید.',
+  optionsRemoveConfirmWithPasskeys_one:
+    'قفل گاوصندوق خاموش شود؟ گاوصندوق شما بدون رمزگذاری ذخیره می‌شود و {count} کلید عبوری که آن را باز می‌کند از کار می‌افتد. تا وقتی آن را نزد ارائه‌دهندهٔ کلید عبور حذف نکنید، همان‌جا می‌ماند.',
+  optionsRemoveConfirmWithPasskeys_other:
+    'قفل گاوصندوق خاموش شود؟ گاوصندوق شما بدون رمزگذاری ذخیره می‌شود و {count} کلید عبوری که آن را باز می‌کنند از کار می‌افتند. تا وقتی آن‌ها را نزد ارائه‌دهندهٔ کلید عبور حذف نکنید، همان‌جا می‌مانند.',
 };
 
 const es: TranslationMap = {
@@ -1443,6 +1896,100 @@ const es: TranslationMap = {
     'Quien consiga el archivo puede probar contraseñas sin conexión, tan rápido como le permita su hardware. Usa una frase de contraseña de cuatro o más palabras aleatorias.',
   importBackupNewerVersion:
     'Esta copia de seguridad se creó con una versión más reciente de Passkey.bond. Actualiza la extensión para importarla.',
+  // Passkey unlock
+  popupUnlockWithPasskey: 'Desbloquear con passkey',
+  popupUsePinInstead: 'Usar el PIN o la frase de contraseña',
+  popupVaultDamaged:
+    'Los datos de bloqueo de esta bóveda están dañados y no se puede abrir de esta forma. Prueba tu otro método de desbloqueo o restaura una copia de seguridad.',
+  popupSetupPasskeyLater: 'Después podrás añadir una passkey para desbloquear la bóveda.',
+  popupPasskeyOfferTitle: 'Desbloquea con una passkey',
+  popupPasskeyOfferBody:
+    'Abre tu bóveda con tu dispositivo, tu teléfono o una llave de seguridad en lugar de escribir el PIN o la frase de contraseña.',
+  popupPasskeyOfferSetup: 'Configurar',
+  popupPasskeyOfferDismiss: 'Ahora no',
+  unlockPageTitle: 'Passkey.bond — Desbloqueo con passkey',
+  unlockHeading: 'Desbloquear la bóveda',
+  unlockHelp: 'Usa una passkey que desbloquee esta bóveda, o tu PIN o frase de contraseña.',
+  unlockSecretLabel: 'PIN o frase de contraseña',
+  unlockSecretRequired: 'Introduce tu PIN o frase de contraseña.',
+  unlockWaiting: 'Esperando tu passkey…',
+  unlockUnlocked: 'La bóveda está desbloqueada. Puedes cerrar esta pestaña.',
+  unlockEnrollHeading: 'Añade una passkey que desbloquee la bóveda',
+  unlockEnrollHelp:
+    'La passkey la guarda tu proveedor de passkeys, como este dispositivo, un teléfono o una llave de seguridad. No se almacena en Passkey.bond. Tu proveedor preguntará dos veces: una para crear la passkey y otra para confirmarla.',
+  unlockEnrollSecretLabel: 'PIN o frase de contraseña actual',
+  unlockEnrollNameLabel: 'Nombre de esta passkey',
+  unlockDefaultName: 'Passkey {n}',
+  unlockEnrollNameRequired: 'Introduce un nombre para esta passkey.',
+  unlockEnrollCreate: 'Crear passkey',
+  unlockEnrollConfirm: 'Confirmar passkey',
+  unlockEnrollVerifying: 'Comprobando tu PIN o frase de contraseña…',
+  unlockEnrollCreated:
+    'Passkey creada. Confírmala para terminar: tu proveedor de passkeys preguntará una vez más.',
+  unlockSaving: 'Guardando…',
+  unlockEnrollDone: '«{name}» ya puede desbloquear esta bóveda.',
+  unlockEnrollAgain: 'Añadir otra passkey',
+  unlockFallbackDisclosure:
+    'Tu PIN o frase de contraseña sigue desbloqueando esta bóveda. Alguien con una copia de tu perfil del navegador puede adivinarlo sin conexión, así que una passkey no hace más seguro un PIN corto.',
+  unlockShortPinWarning:
+    'Estás usando un PIN corto. Para protegerte frente a una copia del perfil, cámbialo por una frase de contraseña de cuatro o más palabras aleatorias, o un PIN de al menos 10 dígitos.',
+  unlockResetHeading: 'Establecer un nuevo PIN o frase de contraseña',
+  unlockResetHelp:
+    '¿Olvidaste tu PIN o frase de contraseña? Elige uno nuevo y confirma con una passkey que desbloquee esta bóveda.',
+  unlockResetNewLabel: 'Nuevo PIN o frase de contraseña',
+  unlockResetConfirmLabel: 'Confirma el PIN o la frase de contraseña',
+  unlockSecretsNoMatch: 'Las dos entradas no coinciden',
+  unlockResetConfirmBtn: 'Confirmar con passkey',
+  unlockResetDone: 'Tu nuevo PIN o frase de contraseña está establecido.',
+  unlockNeedsUnlocked: 'La bóveda está bloqueada. Desbloquéala y vuelve a esta pestaña.',
+  unlockNoPasskey: 'No hay ninguna passkey configurada para desbloquear esta bóveda.',
+  unlockErrVaultLocked:
+    'La bóveda se bloqueó mientras la solicitud de passkey estaba abierta. Desbloquéala e inténtalo de nuevo.',
+  unlockErrPasskeyUnknown: 'Esa passkey ya no está configurada para esta bóveda.',
+  unlockErrPasskeyMismatch:
+    'Esa passkey no abrió la bóveda. Puede que sus datos guardados estén dañados. No se cambió nada; usa tu PIN o frase de contraseña.',
+  unlockErrPasskeyDuplicate: 'Esta passkey ya está configurada.',
+  unlockErrPasskeyLimit: 'Esta bóveda ya tiene el máximo de {max} passkeys.',
+  unlockErrVaultChanged:
+    'El bloqueo de la bóveda cambió mientras la solicitud estaba abierta. Empieza de nuevo.',
+  unlockErrFormatPending:
+    'Bloquea la bóveda y desbloquéala una vez con tu PIN o frase de contraseña; luego inténtalo de nuevo.',
+  unlockErrUnsupported: 'El desbloqueo con passkey no está disponible en este navegador.',
+  unlockErrCancelled:
+    'La solicitud de passkey se canceló, caducó o no había ninguna passkey que coincidiera. Inténtalo de nuevo o usa tu PIN o frase de contraseña.',
+  unlockErrNoPrfEnroll:
+    'Este proveedor de passkeys no puede desbloquear la bóveda porque no admite la extensión PRF. No se guardó nada en Passkey.bond. La passkey recién creada puede seguir en tu proveedor; puedes eliminarla allí.',
+  unlockErrNoPrfUnlock:
+    'Esta passkey no devolvió el secreto necesario para desbloquear. Usa tu PIN o frase de contraseña.',
+  unlockErrPrfUnstable:
+    'Esta passkey devolvió secretos distintos en dos intentos, así que no puede desbloquear la bóveda. No se guardó nada.',
+  unlockErrExcluded: 'Este proveedor de passkeys ya tiene una passkey para esta bóveda.',
+  unlockErrBusy: 'Ya hay otra solicitud de passkey abierta en otra pestaña.',
+  unlockErrGeneric: 'Algo salió mal. Inténtalo de nuevo.',
+  optionsPasskeyUnlock: 'Desbloqueo con passkey',
+  optionsPasskeyUnlockDesc:
+    'Passkeys que desbloquean esta bóveda. Las guarda tu proveedor de passkeys, no Passkey.bond.',
+  optionsPasskeySetSecretFirst: 'Primero establece un PIN o una frase de contraseña.',
+  optionsPasskeyLockedHint: 'Desbloquea la bóveda para gestionar las passkeys que la desbloquean.',
+  optionsPasskeyNone: 'Todavía ninguna passkey desbloquea esta bóveda.',
+  optionsPasskeyAdded: 'Añadida el {date}',
+  optionsPasskeyRename: 'Cambiar nombre',
+  optionsPasskeyAdd: 'Añadir una passkey',
+  optionsPasskeyDamaged_one: '{count} entrada de passkey guardada está dañada y no se puede usar.',
+  optionsPasskeyDamaged_other:
+    '{count} entradas de passkey guardadas están dañadas y no se pueden usar.',
+  optionsPasskeyResetLink:
+    '¿Olvidaste tu PIN o frase de contraseña? Establece uno nuevo con una passkey',
+  optionsPasskeyRemoveConfirm: 'Quitar passkey',
+  optionsPasskeyRemoveNote:
+    'Introduce tu PIN o frase de contraseña para quitar «{name}». La passkey sigue en tu proveedor de passkeys hasta que la elimines allí, y aún puede abrir una copia anterior de este perfil del navegador.',
+  optionsTurnOffLock: 'Desactivar el bloqueo de la bóveda',
+  optionsChangeKeepsKeyNote:
+    'Mientras una passkey pueda desbloquear esta bóveda, cambiar tu PIN o frase de contraseña no vuelve a cifrar la bóveda. Para volver a cifrarla, quita las passkeys, cambia el PIN o la frase de contraseña y añádelas de nuevo.',
+  optionsRemoveConfirmWithPasskeys_one:
+    '¿Desactivar el bloqueo de la bóveda? Tu bóveda se guardará sin cifrar y la {count} passkey que la desbloquea dejará de funcionar. Sigue en tu proveedor de passkeys hasta que la elimines allí.',
+  optionsRemoveConfirmWithPasskeys_other:
+    '¿Desactivar el bloqueo de la bóveda? Tu bóveda se guardará sin cifrar y las {count} passkeys que la desbloquean dejarán de funcionar. Siguen en tu proveedor de passkeys hasta que las elimines allí.',
 };
 
 const fr: TranslationMap = {
@@ -1590,9 +2137,114 @@ const fr: TranslationMap = {
     'Quiconque obtient le fichier peut essayer des mots de passe hors ligne, aussi vite que son matériel le permet. Utilisez une phrase secrète de quatre mots aléatoires ou plus.',
   importBackupNewerVersion:
     'Cette sauvegarde a été créée par une version plus récente de Passkey.bond. Mettez à jour l’extension pour l’importer.',
+  // Passkey unlock
+  popupUnlockWithPasskey: 'Déverrouiller avec une passkey',
+  popupUsePinInstead: 'Utiliser le code PIN ou la phrase secrète',
+  popupVaultDamaged:
+    'Les données de verrouillage de ce coffre sont endommagées et il ne peut pas être ouvert de cette façon. Essayez votre autre méthode de déverrouillage ou restaurez une sauvegarde.',
+  popupSetupPasskeyLater: 'Vous pourrez ensuite ajouter une passkey pour déverrouiller le coffre.',
+  popupPasskeyOfferTitle: 'Déverrouillez avec une passkey',
+  popupPasskeyOfferBody:
+    'Ouvrez votre coffre avec votre appareil, votre téléphone ou une clé de sécurité au lieu de saisir le code PIN ou la phrase secrète.',
+  popupPasskeyOfferSetup: 'Configurer',
+  popupPasskeyOfferDismiss: 'Pas maintenant',
+  unlockPageTitle: 'Passkey.bond — Déverrouillage par passkey',
+  unlockHeading: 'Déverrouiller le coffre',
+  unlockHelp:
+    'Utilisez une passkey qui déverrouille ce coffre, ou votre code PIN ou phrase secrète.',
+  unlockSecretLabel: 'Code PIN ou phrase secrète',
+  unlockSecretRequired: 'Saisissez votre code PIN ou votre phrase secrète.',
+  unlockWaiting: 'En attente de votre passkey…',
+  unlockUnlocked: 'Le coffre est déverrouillé. Vous pouvez fermer cet onglet.',
+  unlockEnrollHeading: 'Ajouter une passkey qui déverrouille le coffre',
+  unlockEnrollHelp:
+    'La passkey est conservée par votre fournisseur de passkeys, par exemple cet appareil, un téléphone ou une clé de sécurité. Elle n’est pas stockée dans Passkey.bond. Votre fournisseur demandera deux fois : pour créer la passkey, puis pour la confirmer.',
+  unlockEnrollSecretLabel: 'Code PIN ou phrase secrète actuel',
+  unlockEnrollNameLabel: 'Nom de cette passkey',
+  unlockDefaultName: 'Passkey {n}',
+  unlockEnrollNameRequired: 'Saisissez un nom pour cette passkey.',
+  unlockEnrollCreate: 'Créer la passkey',
+  unlockEnrollConfirm: 'Confirmer la passkey',
+  unlockEnrollVerifying: 'Vérification du code PIN ou de la phrase secrète…',
+  unlockEnrollCreated:
+    'Passkey créée. Confirmez-la pour terminer : votre fournisseur de passkeys demandera encore une fois.',
+  unlockSaving: 'Enregistrement…',
+  unlockEnrollDone: '« {name} » peut désormais déverrouiller ce coffre.',
+  unlockEnrollAgain: 'Ajouter une autre passkey',
+  unlockFallbackDisclosure:
+    'Votre code PIN ou votre phrase secrète déverrouille toujours ce coffre. Une personne disposant d’une copie de votre profil de navigateur peut le deviner hors ligne : une passkey ne rend donc pas un code PIN court plus sûr.',
+  unlockShortPinWarning:
+    'Vous utilisez un code PIN court. Pour vous protéger contre une copie du profil, remplacez-le par une phrase secrète de quatre mots aléatoires ou plus, ou un code PIN d’au moins 10 chiffres.',
+  unlockResetHeading: 'Définir un nouveau code PIN ou une nouvelle phrase secrète',
+  unlockResetHelp:
+    'Code PIN ou phrase secrète oublié ? Choisissez-en un nouveau et confirmez avec une passkey qui déverrouille ce coffre.',
+  unlockResetNewLabel: 'Nouveau code PIN ou nouvelle phrase secrète',
+  unlockResetConfirmLabel: 'Confirmez le code PIN ou la phrase secrète',
+  unlockSecretsNoMatch: 'Les deux saisies ne correspondent pas',
+  unlockResetConfirmBtn: 'Confirmer avec une passkey',
+  unlockResetDone: 'Votre nouveau code PIN ou votre nouvelle phrase secrète est défini.',
+  unlockNeedsUnlocked: 'Le coffre est verrouillé. Déverrouillez-le, puis revenez à cet onglet.',
+  unlockNoPasskey: 'Aucune passkey n’est configurée pour déverrouiller ce coffre.',
+  unlockErrVaultLocked:
+    'Le coffre s’est verrouillé pendant que la demande de passkey était ouverte. Déverrouillez-le et réessayez.',
+  unlockErrPasskeyUnknown: 'Cette passkey n’est plus configurée pour ce coffre.',
+  unlockErrPasskeyMismatch:
+    'Cette passkey n’a pas ouvert le coffre. Ses données enregistrées sont peut-être endommagées. Rien n’a été modifié ; utilisez votre code PIN ou votre phrase secrète.',
+  unlockErrPasskeyDuplicate: 'Cette passkey est déjà configurée.',
+  unlockErrPasskeyLimit: 'Ce coffre a déjà le maximum de {max} passkeys.',
+  unlockErrVaultChanged:
+    'Le verrouillage du coffre a changé pendant que la demande était ouverte. Recommencez.',
+  unlockErrFormatPending:
+    'Verrouillez le coffre et déverrouillez-le une fois avec votre code PIN ou votre phrase secrète, puis réessayez.',
+  unlockErrUnsupported: 'Le déverrouillage par passkey n’est pas disponible dans ce navigateur.',
+  unlockErrCancelled:
+    'La demande de passkey a été annulée, a expiré, ou aucune passkey correspondante n’était disponible. Réessayez ou utilisez votre code PIN ou votre phrase secrète.',
+  unlockErrNoPrfEnroll:
+    'Ce fournisseur de passkeys ne peut pas déverrouiller le coffre, car il ne prend pas en charge l’extension PRF. Rien n’a été enregistré dans Passkey.bond. La passkey qui vient d’être créée peut rester chez votre fournisseur ; vous pouvez l’y supprimer.',
+  unlockErrNoPrfUnlock:
+    'Cette passkey n’a pas renvoyé le secret nécessaire au déverrouillage. Utilisez votre code PIN ou votre phrase secrète.',
+  unlockErrPrfUnstable:
+    'Cette passkey a renvoyé des secrets différents lors de deux tentatives ; elle ne peut donc pas déverrouiller le coffre. Rien n’a été enregistré.',
+  unlockErrExcluded: 'Ce fournisseur de passkeys détient déjà une passkey pour ce coffre.',
+  unlockErrBusy: 'Une autre demande de passkey est déjà ouverte dans un autre onglet.',
+  unlockErrGeneric: 'Une erreur s’est produite. Réessayez.',
+  optionsPasskeyUnlock: 'Déverrouillage par passkey',
+  optionsPasskeyUnlockDesc:
+    'Passkeys qui déverrouillent ce coffre. Elles sont conservées par votre fournisseur de passkeys, pas dans Passkey.bond.',
+  optionsPasskeySetSecretFirst: 'Définissez d’abord un code PIN ou une phrase secrète.',
+  optionsPasskeyLockedHint:
+    'Déverrouillez le coffre pour gérer les passkeys qui le déverrouillent.',
+  optionsPasskeyNone: 'Aucune passkey ne déverrouille encore ce coffre.',
+  optionsPasskeyAdded: 'Ajoutée le {date}',
+  optionsPasskeyRename: 'Renommer',
+  optionsPasskeyAdd: 'Ajouter une passkey',
+  optionsPasskeyDamaged_one:
+    '{count} entrée de passkey enregistrée est endommagée et inutilisable.',
+  optionsPasskeyDamaged_other:
+    '{count} entrées de passkey enregistrées sont endommagées et inutilisables.',
+  optionsPasskeyResetLink:
+    'Code PIN ou phrase secrète oublié ? Définissez-en un nouveau avec une passkey',
+  optionsPasskeyRemoveConfirm: 'Retirer la passkey',
+  optionsPasskeyRemoveNote:
+    'Saisissez votre code PIN ou votre phrase secrète pour retirer « {name} ». La passkey reste chez votre fournisseur de passkeys jusqu’à ce que vous l’y supprimiez, et elle peut encore ouvrir une copie antérieure de ce profil de navigateur.',
+  optionsTurnOffLock: 'Désactiver le verrouillage du coffre',
+  optionsChangeKeepsKeyNote:
+    'Tant qu’une passkey peut déverrouiller ce coffre, changer votre code PIN ou votre phrase secrète ne rechiffre pas le coffre. Pour le rechiffrer, retirez les passkeys, changez le code PIN ou la phrase secrète, puis ajoutez-les de nouveau.',
+  optionsRemoveConfirmWithPasskeys_one:
+    'Désactiver le verrouillage du coffre ? Votre coffre sera stocké sans chiffrement, et la {count} passkey qui le déverrouille cessera de fonctionner. Elle reste chez votre fournisseur de passkeys jusqu’à ce que vous l’y supprimiez.',
+  optionsRemoveConfirmWithPasskeys_other:
+    'Désactiver le verrouillage du coffre ? Votre coffre sera stocké sans chiffrement, et les {count} passkeys qui le déverrouillent cesseront de fonctionner. Elles restent chez votre fournisseur de passkeys jusqu’à ce que vous les y supprimiez.',
 };
 
-const translations: Record<ResolvedLanguage, TranslationMap> = { en, ru, zh_CN, ar, fa, es, fr };
+export const translations: Record<ResolvedLanguage, TranslationMap> = {
+  en,
+  ru,
+  zh_CN,
+  ar,
+  fa,
+  es,
+  fr,
+};
 let currentLanguage: ResolvedLanguage = 'en';
 
 export function resolveLanguage(language: string | undefined | null): ResolvedLanguage {
