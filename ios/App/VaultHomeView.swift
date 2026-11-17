@@ -56,18 +56,23 @@ struct VaultHomeView: View {
     var body: some View {
         Group {
             if model.session == .unlocked {
+                // Activity taps are watched on each tab's content, not on the
+                // TabView: a gesture over the whole TabView swallows tab bar taps.
                 TabView(selection: $tab) {
-                    vault.tabItem { Label("Vault", systemImage: "key.fill") }.tag(HomeTab.vault)
-                    NativeSyncView(model: sync).tabItem { Label("Sync", systemImage: "arrow.triangle.2.circlepath") }
+                    vault.simultaneousGesture(activityTap)
+                        .tabItem { Label("Vault", systemImage: "key.fill") }.tag(HomeTab.vault)
+                    NativeSyncView(model: sync).simultaneousGesture(activityTap)
+                        .tabItem { Label("Sync", systemImage: "arrow.triangle.2.circlepath") }
                         .tag(HomeTab.sync)
-                    settings.tabItem { Label("Settings", systemImage: "gearshape") }.tag(HomeTab.settings)
+                    settings.simultaneousGesture(activityTap)
+                        .tabItem { Label("Settings", systemImage: "gearshape") }.tag(HomeTab.settings)
                 }
+                .onChange(of: tab) { _, _ in model.touch() }
             } else {
                 lockScreen
             }
         }
         .brandChrome()
-        .simultaneousGesture(TapGesture().onEnded { model.touch() })
         .onReceive(timer) { _ in model.tick() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .background { model.lock() }
@@ -122,6 +127,10 @@ struct VaultHomeView: View {
         } message: {
             Text("This also deletes the entry from synced devices. Keep another way to sign in to the account.")
         }
+    }
+
+    private var activityTap: some Gesture {
+        TapGesture().onEnded { model.touch() }
     }
 
     private var lockScreen: some View {
