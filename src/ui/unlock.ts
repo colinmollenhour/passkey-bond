@@ -22,6 +22,7 @@
 import { initAndLocalize, t } from '../i18n';
 import { initTheme } from '../theme';
 import { checkVaultSecret, isPin } from '../crypto/vault-secret';
+import { cleanPasskeyName } from '../crypto/passkey-name';
 import { isPasskeyUnlockOrigin, type UnlockPasskeyInfo } from '../crypto/unlock-record';
 import { uint8ArrayToBase64 } from '../utils/base64';
 import {
@@ -235,6 +236,8 @@ async function run(job: () => Promise<void>): Promise<void> {
   } finally {
     busy = false;
     render();
+    // A mode change asked for meanwhile waited for the action to end.
+    if (modeFromHash() !== mode) void enterMode(modeFromHash());
   }
 }
 
@@ -555,14 +558,21 @@ function unlockWithSecret(): Promise<void> {
 function createPasskey(): Promise<void> {
   return run(async () => {
     const secret = el<HTMLInputElement>('enroll-secret').value;
-    const name = el<HTMLInputElement>('enroll-name').value.trim();
+    const typedName = el<HTMLInputElement>('enroll-name').value;
     clearMessages();
     if (!secret) {
       showError('enroll-error', t('unlockSecretRequired'), 'enroll-secret');
       return;
     }
-    if (!name) {
+    if (!typedName.trim()) {
       showError('enroll-error', t('unlockEnrollNameRequired'), 'enroll-name');
+      return;
+    }
+    // The background's own rule, applied before any prompt: a name it would
+    // refuse afterwards would leave the new passkey behind at the provider.
+    const name = cleanPasskeyName(typedName);
+    if (!name) {
+      showError('enroll-error', t('unlockEnrollNameInvalid'), 'enroll-name');
       return;
     }
     setText('enroll-status', t('unlockEnrollVerifying'));
@@ -776,7 +786,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     void resetSecret();
   });
 
-  window.addEventListener('hashchange', () => void enterMode(modeFromHash()));
+  window.addEventListener('hashchange', () => {
+    // Not under a running action, which would store its result in the new
+    // mode's state: run() switches once the action has ended.
+    if (!busy) void enterMode(modeFromHash());
+  });
   // The vault can lock or unlock elsewhere while this tab sits in the
   // background; look again when it comes back.
   const recheck = () => {

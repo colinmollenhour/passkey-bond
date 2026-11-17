@@ -618,6 +618,8 @@ const en: TranslationMap = {
   unlockEnrollNameLabel: 'Name for this passkey',
   unlockDefaultName: 'Passkey {n}',
   unlockEnrollNameRequired: 'Enter a name for this passkey.',
+  unlockEnrollNameInvalid:
+    'Use a name of up to 64 characters, without tabs or other control characters.',
   unlockEnrollCreate: 'Create passkey',
   unlockEnrollConfirm: 'Confirm passkey',
   unlockEnrollVerifying: 'Checking your PIN or passphrase…',
@@ -904,6 +906,8 @@ const ru: TranslationMap = {
   unlockEnrollNameLabel: 'Название этого passkey',
   unlockDefaultName: 'Passkey {n}',
   unlockEnrollNameRequired: 'Введите название этого passkey.',
+  unlockEnrollNameInvalid:
+    'Название должно быть не длиннее 64 символов, без табуляции и других управляющих символов.',
   unlockEnrollCreate: 'Создать passkey',
   unlockEnrollConfirm: 'Подтвердить passkey',
   unlockEnrollVerifying: 'Проверка PIN-кода или парольной фразы…',
@@ -1157,6 +1161,7 @@ const zh_CN: TranslationMap = {
   unlockEnrollNameLabel: '此 passkey 的名称',
   unlockDefaultName: 'Passkey {n}',
   unlockEnrollNameRequired: '请输入此 passkey 的名称。',
+  unlockEnrollNameInvalid: '名称最多 64 个字符，且不能包含制表符或其他控制字符。',
   unlockEnrollCreate: '创建 passkey',
   unlockEnrollConfirm: '确认 passkey',
   unlockEnrollVerifying: '正在检查 PIN 码或密码短语…',
@@ -1396,6 +1401,8 @@ const ar: TranslationMap = {
   unlockEnrollNameLabel: 'اسم لمفتاح المرور هذا',
   unlockDefaultName: 'مفتاح المرور {n}',
   unlockEnrollNameRequired: 'أدخل اسمًا لمفتاح المرور هذا.',
+  unlockEnrollNameInvalid:
+    'استخدم اسمًا لا يزيد على 64 حرفًا، من دون علامات جدولة أو أحرف تحكم أخرى.',
   unlockEnrollCreate: 'إنشاء مفتاح مرور',
   unlockEnrollConfirm: 'تأكيد مفتاح المرور',
   unlockEnrollVerifying: 'جارٍ التحقق من رمز PIN أو عبارة المرور…',
@@ -1727,6 +1734,7 @@ const fa: TranslationMap = {
   unlockEnrollNameLabel: 'نام این کلید عبور',
   unlockDefaultName: 'کلید عبور {n}',
   unlockEnrollNameRequired: 'نامی برای این کلید عبور وارد کنید.',
+  unlockEnrollNameInvalid: 'نامی با حداکثر ۶۴ نویسه و بدون تب یا نویسه‌های کنترلی دیگر وارد کنید.',
   unlockEnrollCreate: 'ساختن کلید عبور',
   unlockEnrollConfirm: 'تأیید کلید عبور',
   unlockEnrollVerifying: 'در حال بررسی پین یا عبارت عبور…',
@@ -1981,6 +1989,8 @@ const es: TranslationMap = {
   unlockEnrollNameLabel: 'Nombre de esta passkey',
   unlockDefaultName: 'Passkey {n}',
   unlockEnrollNameRequired: 'Introduce un nombre para esta passkey.',
+  unlockEnrollNameInvalid:
+    'Usa un nombre de hasta 64 caracteres, sin tabulaciones ni otros caracteres de control.',
   unlockEnrollCreate: 'Crear passkey',
   unlockEnrollConfirm: 'Confirmar passkey',
   unlockEnrollVerifying: 'Comprobando tu PIN o frase de contraseña…',
@@ -2237,6 +2247,8 @@ const fr: TranslationMap = {
   unlockEnrollNameLabel: 'Nom de cette passkey',
   unlockDefaultName: 'Passkey {n}',
   unlockEnrollNameRequired: 'Saisissez un nom pour cette passkey.',
+  unlockEnrollNameInvalid:
+    'Utilisez un nom de 64 caractères au plus, sans tabulation ni autre caractère de contrôle.',
   unlockEnrollCreate: 'Créer la passkey',
   unlockEnrollConfirm: 'Confirmer la passkey',
   unlockEnrollVerifying: 'Vérification du code PIN ou de la phrase secrète…',

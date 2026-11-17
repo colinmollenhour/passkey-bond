@@ -281,6 +281,9 @@ describe('reading a stored record', () => {
 
     expect(parsed.passkeys).toEqual([good]);
     expect(parsed.damagedPasskeys).toBe(malformed.length);
+    // The list as stored goes along, for a rewrite that must not clear it.
+    expect(parsed.storedPasskeys).toEqual([...malformed, good]);
+    expect(parseUnlockRecord(record({ passkeys: [good] })).storedPasskeys).toBeUndefined();
     expect(parsed.pin).not.toBeNull();
   });
 

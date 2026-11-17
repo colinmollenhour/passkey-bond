@@ -498,6 +498,19 @@ export class SecureStorage {
   }
 
   /**
+   * `record` with its PIN wrapper replaced and its passkeys untouched. Where
+   * the parser skipped entries, the list goes back exactly as stored: the
+   * Options page says they are cleared by adding, renaming or removing a
+   * passkey, so a change of PIN or a KDF upgrade at unlock must not clear
+   * them first, before that notice was ever seen.
+   */
+  private withPin(record: ParsedUnlockRecord, pin: UnlockRecord['pin']): UnlockRecord {
+    const passkeys =
+      record.damagedPasskeys > 0 ? (record.storedPasskeys as UnlockPasskey[]) : record.passkeys;
+    return { version: UNLOCK_RECORD_VERSION, vaultId: record.vaultId, pin, passkeys };
+  }
+
+  /**
    * Re-encrypt the whole vault from `oldKey` to the data key `newDataKey` and
    * store `record`, whose PIN wrapper `pinKey` opens, in one storage write.
    * This is the migration of a legacy vault and the key rotation of a PIN
@@ -820,13 +833,10 @@ export class SecureStorage {
         if (!now) return false;
         if (upgradeSpec && stronger) {
           try {
-            const { vaultId, passkeys } = now.record;
-            await this.writeRecord({
-              version: UNLOCK_RECORD_VERSION,
-              vaultId,
-              pin: this.pinPart(dataKey, stronger, upgradeSpec, vaultId),
-              passkeys,
-            });
+            const { vaultId } = now.record;
+            await this.writeRecord(
+              this.withPin(now.record, this.pinPart(dataKey, stronger, upgradeSpec, vaultId))
+            );
           } catch (error) {
             console.error('Key derivation upgrade failed; it will be retried next unlock:', error);
           }
@@ -1240,6 +1250,12 @@ export class SecureStorage {
    * - One or more unlock passkeys: only the PIN wrapper is replaced. The
    *   passkeys wrap the data key, and no passkey is at hand to wrap a new
    *   one, so the data key stays and the vault is not re-encrypted.
+   *   Stored passkey entries this build skipped as damaged are kept as they
+   *   are (withPin).
+   *
+   * Returns false for a wrong current PIN. Throws UnsupportedKdfError,
+   * VaultDamagedError (an unreadable PIN wrapper, which an unlock passkey can
+   * replace) and VaultWriteUnverifiedError, as initialize() does.
    */
   async changeMasterPassword(currentPassword: string, newPassword: string): Promise<boolean> {
     let opened: { pinKey: Uint8Array; vaultKey: Uint8Array } | null = null;
@@ -1263,14 +1279,16 @@ export class SecureStorage {
         const now = await this.sameVault(state, oldKey);
         if (!now) return false;
         try {
-          if (now.format === 'v1' && now.record.passkeys.length > 0) {
-            const { vaultId, passkeys } = now.record;
-            await this.writeRecord({
-              version: UNLOCK_RECORD_VERSION,
-              vaultId,
-              pin: this.pinPart(oldKey, pinKey, nextSpec, vaultId),
-              passkeys,
-            });
+          // A skipped entry counts as a passkey here: it is only cleared by
+          // an edit of the passkey list, where the user is told.
+          if (
+            now.format === 'v1' &&
+            (now.record.passkeys.length > 0 || now.record.damagedPasskeys > 0)
+          ) {
+            const { vaultId } = now.record;
+            await this.writeRecord(
+              this.withPin(now.record, this.pinPart(oldKey, pinKey, nextSpec, vaultId))
+            );
             return true;
           }
           const vaultId = now.format === 'v1' ? now.record.vaultId : newVaultId();
@@ -1289,6 +1307,14 @@ export class SecureStorage {
         return true;
       });
     } catch (error) {
+      // Not a wrong PIN: the caller says which, as initialize() does.
+      if (
+        error instanceof UnsupportedKdfError ||
+        error instanceof VaultDamagedError ||
+        error instanceof VaultWriteUnverifiedError
+      ) {
+        throw error;
+      }
       console.error('Failed to change master password:', error);
       return false;
     } finally {
@@ -1334,13 +1360,10 @@ export class SecureStorage {
         if (!sameBytes(proven, this.encryptionKey!)) {
           throw new UnlockError('UNLOCK_PASSKEY_MISMATCH', 'That passkey did not open the vault');
         }
-        const { vaultId, passkeys } = now.record;
-        await this.writeRecord({
-          version: UNLOCK_RECORD_VERSION,
-          vaultId,
-          pin: this.pinPart(proven, pinKey, nextSpec, vaultId),
-          passkeys,
-        });
+        const { vaultId } = now.record;
+        await this.writeRecord(
+          this.withPin(now.record, this.pinPart(proven, pinKey, nextSpec, vaultId))
+        );
         this.resetAutoLock();
       });
     } finally {
@@ -1478,6 +1501,8 @@ export class SecureStorage {
       );
     }
     const { vaultId, pin, passkeys } = state.record;
+    // Entries the parser skipped are left out on purpose: an edit of the
+    // passkey list clears them, as the Options page says it will.
     // Rewriting the record would drop a PIN wrapper this build cannot read.
     if (!pin) throw new VaultDamagedError('PIN wrapper');
     return { version: UNLOCK_RECORD_VERSION, vaultId, pin, passkeys };

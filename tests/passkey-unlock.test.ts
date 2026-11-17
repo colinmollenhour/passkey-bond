@@ -893,6 +893,48 @@ describe('changing the PIN', () => {
     expect(await unlocksWith(send, NEW_PIN)).toBe(true);
   });
 
+  it('keeps a damaged passkey entry, which only an edit of the passkeys clears', async () => {
+    const { send, unlockPasskey } = await enrolledVault();
+    const broken = { ...record().passkeys[0], credentialId: 'not/base64url', name: '' };
+    record().passkeys.unshift(broken);
+    const stored = clone(record().passkeys);
+
+    expect((await change(send)).success).toBe(true);
+    expect(record().passkeys).toEqual(stored);
+    expect((await send({ type: 'GET_UNLOCK_METHODS' })).damagedPasskeys).toBe(1);
+
+    // A weaker KDF's replacement at unlock leaves it alone too.
+    await lock(send);
+    mockKdf.weak = true;
+    expect(await unlocksWith(send, NEW_PIN)).toBe(true);
+    mockKdf.weak = false;
+    expect(record().passkeys).toEqual(stored);
+
+    const renamed = await send({
+      type: 'RENAME_UNLOCK_PASSKEY',
+      payload: { credentialId: unlockPasskey.credentialId, name: 'Desk' },
+    });
+    expect(renamed.success).toBe(true);
+    expect(record().passkeys).toEqual([{ ...stored[1], name: 'Desk' }]);
+    expect((await send({ type: 'GET_UNLOCK_METHODS' })).damagedPasskeys).toBe(0);
+  });
+
+  it('does not replace the data key while only a damaged passkey entry is stored', async () => {
+    const { send, unlockPasskey } = await enrolledVault();
+    record().passkeys[0].name = '';
+    const stored = clone(record().passkeys);
+    const oldKey = dataKey();
+
+    expect((await change(send)).success).toBe(true);
+
+    expect(record().passkeys).toEqual(stored);
+    expect(dataKey(NEW_PIN)).toEqual(oldKey);
+    // Repaired by hand, the entry still opens the vault.
+    record().passkeys[0].name = 'Laptop';
+    await lock(send);
+    expect((await unlockWith(send, unlockPasskey)).success).toBe(true);
+  });
+
   it('keeps the data key, the passkey and every encrypted value when one is enrolled', async () => {
     const { send, unlockPasskey } = await enrolledVault();
     const before = vaultState();

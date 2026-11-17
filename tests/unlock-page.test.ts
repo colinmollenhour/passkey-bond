@@ -134,6 +134,23 @@ describe('what may touch the unlock record', () => {
         .sort()
     ).toEqual(['isPasskeyUnlockOrigin', 'type UnlockPasskeyInfo']);
     expect(imports('src/ui/unlock-passkey-client.ts')).toEqual(['../utils/base64']);
+    // The name rule the pages share with the background brings nothing along.
+    expect(imports('src/crypto/passkey-name.ts')).toEqual([]);
+  });
+
+  it('checks the name by the stored rule before the passkey is created', () => {
+    const source = read('src/ui/unlock.ts');
+    expect(source.indexOf('cleanPasskeyName(typedName)')).toBeGreaterThan(-1);
+    expect(source.indexOf('cleanPasskeyName(typedName)')).toBeLessThan(
+      source.indexOf('createUnlockPasskey(navigator.credentials')
+    );
+    expect(read('src/ui/options.ts')).toMatch(/cleanPasskeyName\(typed\)/);
+  });
+
+  it('knows the same transports in the page as in the record', () => {
+    const list = (file: string) => read(file).match(/const TRANSPORTS = (\[[^\]]+\]);/)?.[1];
+    expect(list('src/ui/unlock-passkey-client.ts')).toBeDefined();
+    expect(list('src/ui/unlock-passkey-client.ts')).toBe(list('src/crypto/unlock-record.ts'));
   });
 });
 

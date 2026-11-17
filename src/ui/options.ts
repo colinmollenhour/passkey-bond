@@ -23,6 +23,7 @@ import {
   type ExportFormat,
 } from '../porting';
 import { checkVaultSecret, type VaultSecretProblem } from '../crypto/vault-secret';
+import { cleanPasskeyName } from '../crypto/passkey-name';
 import { UNLOCK_RECORD_KEY, type UnlockPasskeyInfo } from '../crypto/unlock-record';
 import { DEFAULT_RELAYS } from '../sync/protocol';
 
@@ -464,8 +465,45 @@ function secretProblemMessage(problem: VaultSecretProblem): string {
   return problem === 'too-long' ? t('vaultSecretTooLong') : t('optionsPasswordMin');
 }
 
-async function refreshSecurityStatus(): Promise<void> {
-  const response = await sendMessage('IS_SECURE_STORAGE_UNLOCKED');
+/** The refresh that is running, and whether it was asked for again meanwhile. */
+let securityRefresh: Promise<void> | null = null;
+let securityRefreshAgain = false;
+
+/**
+ * Redraw the Security section. A tab focus, a change to the unlock record
+ * and an action's own refresh can all ask at once: they share one run, which
+ * goes round again if anything asked after it started.
+ */
+function refreshSecurityStatus(): Promise<void> {
+  if (securityRefresh) {
+    securityRefreshAgain = true;
+    return securityRefresh;
+  }
+  securityRefresh = (async () => {
+    try {
+      do {
+        securityRefreshAgain = false;
+        await drawSecurityStatus();
+      } while (securityRefreshAgain);
+    } finally {
+      securityRefresh = null;
+    }
+  })();
+  return securityRefresh;
+}
+
+/** What the background says about the vault's lock, or {} when it cannot say. */
+async function loadUnlockMethods(): Promise<Record<string, unknown>> {
+  try {
+    return (await sendMessage('GET_UNLOCK_METHODS')) ?? {};
+  } catch {
+    return {};
+  }
+}
+
+async function drawSecurityStatus(): Promise<void> {
+  // One message draws both cards: the lock's state and its unlock passkeys.
+  const methods = await loadUnlockMethods();
   const statusEl = document.getElementById('master-pw-status')!;
   const setForm = document.getElementById('master-pw-set')!;
   const changeForm = document.getElementById('master-pw-change')!;
@@ -473,22 +511,20 @@ async function refreshSecurityStatus(): Promise<void> {
 
   // With a passkey enrolled, a change of PIN or passphrase replaces only its
   // own wrapped copy of the vault's key, and the form says so.
-  const passkeyUnlock = response.passkeyUnlock as
-    | { supported?: boolean; count?: number }
-    | undefined;
-  const enrolled = passkeyUnlock?.supported === true ? (passkeyUnlock.count ?? 0) : 0;
+  const enrolled =
+    methods.supported === true && Array.isArray(methods.passkeys) ? methods.passkeys.length : 0;
   document.getElementById('change-pw-keeps-key-note')!.hidden = enrolled === 0;
   // A forgotten PIN or passphrase can be replaced with one of those
   // passkeys; the link sits where it would be typed. The page it opens
   // unlocks the vault first if it has to.
   document.getElementById('passkey-unlock-reset-link')!.hidden = enrolled === 0;
 
-  if (response.isSetup === false) {
+  if (methods.isSetup === false) {
     statusEl.textContent = t('optionsNotSet');
     statusEl.className = 'status-badge not-set';
     setForm.hidden = false;
     changeForm.hidden = true;
-  } else if (response.isUnlocked) {
+  } else if (methods.isUnlocked) {
     statusEl.textContent = t('optionsUnlocked');
     statusEl.className = 'status-badge unlocked';
     setForm.hidden = true;
@@ -506,7 +542,7 @@ async function refreshSecurityStatus(): Promise<void> {
   const timeout = result.auto_lock_timeout ?? 30;
   (document.getElementById('auto-lock-timeout') as HTMLSelectElement).value = String(timeout);
 
-  await refreshPasskeyUnlock();
+  drawPasskeyUnlock(methods);
 }
 
 // ---------- Passkey unlock ----------
@@ -549,7 +585,7 @@ function openUnlockPage(mode: 'unlock' | 'enroll'): void {
  * Draw the passkey unlock card from what the background reports. The card
  * stays hidden where the browser cannot unlock with a passkey.
  */
-async function refreshPasskeyUnlock(): Promise<void> {
+function drawPasskeyUnlock(methods: Record<string, unknown>): void {
   const card = document.getElementById('passkey-unlock-card')!;
   const hint = document.getElementById('passkey-unlock-hint')!;
   const list = document.getElementById('passkey-unlock-list')!;
@@ -558,15 +594,9 @@ async function refreshPasskeyUnlock(): Promise<void> {
   const addBtn = document.getElementById('passkey-unlock-add-btn')!;
   const openBtn = document.getElementById('passkey-unlock-open-btn')!;
 
-  let methods: Record<string, unknown>;
-  try {
-    methods = await sendMessage('GET_UNLOCK_METHODS');
-  } catch {
-    methods = {};
-  }
   // Hidden where the browser cannot do this, and while no lock is set: the
   // card above already says to set one.
-  if (!methods?.success || methods.supported !== true || methods.isSetup !== true) {
+  if (!methods.success || methods.supported !== true || methods.isSetup !== true) {
     card.hidden = true;
     passkeyUnlockDrawn = '';
     return;
@@ -668,13 +698,18 @@ function unlockPasskeyRow(passkey: UnlockPasskeyInfo): HTMLElement {
 
 async function renameUnlockPasskey(passkey: UnlockPasskeyInfo): Promise<void> {
   passkeyUnlockError('');
-  const name = window.prompt(t('unlockEnrollNameLabel'), passkey.name)?.trim();
-  if (!name || name === passkey.name) return;
+  const typed = window.prompt(t('unlockEnrollNameLabel'), passkey.name)?.trim();
+  if (!typed || typed === passkey.name) return;
+  const name = cleanPasskeyName(typed);
+  if (!name) {
+    passkeyUnlockError(t('unlockEnrollNameInvalid'));
+    return;
+  }
   const resp = await sendMessage('RENAME_UNLOCK_PASSKEY', {
     credentialId: passkey.credentialId,
     name,
   });
-  await refreshPasskeyUnlock();
+  await refreshSecurityStatus();
   if (!resp?.success) passkeyUnlockError(passkeyUnlockFailure(resp?.code));
 }
 
@@ -814,7 +849,14 @@ function wireSecurityHandlers(): void {
       clear('change-pw-current', 'change-pw-new', 'change-pw-confirm');
       await refreshSecurityStatus();
     } else {
-      showErr('change-pw-error', (resp.error as string) || t('optionsWrongPassword'));
+      showErr(
+        'change-pw-error',
+        resp.code === 'VAULT_DAMAGED'
+          ? t('popupVaultDamaged')
+          : resp.code === 'VAULT_WRITE_UNVERIFIED'
+            ? t('popupVaultWriteUnverified')
+            : (resp.error as string) || t('optionsWrongPassword')
+      );
     }
   });
 

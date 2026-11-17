@@ -1009,9 +1009,11 @@ class BackgroundService {
       'FACTORY_RESET',
       'CHANGE_MASTER_PASSWORD',
       'REMOVE_MASTER_PASSWORD',
-      // Reading or changing how the vault unlocks needs it unlocked. Adding
-      // or removing a passkey, or setting a new PIN, also needs the secret or
-      // a passkey's PRF output; renaming does not.
+      // Changing how the vault unlocks needs it unlocked. Adding or removing
+      // a passkey, or setting a new PIN, also needs the secret or a passkey's
+      // PRF output; renaming does not. GET_UNLOCK_METHODS is not here: the
+      // lock screen offers the passkeys from it, and it returns only what
+      // the unlock record stores in the clear.
       'VERIFY_MASTER_PASSWORD',
       'ENROLL_UNLOCK_PASSKEY',
       'RENAME_UNLOCK_PASSKEY',
@@ -2625,7 +2627,8 @@ class BackgroundService {
       const methods = await secureStorage.getUnlockMethods();
       return {
         success: true,
-        isSetup: await secureStorage.isSetup(),
+        // The same read says whether a lock is set: anything but `none`.
+        isSetup: methods.format !== 'none',
         isUnlocked: secureStorage.isStorageUnlocked(),
         supported: passkeyUnlockSupported(),
         format: methods.format,
@@ -2835,10 +2838,10 @@ class BackgroundService {
   private async handleIsSecureStorageUnlocked(): Promise<unknown> {
     try {
       const isUnlocked = secureStorage.isStorageUnlocked();
-      const isSetup = await secureStorage.isSetup();
       // The lock screen offers passkey unlock from this; 0 when the record
-      // cannot be read.
-      const { passkeys } = await secureStorage.getUnlockMethods();
+      // cannot be read. The same read says whether a lock is set.
+      const { format, passkeys } = await secureStorage.getUnlockMethods();
+      const isSetup = format !== 'none';
       const passkeyUnlock = { supported: passkeyUnlockSupported(), count: passkeys.length };
       return { success: true, isUnlocked, isSetup, passkeyUnlock };
     } catch (error: unknown) {
@@ -2869,9 +2872,9 @@ class BackgroundService {
 
       return { success: true, message: 'Master password changed successfully' };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
       console.error('Failed to change master password:', error);
-      return { success: false, error: message };
+      // Damaged lock data or an unconfirmed write is not a wrong PIN.
+      return unlockFailure(error);
     }
   }
 

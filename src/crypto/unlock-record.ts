@@ -54,6 +54,9 @@ import {
   uint8ArrayToBase64,
 } from '../utils/base64';
 import { KEY_LENGTH, parseKdfSpec, UnsupportedKdfError, type KdfSpec } from './kdf';
+import { cleanPasskeyName } from './passkey-name';
+
+export { cleanPasskeyName };
 
 export const UNLOCK_RECORD_KEY = 'passext_vault_unlock';
 export const UNLOCK_SENTINEL_KDF = 'wrapped-data-key';
@@ -68,7 +71,6 @@ const VAULT_ID_LENGTH = 16;
 const WRAP_IV_LENGTH = 12;
 const WRAPPED_LENGTH = KEY_LENGTH + 16; // data key + GCM tag
 const MAX_CREDENTIAL_ID_LENGTH = 1023;
-const MAX_NAME_LENGTH = 64;
 const TRANSPORTS = ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'];
 
 export type UnlockMethod = 'pin' | 'passkey-prf';
@@ -110,6 +112,12 @@ export interface ParsedUnlockRecord {
   passkeys: UnlockPasskey[];
   /** Stored passkey entries that were skipped as malformed. */
   damagedPasskeys: number;
+  /**
+   * The `passkeys` value exactly as stored, set only when entries were
+   * skipped: a rewrite that is not about the passkeys puts it back, so the
+   * skipped entries stay until the passkey list itself is edited.
+   */
+  storedPasskeys?: unknown;
 }
 
 /** The public fields of an unlock passkey, as sent to extension pages. */
@@ -211,25 +219,6 @@ export function cleanTransports(value: unknown): string[] {
   return TRANSPORTS.filter((transport) => value.includes(transport));
 }
 
-/**
- * A passkey name as stored: trimmed, 1..64 code points, no control
- * characters. Null when the input cannot be one.
- */
-export function cleanPasskeyName(name: unknown): string | null {
-  if (typeof name !== 'string') return null;
-  const trimmed = name.trim();
-  const length = Array.from(trimmed).length;
-  if (length < 1 || length > MAX_NAME_LENGTH) return null;
-  for (const character of trimmed) {
-    const code = character.codePointAt(0)!;
-    // C0 and C1 controls, and the line and paragraph separators.
-    if (code < 0x20 || (code >= 0x7f && code <= 0x9f) || code === 0x2028 || code === 0x2029) {
-      return null;
-    }
-  }
-  return trimmed;
-}
-
 function parsePasskey(value: unknown): UnlockPasskey | null {
   if (!isObject(value)) return null;
   const { credentialId, prfSalt, name, createdAt, transports } = value;
@@ -257,7 +246,7 @@ function parsePasskey(value: unknown): UnlockPasskey | null {
  * fields. `version` and `vaultId` are strict. A malformed PIN part gives
  * `pin: null` so an unlock passkey can still open the vault and set a new
  * secret. A malformed, repeated or surplus passkey entry is skipped and
- * counted, never fatal.
+ * counted, never fatal; the list is then also returned as stored.
  *
  * Throws UnsupportedKdfError for a newer version or a PIN KDF this build
  * cannot use, VaultDamagedError for anything else it cannot read.
@@ -302,13 +291,15 @@ export function parseUnlockRecord(value: unknown): ParsedUnlockRecord {
     damagedPasskeys = 1;
   }
 
-  return {
+  const parsed: ParsedUnlockRecord = {
     version: UNLOCK_RECORD_VERSION,
     vaultId,
     pin: parsedPin,
     passkeys: parsedPasskeys,
     damagedPasskeys,
   };
+  if (damagedPasskeys > 0) parsed.storedPasskeys = passkeys;
+  return parsed;
 }
 
 /** The public fields of a stored unlock passkey. */
