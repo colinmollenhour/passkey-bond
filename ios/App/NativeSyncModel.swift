@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UIKit
 import VaultSync
 
 @MainActor
@@ -8,7 +9,8 @@ final class NativeSyncModel: ObservableObject, NativeSyncLifecycle {
     @Published private(set) var preparing = false
     @Published private(set) var peers: [VaultPeer] = []
     @Published private(set) var status: SyncStatus = .stopped
-    @Published var deviceName = "iPhone"
+    // "iPhone" or "iPad", so an iPad does not join a chain as an iPhone.
+    @Published var deviceName = UIDevice.current.model
     @Published var recoveryPhrase: String?
     @Published var message: String?
     private let vault: VaultStore

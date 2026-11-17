@@ -64,7 +64,9 @@ struct OTPSetupView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { save() }.disabled(secret.isEmpty || (issuer.isEmpty && account.isEmpty))
+                    // The root's brand text colour would hide the disabled state, so set it here.
+                    Button("Save") { save() }.disabled(!canSave)
+                        .foregroundStyle(canSave ? Brand.accent : Brand.muted.opacity(0.6))
                 }
             }
             .onChange(of: model.session) { _, session in
@@ -97,6 +99,8 @@ struct OTPSetupView: View {
         }
         .brandChrome()
     }
+
+    private var canSave: Bool { !secret.isEmpty && !(issuer.isEmpty && account.isEmpty) }
 
     private func readLink() {
         do {
