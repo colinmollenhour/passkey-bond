@@ -32,5 +32,22 @@
 	</array>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Passkey.bond uses Face ID to unlock your passkeys and 2FA codes.</string>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Passkey.bond uses the camera to scan authenticator setup codes.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Jost-Regular.ttf</string>
+		<string>Jost-Medium.ttf</string>
+		<string>Jost-SemiBold.ttf</string>
+		<string>BodoniModa-Medium.ttf</string>
+		<string>BodoniModa-MediumItalic.ttf</string>
+	</array>
 </dict>
 </plist>
