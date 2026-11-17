@@ -1,6 +1,6 @@
 import UIKit
 import XCTest
-@testable import FenkoVault
+@testable import PasskeyBond
 
 @MainActor
 final class ClipboardTests: XCTestCase {

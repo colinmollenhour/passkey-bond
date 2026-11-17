@@ -9,7 +9,7 @@ enum KeyCreation {
 }
 
 enum DeviceKeyStore {
-    private static let service = "nz.fenko.passkeyvault.encryption"
+    private static let service = "bond.passkey.app.encryption"
     private static let account = "vault-key-v1"
 
     static func load(context: LAContext, creation: KeyCreation) throws -> Data {

@@ -2,10 +2,12 @@ import UIKit
 import XCTest
 
 final class TypographyTests: XCTestCase {
-    func testBundledFontIsAvailable() {
-        let registered = UIFont.familyNames.filter { $0.contains("Saira") }
+    func testBundledFontsAreAvailable() {
+        let registered = UIFont.familyNames.filter { $0.contains("Jost") || $0.contains("Bodoni Moda") }
             .flatMap { UIFont.fontNames(forFamilyName: $0) }
-        XCTAssertNotNil(UIFont(name: "Saira", size: 17),
-                        "The UI font name is unavailable. Registered Saira faces: \(registered)")
+        for name in ["Jost-Regular", "Jost-Medium", "Jost-SemiBold", "BodoniModa-Medium", "BodoniModa-MediumItalic"] {
+            XCTAssertNotNil(UIFont(name: name, size: 17),
+                            "\(name) is unavailable. Registered brand faces: \(registered)")
+        }
     }
 }

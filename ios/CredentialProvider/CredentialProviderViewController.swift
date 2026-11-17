@@ -137,7 +137,7 @@ private struct ProviderPicker: View {
             .overlay {
                 if choices.isEmpty {
                     ContentUnavailableView("No matching passkey", systemImage: "key",
-                                           description: Text("Open Fenko Vault to import or sync your passkeys."))
+                                           description: Text("Open Passkey.bond to import or sync your passkeys."))
                 }
             }
             .navigationTitle(rpId)
@@ -159,7 +159,7 @@ private struct ProviderRegistration: View {
                 Text("Save a passkey?").font(.title)
                 Text(rpId).font(.headline)
                 Text(account).foregroundStyle(.secondary)
-                Button("Save in Fenko Vault", action: save).buttonStyle(.borderedProminent)
+                Button("Save in Passkey.bond", action: save).buttonStyle(.borderedProminent)
             }.padding()
                 .toolbar { Button("Cancel", action: cancel) }
         }
@@ -170,8 +170,8 @@ private struct ProviderConfiguration: View {
     let done: () -> Void
     var body: some View {
         VStack(spacing: 20) {
-            Label("Fenko Vault", systemImage: "key.fill").font(.title)
-            Text("Open Fenko Vault to unlock your vault and import your credentials. You can then save and use passkeys in apps and Safari.")
+            Label("Passkey.bond", systemImage: "key.fill").font(.title)
+            Text("Open Passkey.bond to unlock your vault and import your credentials. You can then save and use passkeys in apps and Safari.")
                 .multilineTextAlignment(.center)
             Button("Done", action: done).buttonStyle(.borderedProminent)
         }.padding(32)

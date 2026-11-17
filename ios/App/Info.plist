@@ -42,6 +42,12 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Passkey.bond uses the camera to scan authenticator setup codes.</string>
 	<key>UIAppFonts</key>
-	<array><string>Saira.ttf</string></array>
+	<array>
+		<string>Jost-Regular.ttf</string>
+		<string>Jost-Medium.ttf</string>
+		<string>Jost-SemiBold.ttf</string>
+		<string>BodoniModa-Medium.ttf</string>
+		<string>BodoniModa-MediumItalic.ttf</string>
+	</array>
 </dict>
 </plist>

@@ -14,7 +14,7 @@ enum VaultError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .locked: return "Unlock Fenko Vault to continue."
+        case .locked: return "Unlock Passkey.bond to continue."
         case .unavailable: return "Shared vault storage is unavailable. Check the app installation."
         case .invalidArchive: return "The vault could not be opened. Your stored data has not been replaced."
         case .missingKey: return "The vault key is unavailable. Restore an encrypted backup."
@@ -37,7 +37,7 @@ final class VaultArchive {
     private static let lockName = "vault.lock"
     private static let keyBytes = 32
     private static let maxBytes = 32 * 1024 * 1024
-    private static let authenticatedData = Data("Fenko Vault iOS archive v1".utf8)
+    private static let authenticatedData = Data("Passkey.bond iOS archive v1".utf8)
     private let directory: URL?
     private let mutex = NSRecursiveLock()
     private var key: SymmetricKey?

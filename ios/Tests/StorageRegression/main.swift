@@ -11,7 +11,7 @@ func expectFailure(_ message: String, _ operation: () throws -> Void) {
     fatalError(message)
 }
 
-let suite = "nz.fenko.storage-regression.\(UUID().uuidString)"
+let suite = "bond.passkey.storage-regression.\(UUID().uuidString)"
 let defaults = UserDefaults(suiteName: suite)!
 let directory = FileManager.default.temporaryDirectory.appendingPathComponent(suite)
 defer {

@@ -1,9 +1,8 @@
 import Foundation
 
 struct VaultSyncSettings {
-    static let defaultRelays = [
-        "wss://vaultsync.fenko.nz", "wss://relay.damus.io", "wss://nos.lol", "wss://relay.nostr.band",
-    ]
+    // Keep in step with DEFAULT_RELAYS in src/sync/protocol.ts.
+    static let defaultRelays = ["wss://relay.passkey.bond", "wss://relay.damus.io", "wss://nos.lol"]
     let seedHash: String
     let chainID: String
     let deviceID: String

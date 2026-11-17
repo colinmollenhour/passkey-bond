@@ -2,8 +2,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 private enum VaultLinks {
-    static let privacy = URL(string: "https://fenko.nz/privacy-policy/")!
-    static let support = URL(string: "mailto:security@fenko.nz")!
+    static let privacy = URL(string: "https://passkey.bond/privacy")!
+    static let support = URL(string: "mailto:support@passkey.bond")!
 }
 
 private struct BackupDocument: FileDocument {
@@ -62,7 +62,7 @@ struct VaultHomeView: View {
             }
         }
         .tint(amber)
-        .font(.custom("Saira", size: 17, relativeTo: .body))
+        .font(.custom("Jost-Regular", size: 17, relativeTo: .body))
         .simultaneousGesture(TapGesture().onEnded { model.touch() })
         .onReceive(timer) { _ in model.tick() }
         .onChange(of: scenePhase) { _, phase in
@@ -86,17 +86,17 @@ struct VaultHomeView: View {
         .overlay {
             if scenePhase != .active {
                 Rectangle().fill(.background).overlay {
-                    Label("Fenko Vault", systemImage: "lock.fill")
-                        .font(.custom("Saira", size: 28, relativeTo: .title))
+                    Label("Passkey.bond", systemImage: "lock.fill")
+                        .font(.custom("Jost-Regular", size: 28, relativeTo: .title))
                 }.ignoresSafeArea()
             }
         }
-        .alert("Fenko Vault", isPresented: Binding(get: { model.message != nil || sync.message != nil },
+        .alert("Passkey.bond", isPresented: Binding(get: { model.message != nil || sync.message != nil },
                                                    set: { if !$0 { model.message = nil; sync.message = nil } })) {
             Button("OK") { model.message = nil; sync.message = nil }
         } message: { Text(model.message ?? sync.message ?? "") }
         .fileExporter(isPresented: $exporting, document: document,
-                      contentType: .json, defaultFilename: "fenko-vault-backup") { result in
+                      contentType: .json, defaultFilename: "passkey-bond-backup") { result in
             document = nil
             if case .failure = result { model.message = "The backup could not be saved. Try again." }
         }
@@ -124,7 +124,7 @@ struct VaultHomeView: View {
     private var lockScreen: some View {
         VStack(spacing: 24) {
             Image(systemName: "lock.shield").font(.system(size: 64)).foregroundStyle(amber)
-            Text("Fenko Vault").font(.custom("Saira", size: 36, relativeTo: .largeTitle))
+            Text("Passkey.bond").font(.custom("Jost-Regular", size: 36, relativeTo: .largeTitle))
             Text("Your passkeys and 2FA codes, on your device.")
                 .foregroundStyle(.secondary).multilineTextAlignment(.center)
             Button {
@@ -152,7 +152,7 @@ struct VaultHomeView: View {
                         Image(systemName: item.kind == .passkey ? "key.fill" : "number.square")
                             .foregroundStyle(amber).frame(width: 28)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(item.title).font(.custom("Saira", size: 19, relativeTo: .headline))
+                            Text(item.title).font(.custom("Jost-Regular", size: 19, relativeTo: .headline))
                             Text(item.account).font(.subheadline).foregroundStyle(.secondary)
                             if let code = item.code ?? model.issuedCodes[item.id] {
                                 HStack {
@@ -182,7 +182,7 @@ struct VaultHomeView: View {
             .overlay {
                 if model.items.isEmpty {
                     ContentUnavailableView("Your vault is empty", systemImage: "key",
-                                           description: Text("Import a backup in Settings, or enable Fenko Vault as a passkey provider."))
+                                           description: Text("Import a backup in Settings, or enable Passkey.bond as a passkey provider."))
                 }
             }
             .navigationTitle("Vault")
@@ -200,9 +200,9 @@ struct VaultHomeView: View {
             Form {
                 Section("Passkeys") {
                     #if LOCAL_DEVICE_TEST
-                    Text("This test app supports vault storage and backups. Passkey AutoFill requires the full Fenko Vault build.")
+                    Text("This test app supports vault storage and backups. Passkey AutoFill requires the full Passkey.bond build.")
                     #else
-                    Text("Enable Fenko Vault in your device's Password AutoFill settings to create and use passkeys in apps and Safari.")
+                    Text("Enable Passkey.bond in your device's Password AutoFill settings to create and use passkeys in apps and Safari.")
                     #endif
                 }
                 Section("Backup and restore") {

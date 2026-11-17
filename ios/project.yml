@@ -9,7 +9,7 @@ options:
     iOS: "17.0"
   createIntermediateGroups: true
   groupSortPosition: top
-  postGenCommand: bash pin-packages.sh FenkoVault.xcodeproj
+  postGenCommand: bash pin-packages.sh PasskeyBond.xcodeproj
 
 packages:
   VaultSync:
@@ -32,15 +32,13 @@ targets:
     sources:
       - path: Tests/UITestHost
       - path: App
-        excludes: [FenkoVaultApp.swift, FenkoVault.entitlements]
+        excludes: [PasskeyBondApp.swift, PasskeyBond.entitlements]
       - path: Shared
-      - path: ../android/web/src/fonts/Saira.ttf
-        buildPhase: resources
     dependencies:
       - package: VaultSync
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: nz.fenko.vaultuitest
+        PRODUCT_BUNDLE_IDENTIFIER: bond.passkey.uitest
         INFOPLIST_FILE: App/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) LOCAL_DEVICE_TEST"
@@ -82,8 +80,6 @@ targets:
         buildPhase: resources
       - path: Migration/web
         type: folder
-        buildPhase: resources
-      - path: ../android/web/src/fonts/Saira.ttf
         buildPhase: resources
     settings:
       base:

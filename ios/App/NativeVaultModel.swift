@@ -48,7 +48,7 @@ final class NativeVaultModel: ObservableObject {
          migrate: @escaping () async throws -> Void = {},
          authenticate: @escaping (LAContext) async throws -> Bool = { context in
              try await context.evaluatePolicy(.deviceOwnerAuthentication,
-                                              localizedReason: "Unlock your Fenko Vault")
+                                              localizedReason: "Unlock Passkey.bond")
          }) {
         self.vault = vault
         self.sync = sync

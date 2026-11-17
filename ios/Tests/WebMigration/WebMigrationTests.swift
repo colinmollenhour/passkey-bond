@@ -1,6 +1,6 @@
 import XCTest
 import WebKit
-@testable import FenkoVault
+@testable import PasskeyBond
 
 @MainActor
 final class WebMigrationTests: XCTestCase {

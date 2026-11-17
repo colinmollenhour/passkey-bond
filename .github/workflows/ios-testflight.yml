@@ -110,7 +110,7 @@ jobs:
             MARKETING_VERSION="${{ steps.ver.outputs.name }}" \
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             archive
-          bash check-archive.sh "$RUNNER_TEMP/FenkoVault.xcarchive"
+          bash check-archive.sh "$RUNNER_TEMP/PasskeyBond.xcarchive"
 
       - name: Export IPA
         working-directory: ios

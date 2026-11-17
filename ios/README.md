@@ -35,7 +35,7 @@ A separate target supports standalone vault testing on an iPhone:
 ```bash
 cd ios
 xcodegen generate --spec project-devsync.yml
-open FenkoVaultSync.xcodeproj
+open PasskeyBondSync.xcodeproj
 ```
 
 Select your Personal Team and connected iPhone in Xcode, then run the app.
