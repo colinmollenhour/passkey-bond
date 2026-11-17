@@ -73,6 +73,12 @@ const isRekey = (items: StorageData) => 'passext_vault_kdf' in items;
 
 let storage: StorageData;
 
+const SENTINEL = { kdf: 'wrapped-data-key', version: 1 };
+/** How the PIN's key is derived: the KDF record inside the unlock record. */
+const pinKdf = () =>
+  (storage.passext_vault_unlock as { pin: { kdf: { kdf: string; salt: string } } } | undefined)?.pin
+    .kdf;
+
 beforeEach(() => {
   storage = useFakeStorage();
   // As a PIN'd vault leaves it: the seed only in the encrypted config.
@@ -128,9 +134,10 @@ describe('unlocking a vault from before KDF records', () => {
     const rekeys = local().set.mock.calls.filter(([items]) => isRekey(items));
     expect(rekeys).toHaveLength(1);
     expect(Object.keys(rekeys[0][0]).sort()).toEqual(
-      ['passext_vault_kdf', ...ENCRYPTED_VAULT_VALUES].sort()
+      ['passext_vault_kdf', 'passext_vault_unlock', ...ENCRYPTED_VAULT_VALUES].sort()
     );
-    expect(storage.passext_vault_kdf).toMatchObject({ kdf: 'scrypt', params: { N: 1024 } });
+    expect(storage.passext_vault_kdf).toEqual(SENTINEL);
+    expect(pinKdf()).toMatchObject({ kdf: 'scrypt', params: { N: 1024 } });
     expect(storage.passext_encryption_salt).toBeUndefined();
     for (const key of ENCRYPTED_VAULT_VALUES) expect(storage[key]).not.toEqual(legacy[key]);
     expect(legacyKeyOpens(legacy.passext_encryption_salt as string)).toBe(false);
@@ -188,7 +195,8 @@ describe('unlocking a vault from before KDF records', () => {
     Object.assign(storage, scryptVault(PIN, { N: 512, r: 8, p: 1 }, { totpEntries: [totp] }));
 
     expect((await contentsWith(PIN))?.totp).toEqual([totp]);
-    expect(storage.passext_vault_kdf).toMatchObject({ kdf: 'scrypt', params: { N: 1024 } });
+    expect(storage.passext_vault_kdf).toEqual(SENTINEL);
+    expect(pinKdf()).toMatchObject({ kdf: 'scrypt', params: { N: 1024 } });
     expect((await contentsWith(PIN))?.totp).toEqual([totp]);
   });
 });
@@ -209,7 +217,7 @@ describe('an interrupted upgrade', () => {
     // The next worker finds the old vault, opens it and upgrades it.
     expect(vaultState()).toEqual(legacy);
     expect(await contentsWith(PIN)).toEqual(EVERYTHING);
-    expect(storage.passext_vault_kdf).toMatchObject({ kdf: 'scrypt' });
+    expect(pinKdf()).toMatchObject({ kdf: 'scrypt' });
     expect(storage.passext_encryption_salt).toBeUndefined();
   });
 
@@ -236,7 +244,7 @@ describe('an interrupted upgrade', () => {
       ...EVERYTHING,
       totp: [totp, { ...totp, id: 'totp-2' }],
     });
-    expect(storage.passext_vault_kdf).toMatchObject({ kdf: 'scrypt' });
+    expect(pinKdf()).toMatchObject({ kdf: 'scrypt' });
   });
 
   it('finishes when the worker died between the write and removing the old salt', async () => {
@@ -304,7 +312,7 @@ describe('an interrupted upgrade', () => {
     await save;
     local().set.mockImplementation(write);
 
-    expect(storage.passext_vault_kdf).toMatchObject({ kdf: 'scrypt' });
+    expect(pinKdf()).toMatchObject({ kdf: 'scrypt' });
     // Removing the PIN decrypts every value strictly, so it fails on any
     // value left under another key.
     const restarted = await loadBackground();

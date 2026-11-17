@@ -1223,6 +1223,86 @@ test('a session from before a PIN change no longer unlocks', async () => {
   assert.equal(await vaultWorker(w).vault.restoreSession(), false);
 });
 
+test('a session from before a PIN change still unlocks while a passkey is enrolled', async () => {
+  // With an unlock passkey enrolled the change replaces only the PIN's
+  // wrapper: the data key, and so the saved session, stays.
+  const w = vaultWorker();
+  assert.equal(await w.vault.initialize('111111'), true);
+  await w.vault.storePasskeys([passkey]);
+  const prfOutput = new Uint8Array(32).fill(5);
+  const credentialId = Buffer.alloc(32, 6).toString('base64url');
+  await w.vault.addUnlockPasskey({
+    vaultId: (await w.vault.getUnlockMethods()).vaultId,
+    credentialId,
+    prfSalt: Buffer.alloc(32, 7).toString('base64'),
+    prfOutput: new Uint8Array(prfOutput),
+    name: 'Laptop',
+  });
+  await w.settle();
+  const stale = w.session.get('passext_unlocked_session');
+  assert.deepEqual(Object.keys(stale).sort(), ['activeAt', 'key']);
+
+  assert.equal(await w.vault.changeMasterPassword('111111', '222222'), true);
+  await w.settle();
+  assert.equal(w.session.get('passext_unlocked_session').key, stale.key);
+  w.session.set('passext_unlocked_session', stale);
+  const restarted = vaultWorker(w);
+  assert.equal(await restarted.vault.restoreSession(), true);
+  assert.equal((await restarted.vault.getPasskeys())[0].privateKey, passkey.privateKey);
+
+  // Both the new PIN and the passkey open it; the old PIN does not.
+  await restarted.vault.lock();
+  assert.equal(await restarted.vault.initialize('111111'), false);
+  await restarted.vault.unlockWithPasskey(credentialId, new Uint8Array(prfOutput));
+  assert.equal(restarted.vault.isStorageUnlocked(), true);
+  await restarted.vault.lock();
+  assert.equal(await restarted.vault.initialize('222222'), true);
+});
+
+test('an unlock with a passkey survives a service worker restart', async () => {
+  const w = vaultWorker();
+  assert.equal(await w.vault.initialize('123456'), true);
+  await w.vault.storePasskeys([passkey]);
+  const prfOutput = new Uint8Array(32).fill(8);
+  const credentialId = Buffer.alloc(16, 9).toString('base64url');
+  await w.vault.addUnlockPasskey({
+    vaultId: (await w.vault.getUnlockMethods()).vaultId,
+    credentialId,
+    prfSalt: Buffer.alloc(32, 1).toString('base64'),
+    prfOutput: new Uint8Array(prfOutput),
+    name: 'Security key',
+  });
+  await w.vault.lock();
+  await w.settle();
+  assert.equal(w.session.size, 0);
+
+  const second = vaultWorker(w);
+  assert.equal(await second.vault.restoreSession(), false);
+  await second.vault.unlockWithPasskey(credentialId, new Uint8Array(prfOutput));
+  await second.settle();
+  assert.deepEqual(Object.keys(second.session.get('passext_unlocked_session')).sort(), [
+    'activeAt',
+    'key',
+  ]);
+
+  const third = vaultWorker(second);
+  assert.equal(await third.vault.restoreSession(), true);
+  assert.equal((await third.vault.getPasskeys())[0].privateKey, passkey.privateKey);
+});
+
+test('a session written with a salt by an earlier build is still read', async () => {
+  const w = vaultWorker();
+  assert.equal(await w.vault.initialize('123456'), true);
+  await w.settle();
+  const saved = w.session.get('passext_unlocked_session');
+  w.session.set('passext_unlocked_session', {
+    ...saved,
+    salt: Buffer.alloc(32, 3).toString('base64'),
+  });
+
+  assert.equal(await vaultWorker(w).vault.restoreSession(), true);
+});
+
 test('locking clears the saved session and alarm', async () => {
   const w = vaultWorker();
   assert.equal(await w.vault.initialize('123456'), true);

@@ -248,3 +248,150 @@ describe('abort storm', () => {
     }
   );
 });
+
+describe('unlock passkeys under concurrency', () => {
+  const PIN = '482916';
+  const NEW_PIN = '975310';
+  const unlockPasskey = (seed: number) => ({
+    credentialId: Buffer.alloc(32, seed).toString('base64url'),
+    prfSalt: Buffer.alloc(32, seed + 1).toString('base64'),
+    prfOutput: Buffer.alloc(32, seed + 2).toString('base64'),
+  });
+  const first = unlockPasskey(10);
+  const second = unlockPasskey(20);
+
+  type StoredRecord = { vaultId: string; passkeys: Array<{ credentialId: string }> };
+  const record = () => vault.storage.passext_vault_unlock as StoredRecord;
+  const enrollment = (passkey: ReturnType<typeof unlockPasskey>, name: string) => ({
+    type: 'ENROLL_UNLOCK_PASSKEY',
+    payload: { password: PIN, vaultId: record().vaultId, ...passkey, name, transports: [] },
+  });
+  const unlockWith = ({ credentialId, prfOutput }: ReturnType<typeof unlockPasskey>) =>
+    vault.send({ type: 'UNLOCK_WITH_PASSKEY', payload: { credentialId, prfOutput } });
+  const unlockWithPin = (password: string) =>
+    vault.send({ type: 'UNLOCK_SECURE_STORAGE', payload: { password } });
+  const lock = () => vault.send({ type: 'LOCK_SECURE_STORAGE' });
+  const isUnlocked = async () =>
+    (await vault.send({ type: 'IS_SECURE_STORAGE_UNLOCKED' })).isUnlocked;
+
+  let registration: Awaited<ReturnType<typeof register>>;
+
+  beforeEach(async () => {
+    registration = await register();
+    expect(
+      (await vault.send({ type: 'SETUP_MASTER_PASSWORD', payload: { password: PIN } })).success
+    ).toBe(true);
+  });
+
+  it('keeps both passkeys when two enrollments commit at once', async () => {
+    const results = await Promise.all([
+      vault.send(enrollment(first, 'Laptop')),
+      vault.send(enrollment(second, 'Phone')),
+    ]);
+
+    expect(results.map((result) => result.success)).toEqual([true, true]);
+    expect(
+      record()
+        .passkeys.map((entry) => entry.credentialId)
+        .sort()
+    ).toEqual([first.credentialId, second.credentialId].sort());
+    for (const passkey of [first, second]) {
+      await lock();
+      expect((await unlockWith(passkey)).success).toBe(true);
+    }
+    await authenticate(registration, {}, { strictCounter: false });
+  });
+
+  it('stores a credential once when its enrollment is sent twice', async () => {
+    const results = await Promise.all([
+      vault.send(enrollment(first, 'Laptop')),
+      vault.send(enrollment(first, 'Laptop again')),
+    ]);
+
+    expect(results.map((result) => result.success).sort()).toEqual([false, true]);
+    expect(results.find((result) => !result.success).code).toBe('UNLOCK_PASSKEY_DUPLICATE');
+    expect(record().passkeys).toHaveLength(1);
+  });
+
+  it('settles an unlock racing the removal of its passkey either way, never half', async () => {
+    await vault.send(enrollment(first, 'Laptop'));
+    await vault.send(enrollment(second, 'Phone'));
+    await lock();
+    await unlockWith(second);
+    await lock();
+
+    // The vault is locked: the removal is refused, the unlock goes through.
+    const [unlocked, refused] = await Promise.all([
+      unlockWith(first),
+      vault.send({
+        type: 'REMOVE_UNLOCK_PASSKEY',
+        payload: { password: PIN, credentialId: first.credentialId },
+      }),
+    ]);
+    expect(unlocked.success).toBe(true);
+    expect(refused).toMatchObject({ success: false, code: 'VAULT_LOCKED' });
+    expect(record().passkeys).toHaveLength(2);
+
+    // Unlocked: the removal goes through whatever the unlock message does.
+    const [removed, again] = await Promise.all([
+      vault.send({
+        type: 'REMOVE_UNLOCK_PASSKEY',
+        payload: { password: PIN, credentialId: first.credentialId },
+      }),
+      unlockWith(first),
+    ]);
+    expect(removed.success).toBe(true);
+    expect(again.success === true || again.code === 'UNLOCK_PASSKEY_UNKNOWN').toBe(true);
+    expect(await isUnlocked()).toBe(true);
+    expect(record().passkeys.map((entry) => entry.credentialId)).toEqual([second.credentialId]);
+
+    await lock();
+    expect(await unlockWith(first)).toMatchObject({
+      success: false,
+      code: 'UNLOCK_PASSKEY_UNKNOWN',
+    });
+    expect(await isUnlocked()).toBe(false);
+    expect((await unlockWith(second)).success).toBe(true);
+    await authenticate(registration, {}, { strictCounter: false });
+  });
+
+  it('keeps the passkey and the new PIN when an unlock races a PIN change', async () => {
+    await vault.send(enrollment(first, 'Laptop'));
+
+    const [changed, unlocked] = await Promise.all([
+      vault.send({
+        type: 'CHANGE_MASTER_PASSWORD',
+        payload: { currentPassword: PIN, newPassword: NEW_PIN },
+      }),
+      unlockWith(first),
+    ]);
+
+    expect(changed.success).toBe(true);
+    expect(unlocked.success).toBe(true);
+    expect(await isUnlocked()).toBe(true);
+    await lock();
+    expect((await unlockWithPin(PIN)).success).toBe(false);
+    expect((await unlockWith(first)).success).toBe(true);
+    await lock();
+    expect((await unlockWithPin(NEW_PIN)).success).toBe(true);
+    await authenticate(registration, {}, { strictCounter: false });
+  });
+
+  it('opens once when the PIN and two passkeys unlock at the same moment', async () => {
+    await vault.send(enrollment(first, 'Laptop'));
+    await vault.send(enrollment(second, 'Phone'));
+    await lock();
+
+    const results = await Promise.all([
+      unlockWith(first),
+      unlockWithPin(PIN),
+      unlockWith(second),
+      unlockWith({ ...first, prfOutput: Buffer.alloc(32, 99).toString('base64') }),
+    ]);
+
+    expect(results.map((result) => result.success)).toEqual([true, true, true, false]);
+    expect(results[3].code).toBe('UNLOCK_PASSKEY_MISMATCH');
+    expect(await isUnlocked()).toBe(true);
+    await authenticate(registration, {}, { strictCounter: false });
+  });
+});
