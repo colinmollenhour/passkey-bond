@@ -26,7 +26,7 @@
             stroke-linejoin="round"
           >
             <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            <path id="lock-shackle" d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
         </div>
       </div>
@@ -35,16 +35,17 @@
       <section id="unlock-view" class="unlock-view" aria-labelledby="unlock-title" hidden>
         <div class="auth-hero">
           <h1 id="unlock-title" data-i18n="unlockHeading">Unlock the vault</h1>
-          <p id="unlock-help" class="auth-hint" data-i18n="unlockHelp">
-            Use a passkey that unlocks this vault, or your PIN or passphrase.
+          <p id="unlock-help" class="auth-hint" data-i18n="popupUnlockHelp" hidden>
+            Enter your PIN or passphrase to unlock.
           </p>
         </div>
         <div class="auth-form">
           <p id="unlock-status" class="unlock-status" aria-live="polite" hidden></p>
-          <div id="unlock-error" class="field-error" role="alert" hidden></div>
           <button type="button" id="passkey-unlock-btn" class="btn btn-primary btn-full" hidden>
             <span data-i18n="popupUnlockWithPasskey">Unlock with passkey</span>
           </button>
+          <!-- Moved under the control it is about: the passkey button or the field below -->
+          <div id="unlock-error" class="field-error" role="alert" hidden></div>
           <button
             type="button"
             id="fallback-toggle"
@@ -56,14 +57,21 @@
             <span data-i18n="popupUsePinInstead">Use PIN or passphrase</span>
           </button>
           <form id="fallback-form" class="auth-form" hidden>
-            <div class="form-group">
-              <label for="fallback-secret" data-i18n="unlockSecretLabel">PIN or passphrase</label>
-              <input type="password" id="fallback-secret" maxlength="256" autocomplete="off" />
-            </div>
+            <input
+              type="password"
+              id="fallback-secret"
+              maxlength="256"
+              placeholder="PIN or passphrase"
+              data-i18n-placeholder="unlockSecretLabel"
+              autocomplete="off"
+            />
             <button type="submit" id="fallback-unlock-btn" class="btn btn-secondary btn-full">
               <span data-i18n="popupUnlock">Unlock</span>
             </button>
           </form>
+          <button type="button" id="unlock-close-btn" class="btn btn-primary btn-full" hidden>
+            <span data-i18n="unlockCloseTab">Close this tab</span>
+          </button>
         </div>
       </section>
 
@@ -73,7 +81,7 @@
           <h1 id="enroll-title" data-i18n="unlockEnrollHeading">
             Add a passkey that unlocks the vault
           </h1>
-          <p class="auth-hint" data-i18n="unlockEnrollHelp">
+          <p id="enroll-help" class="auth-hint" data-i18n="unlockEnrollHelp">
             The passkey is kept by your passkey provider, such as this device, a phone or a security
             key. It is not stored in Passkey.bond. Your provider will ask twice: once to create the
             passkey and once to confirm it.
@@ -99,21 +107,25 @@
             <label for="enroll-name" data-i18n="unlockEnrollNameLabel">Name for this passkey</label>
             <input type="text" id="enroll-name" maxlength="64" autocomplete="off" />
           </div>
-          <p class="auth-note" data-i18n="unlockFallbackDisclosure">
+          <p id="enroll-disclosure" class="auth-note" data-i18n="unlockFallbackDisclosure">
             Your PIN or passphrase still unlocks this vault. Someone with a copy of your browser
             profile can guess it offline, so a passkey does not make a short PIN any safer.
           </p>
           <p id="enroll-status" class="unlock-status" aria-live="polite" hidden></p>
-          <div id="enroll-error" class="field-error" role="alert" hidden></div>
           <button type="submit" id="enroll-create-btn" class="btn btn-primary btn-full">
             <span data-i18n="unlockEnrollCreate">Create passkey</span>
           </button>
           <button type="button" id="enroll-confirm-btn" class="btn btn-primary btn-full" hidden>
             <span data-i18n="unlockEnrollConfirm">Confirm passkey</span>
           </button>
+          <!-- Moved under the field or button it is about -->
+          <div id="enroll-error" class="field-error" role="alert" hidden></div>
         </form>
         <div id="enroll-done" class="auth-form" hidden>
-          <p id="enroll-done-text" class="unlock-status" role="status"></p>
+          <p id="enroll-done-text" class="auth-hint" role="status"></p>
+          <button type="button" id="enroll-close-btn" class="btn btn-primary btn-full">
+            <span data-i18n="unlockCloseTab">Close this tab</span>
+          </button>
           <button type="button" id="enroll-again-btn" class="btn btn-secondary btn-full">
             <span data-i18n="unlockEnrollAgain">Add another passkey</span>
           </button>
@@ -124,7 +136,7 @@
       <section id="reset-view" class="unlock-view" aria-labelledby="reset-title" hidden>
         <div class="auth-hero">
           <h1 id="reset-title" data-i18n="unlockResetHeading">Set a new PIN or passphrase</h1>
-          <p class="auth-hint" data-i18n="unlockResetHelp">
+          <p id="reset-help" class="auth-hint" data-i18n="unlockResetHelp">
             Forgot your PIN or passphrase? Choose a new one and confirm with a passkey that unlocks
             this vault.
           </p>
@@ -157,17 +169,27 @@
             copy of your browser profile can try every 6-digit PIN within hours. To protect against
             that, use a passphrase of four or more random words, or a PIN of at least 10 digits.
           </p>
+          <p id="reset-status" class="unlock-status" aria-live="polite" hidden></p>
           <button type="submit" id="reset-confirm-btn" class="btn btn-primary btn-full">
             <span data-i18n="unlockResetConfirmBtn">Confirm with passkey</span>
           </button>
+          <!-- Moved under the field or button it is about -->
+          <div id="reset-error" class="field-error" role="alert" hidden></div>
         </form>
-        <p id="reset-status" class="unlock-status" aria-live="polite" hidden></p>
-        <div id="reset-error" class="field-error" role="alert" hidden></div>
+        <div id="reset-done" class="auth-form" hidden>
+          <button type="button" id="reset-close-btn" class="btn btn-primary btn-full">
+            <span data-i18n="unlockCloseTab">Close this tab</span>
+          </button>
+        </div>
       </section>
 
       <!-- Shown instead of a view when it cannot be used right now -->
-      <section id="unavailable-view" class="unlock-view" hidden>
-        <p id="unavailable-text" class="unlock-status" role="status"></p>
+      <section id="unavailable-view" class="unlock-view" aria-labelledby="unavailable-title" hidden>
+        <div class="auth-hero">
+          <h1 id="unavailable-title"></h1>
+          <p id="unavailable-text" class="auth-hint" role="status"></p>
+        </div>
+        <button type="button" id="unavailable-action-btn" class="btn btn-primary btn-full"></button>
       </section>
     </main>
 

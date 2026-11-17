@@ -265,12 +265,149 @@ describe('the element IDs other pages and tests rely on', () => {
     const doc = page('unlock.html');
     const inputs = Array.from(doc.querySelectorAll('input'));
     expect(inputs.length).toBeGreaterThan(0);
+    // The lone PIN field of the lock screen is named by its placeholder, as
+    // in the popup, and the page gives it the same accessible name.
+    const byPlaceholder = ['fallback-secret'];
     for (const input of inputs) {
-      expect([input.id, doc.querySelectorAll(`label[for="${input.id}"]`).length]).toEqual([
-        input.id,
-        1,
-      ]);
+      const labels = doc.querySelectorAll(`label[for="${input.id}"]`).length;
+      expect([input.id, labels]).toEqual([input.id, byPlaceholder.includes(input.id) ? 0 : 1]);
     }
+    expect(doc.getElementById('fallback-secret')?.getAttribute('data-i18n-placeholder')).toBe(
+      'unlockSecretLabel'
+    );
+    expect(read('src/ui/unlock.ts')).toContain(
+      "el('fallback-secret').setAttribute('aria-label', t('unlockSecretLabel'))"
+    );
+  });
+});
+
+describe('what the screens say, and where', () => {
+  const unlockPage = read('src/ui/unlock.ts');
+
+  it('puts every error of the unlock page under the control it is about', () => {
+    // One error element per view, moved to its field or button.
+    expect(unlockPage).not.toMatch(/setText\(\s*'(unlock|enroll|reset)-error',\s*(?!'')\S/);
+    const placed = [
+      ...unlockPage.matchAll(/showError\(\s*'([a-z]+-error)',[\s\S]*?\n?\s*'([a-z-]+)'\s*\)/g),
+    ].map((match) => `${match[1]} under ${match[2]}`);
+    expect(placed).toEqual(
+      expect.arrayContaining([
+        'unlock-error under passkey-unlock-btn',
+        'unlock-error under fallback-secret',
+        'enroll-error under enroll-secret',
+        'enroll-error under enroll-name',
+        'reset-error under reset-secret-new',
+        'reset-error under reset-secret-confirm',
+        'reset-error under reset-confirm-btn',
+      ])
+    );
+    expect(unlockPage).toContain(
+      "error instanceof WrongSecret ? 'enroll-secret' : 'enroll-create-btn'"
+    );
+    // Every view keeps its error and status inside its form.
+    const doc = page('unlock.html');
+    for (const view of ['enroll', 'reset']) {
+      expect(doc.getElementById(`${view}-error`)?.closest('form')?.id).toBe(`${view}-form`);
+      expect(doc.getElementById(`${view}-status`)?.closest('form')?.id).toBe(`${view}-form`);
+    }
+  });
+
+  it('gives the short-PIN advice once on the enrollment screen', () => {
+    expect(unlockPage).toContain("el('enroll-short-pin-warning').hidden = !short;");
+    expect(unlockPage).toContain("el('enroll-disclosure').hidden = short;");
+    expect(unlockPage).toContain('const short = !pending &&');
+  });
+
+  it('ends each state of the unlock page with a heading for it and a way on', () => {
+    const doc = page('unlock.html');
+    for (const id of ['unlock-close-btn', 'enroll-close-btn', 'reset-close-btn']) {
+      expect(doc.getElementById(id)?.querySelector('[data-i18n="unlockCloseTab"]')).not.toBeNull();
+    }
+    expect(doc.getElementById('unavailable-title')).not.toBeNull();
+    expect(doc.getElementById('unavailable-action-btn')).not.toBeNull();
+    expect(unlockPage).toContain("t('unlockEnrollDoneHeading')");
+    expect(unlockPage).toContain("wasReset ? t('unlockResetDone') : t('unlockResetHeading')");
+    expect(unlockPage).toContain("unlocked ? t('unlockUnlocked') : t('unlockHeading')");
+    expect(unlockPage).toContain("el('enroll-help').hidden = enrolled;");
+    expect(unlockPage).toContain("el('reset-help').hidden = wasReset;");
+    // No lock set: the way on is the settings page that sets one.
+    expect(unlockPage).toContain("showUnavailable(t('optionsPasskeySetSecretFirst'), 'settings')");
+    expect(unlockPage).toContain("chrome.runtime.getURL('options.html#security')");
+    expect(read('src/ui/options.ts')).toContain('openSectionFromHash');
+    // Locked: the page unlocks right there, then shows what it was opened for.
+    expect(unlockPage).toContain('renderUnlock(hasPasskey, true)');
+    expect(unlockPage).toContain("if (mode === 'unlock' && loadedMode === 'unlock')");
+  });
+
+  it('does not repeat the two unlock buttons in a line above them', () => {
+    expect(translations.en.unlockHelp).toBeUndefined();
+    expect(read('src/ui/popup.ts')).toContain('helpEl.hidden = hasPasskey;');
+    expect(unlockPage).toContain("el('unlock-help').hidden = unlocked || (hasPasskey && !asStep);");
+  });
+
+  it('suggests another unlock method only where one is on offer', () => {
+    expect(read('src/ui/popup.ts')).toMatch(
+      /hasPasskey\s*\?\s*t\('popupVaultDamaged'\)\s*:\s*t\('popupVaultDamagedNoPasskey'\)/
+    );
+    expect(unlockPage).toMatch(
+      /response\.code === 'VAULT_DAMAGED' && noPasskey\s*\?\s*t\('popupVaultDamagedNoPasskey'\)/
+    );
+    expect(translations.en.popupVaultDamagedNoPasskey).not.toMatch(/other unlock method/);
+  });
+
+  it('shows the popup offer only once the backup warning is gone, as one row', () => {
+    const popup = read('src/ui/popup.ts');
+    expect(popup).toContain('dismissed[VAULT_WARNING_DISMISSED_KEY] === true &&');
+    expect(popup).toMatch(/async function dismissVaultWarning[\s\S]*?void initPasskeyOffer\(\);/);
+    const offer = page('popup.html').getElementById('passkey-offer') as HTMLElement;
+    expect(offer.querySelectorAll('button')).toHaveLength(2);
+    expect(offer.querySelector('#passkey-offer-dismiss-btn')?.getAttribute('data-i18n-title')).toBe(
+      'popupPasskeyOfferDismiss'
+    );
+  });
+
+  it('keeps the Options card to what applies', () => {
+    const options = read('src/ui/options.ts');
+    // No card while no lock is set; the disclosure only with a passkey listed.
+    expect(options).toContain('methods.supported !== true || methods.isSetup !== true');
+    expect(options).toContain(
+      "document.getElementById('passkey-unlock-disclosure')!.hidden = passkeys.length === 0;"
+    );
+    // The way out of a forgotten PIN sits in the PIN card, under its field.
+    const doc = page('options.html');
+    const link = doc.getElementById('passkey-unlock-reset-link') as HTMLElement;
+    expect(link.closest('#master-pw-change')).not.toBeNull();
+    expect(link.closest('#passkey-unlock-card')).toBeNull();
+    expect(link.previousElementSibling?.id).toBe('change-pw-current');
+    expect(link.hasAttribute('hidden')).toBe(true);
+    expect(link.getAttribute('href')).toBe('unlock.html#reset-secret');
+  });
+
+  it('says what happens to a damaged passkey entry', () => {
+    for (const key of ['optionsPasskeyDamaged_one', 'optionsPasskeyDamaged_other']) {
+      expect(translations.en[key]).toMatch(/cleared the next time you add, rename or remove/);
+      expect(translations.en[key]).toMatch(/add it again/);
+    }
+  });
+
+  it('words turning off the lock as that, not as removing the PIN', () => {
+    expect(translations.en.optionsRemoveNeedsCurrent).toMatch(/to turn off the vault lock\.$/);
+    expect(translations.en.optionsRemoveConfirm).toMatch(/^Turn off the vault lock\?/);
+    expect(missingTranslations(['optionsRemoveNeedsCurrent', 'optionsRemoveConfirm'])).toEqual([]);
+  });
+
+  it('uses sentence case in the Security section', () => {
+    expect(translations.en.optionsLockNow).toBe('Lock now');
+    expect(translations.en.optionsAutoLockTimeout).toBe('Auto-lock timeout');
+    expect(translations.en.optionsNotSet).toBe('Not set');
+    const security = page('options.html').getElementById('section-security') as HTMLElement;
+    const titleCase = Array.from(security.querySelectorAll('h2, h3, button, .info-label'))
+      .map((el) => (el.textContent ?? '').trim().replace(/\s+/g, ' '))
+      .filter((text) => /^[A-Z][a-z-]+( [A-Z][a-z]+)+$/.test(text));
+    expect(titleCase).toEqual([]);
+    expect(read('src/ui/options.css')).toMatch(
+      /\.card-row > \.info-label \{[^}]*text-transform: none;/
+    );
   });
 });
 
@@ -417,7 +554,11 @@ describe('the words on these screens', () => {
       ].map((match) => match[1])
     );
     expect(inScripts).toEqual(
-      expect.arrayContaining(['popupVaultDamaged', 'unlockHelp', 'optionsPasskeyRemoveNote'])
+      expect.arrayContaining([
+        'popupVaultDamaged',
+        'popupVaultDamagedNoPasskey',
+        'optionsPasskeyRemoveNote',
+      ])
     );
     const plurals = ['optionsRemoveConfirmWithPasskeys', 'optionsPasskeyDamaged'];
     const keys = [...added, ...inScripts]
@@ -481,7 +622,7 @@ describe('the words on these screens', () => {
       const css = read(file);
       const added = css.slice(css.indexOf('/* ---------- Passkey unlock ---------- */'));
       expect(added.length).toBeGreaterThan(100);
-      expect(added).not.toMatch(/text-transform/);
+      expect(added).not.toMatch(/text-transform:\s*(?!none)\S/);
     }
     for (const key of Object.keys(translations.en).filter((k) =>
       /^(unlock|optionsPasskey)/.test(k)

@@ -575,6 +575,17 @@
                 data-i18n-placeholder="optionsCurrentPasswordPlaceholder"
                 autocomplete="current-password"
               />
+              <!-- Shown while a passkey can unlock this vault -->
+              <a
+                id="passkey-unlock-reset-link"
+                class="unlock-passkey-reset"
+                href="unlock.html#reset-secret"
+                target="_blank"
+                rel="noopener"
+                data-i18n="optionsPasskeyResetLink"
+                hidden
+                >Forgot your PIN or passphrase? Set a new one with a passkey</a
+              >
               <input
                 type="password"
                 id="change-pw-new"
@@ -597,7 +608,7 @@
                   <span data-i18n="optionsChangePassword">Change</span>
                 </button>
                 <button id="lock-now-btn" class="btn btn-secondary btn-sm">
-                  <span data-i18n="optionsLockNow">Lock Now</span>
+                  <span data-i18n="optionsLockNow">Lock now</span>
                 </button>
                 <button id="remove-pw-btn" class="btn btn-danger btn-sm">
                   <span data-i18n="optionsTurnOffLock">Turn off vault lock</span>
@@ -673,20 +684,10 @@
                 <span data-i18n="popupUnlock">Unlock</span>
               </button>
             </div>
-            <a
-              id="passkey-unlock-reset-link"
-              class="unlock-passkey-reset"
-              href="unlock.html#reset-secret"
-              target="_blank"
-              rel="noopener"
-              data-i18n="optionsPasskeyResetLink"
-              hidden
-              >Forgot your PIN or passphrase? Set a new one with a passkey</a
-            >
           </div>
 
           <div class="card">
-            <h3 data-i18n="optionsAutoLockTimeout">Auto-Lock Timeout</h3>
+            <h3 data-i18n="optionsAutoLockTimeout">Auto-lock timeout</h3>
             <p class="card-hint" data-i18n="optionsAutoLockDesc">
               Lock the vault after this period of inactivity.
             </p>

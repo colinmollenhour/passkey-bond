@@ -301,15 +301,15 @@ const en: TranslationMap = {
   optionsMasterPassword: 'PIN or passphrase',
   optionsStatus: 'Status',
   optionsChecking: 'Checking...',
-  optionsLockNow: 'Lock Now',
-  optionsAutoLockTimeout: 'Auto-Lock Timeout',
+  optionsLockNow: 'Lock now',
+  optionsAutoLockTimeout: 'Auto-lock timeout',
   optionsAutoLockDesc: 'Lock the vault after this period of inactivity.',
   optionsFiveMinutes: '5 minutes',
   optionsFifteenMinutes: '15 minutes',
   optionsThirtyMinutes: '30 minutes',
   optionsOneHour: '1 hour',
   optionsTwoHours: '2 hours',
-  optionsNotSet: 'Not Set',
+  optionsNotSet: 'Not set',
   optionsUnlocked: 'Unlocked',
   optionsLocked: 'Locked',
   optionsSetMasterDesc: 'Set a PIN or passphrase to lock your vault.',
@@ -323,8 +323,9 @@ const en: TranslationMap = {
   optionsPasswordsNoMatch: "The two entries don't match",
   optionsSetupFailed: 'Failed to set the PIN or passphrase',
   optionsWrongPassword: "Couldn't update — check your current PIN or passphrase",
-  optionsRemoveNeedsCurrent: 'Enter your current PIN or passphrase above to remove it.',
-  optionsRemoveConfirm: 'Remove your PIN or passphrase? Your vault will no longer be locked.',
+  optionsRemoveNeedsCurrent:
+    'Enter your current PIN or passphrase above to turn off the vault lock.',
+  optionsRemoveConfirm: 'Turn off the vault lock? Your vault will be stored unencrypted.',
   optionsPasswordSet: 'PIN set',
   optionsPasswordChanged: 'PIN changed',
   optionsDeveloperTitle: 'Developer Tools',
@@ -601,17 +602,15 @@ const en: TranslationMap = {
     "This vault's lock data is damaged and cannot be opened this way. Try your other unlock method, or restore from a backup.",
   popupSetupPasskeyLater: 'Afterwards you can add a passkey to unlock the vault.',
   popupPasskeyOfferTitle: 'Unlock with a passkey',
-  popupPasskeyOfferBody:
-    'Open your vault with your device, phone or security key instead of typing your PIN or passphrase.',
+  popupPasskeyOfferBody: 'Use your device, phone or security key instead of typing.',
   popupPasskeyOfferSetup: 'Set up',
   popupPasskeyOfferDismiss: 'Not now',
   unlockPageTitle: 'Passkey.bond — Passkey unlock',
   unlockHeading: 'Unlock the vault',
-  unlockHelp: 'Use a passkey that unlocks this vault, or your PIN or passphrase.',
   unlockSecretLabel: 'PIN or passphrase',
   unlockSecretRequired: 'Enter your PIN or passphrase.',
   unlockWaiting: 'Waiting for your passkey…',
-  unlockUnlocked: 'The vault is unlocked. You can close this tab.',
+  unlockUnlocked: 'The vault is unlocked',
   unlockEnrollHeading: 'Add a passkey that unlocks the vault',
   unlockEnrollHelp:
     'The passkey is kept by your passkey provider, such as this device, a phone or a security key. It is not stored in Passkey.bond. Your provider will ask twice: once to create the passkey and once to confirm it.',
@@ -638,8 +637,8 @@ const en: TranslationMap = {
   unlockResetConfirmLabel: 'Confirm PIN or passphrase',
   unlockSecretsNoMatch: "The two entries don't match",
   unlockResetConfirmBtn: 'Confirm with passkey',
-  unlockResetDone: 'Your new PIN or passphrase is set.',
-  unlockNeedsUnlocked: 'The vault is locked. Unlock it, then come back to this tab.',
+  unlockResetDone: 'Your new PIN or passphrase is set',
+  unlockNeedsUnlocked: 'The vault is locked. Unlock it to continue.',
   unlockNoPasskey: 'No passkey is set up to unlock this vault.',
   unlockErrVaultLocked:
     'The vault locked while the passkey prompt was open. Unlock it and try again.',
@@ -676,8 +675,10 @@ const en: TranslationMap = {
   optionsPasskeyAdded: 'Added {date}',
   optionsPasskeyRename: 'Rename',
   optionsPasskeyAdd: 'Add a passkey',
-  optionsPasskeyDamaged_one: '{count} saved passkey entry is damaged and cannot be used.',
-  optionsPasskeyDamaged_other: '{count} saved passkey entries are damaged and cannot be used.',
+  optionsPasskeyDamaged_one:
+    '{count} saved passkey entry is damaged and cannot unlock the vault. It will be cleared the next time you add, rename or remove a passkey. If one of your passkeys is missing from this list, add it again.',
+  optionsPasskeyDamaged_other:
+    '{count} saved passkey entries are damaged and cannot unlock the vault. They will be cleared the next time you add, rename or remove a passkey. If one of your passkeys is missing from this list, add it again.',
   optionsPasskeyResetLink: 'Forgot your PIN or passphrase? Set a new one with a passkey',
   optionsPasskeyRemoveConfirm: 'Remove passkey',
   optionsPasskeyRemoveNote:
@@ -689,6 +690,11 @@ const en: TranslationMap = {
     'Turn off the vault lock? Your vault will be stored unencrypted, and the {count} passkey that unlocks it will stop working. It will stay at your passkey provider until you delete it there.',
   optionsRemoveConfirmWithPasskeys_other:
     'Turn off the vault lock? Your vault will be stored unencrypted, and the {count} passkeys that unlock it will stop working. They stay at your passkey provider until you delete them there.',
+  unlockCloseTab: 'Close this tab',
+  unlockEnrollDoneHeading: 'Passkey added',
+  unlockOpenSecuritySettings: 'Open security settings',
+  popupVaultDamagedNoPasskey:
+    "This vault's lock data is damaged and cannot be opened. Restore from a backup.",
 };
 
 const ru: TranslationMap = {
@@ -879,18 +885,15 @@ const ru: TranslationMap = {
     'Данные блокировки этого хранилища повреждены, и открыть его этим способом нельзя. Попробуйте другой способ разблокировки или восстановите данные из резервной копии.',
   popupSetupPasskeyLater: 'После этого можно добавить passkey для разблокировки хранилища.',
   popupPasskeyOfferTitle: 'Разблокировка с помощью passkey',
-  popupPasskeyOfferBody:
-    'Открывайте хранилище с помощью устройства, телефона или ключа безопасности, не вводя PIN-код или парольную фразу.',
+  popupPasskeyOfferBody: 'Используйте устройство, телефон или ключ безопасности вместо ввода.',
   popupPasskeyOfferSetup: 'Настроить',
   popupPasskeyOfferDismiss: 'Не сейчас',
   unlockPageTitle: 'Passkey.bond — разблокировка с помощью passkey',
   unlockHeading: 'Разблокировка хранилища',
-  unlockHelp:
-    'Используйте passkey, который разблокирует это хранилище, либо PIN-код или парольную фразу.',
   unlockSecretLabel: 'PIN-код или парольная фраза',
   unlockSecretRequired: 'Введите PIN-код или парольную фразу.',
   unlockWaiting: 'Ожидание passkey…',
-  unlockUnlocked: 'Хранилище разблокировано. Эту вкладку можно закрыть.',
+  unlockUnlocked: 'Хранилище разблокировано',
   unlockEnrollHeading: 'Добавьте passkey для разблокировки хранилища',
   unlockEnrollHelp:
     'Passkey хранится у вашего провайдера passkey: на этом устройстве, в телефоне или на ключе безопасности. В Passkey.bond он не сохраняется. Провайдер спросит дважды: чтобы создать passkey и чтобы подтвердить его.',
@@ -917,8 +920,8 @@ const ru: TranslationMap = {
   unlockResetConfirmLabel: 'Повторите PIN-код или парольную фразу',
   unlockSecretsNoMatch: 'Введённые значения не совпадают',
   unlockResetConfirmBtn: 'Подтвердить с помощью passkey',
-  unlockResetDone: 'Новый PIN-код или парольная фраза заданы.',
-  unlockNeedsUnlocked: 'Хранилище заблокировано. Разблокируйте его и вернитесь на эту вкладку.',
+  unlockResetDone: 'Новый PIN-код или парольная фраза заданы',
+  unlockNeedsUnlocked: 'Хранилище заблокировано. Разблокируйте его, чтобы продолжить.',
   unlockNoPasskey: 'Для разблокировки этого хранилища не настроен ни один passkey.',
   unlockErrVaultLocked:
     'Хранилище заблокировалось, пока был открыт запрос passkey. Разблокируйте его и повторите попытку.',
@@ -956,9 +959,10 @@ const ru: TranslationMap = {
   optionsPasskeyAdded: 'Добавлен {date}',
   optionsPasskeyRename: 'Переименовать',
   optionsPasskeyAdd: 'Добавить passkey',
-  optionsPasskeyDamaged_one: 'Повреждённых записей passkey, которые нельзя использовать: {count}.',
+  optionsPasskeyDamaged_one:
+    'Повреждённых записей passkey, которые не могут разблокировать хранилище: {count}. Они будут удалены, когда вы в следующий раз добавите, переименуете или удалите passkey. Если какого-то из ваших passkey нет в этом списке, добавьте его снова.',
   optionsPasskeyDamaged_other:
-    'Повреждённых записей passkey, которые нельзя использовать: {count}.',
+    'Повреждённых записей passkey, которые не могут разблокировать хранилище: {count}. Они будут удалены, когда вы в следующий раз добавите, переименуете или удалите passkey. Если какого-то из ваших passkey нет в этом списке, добавьте его снова.',
   optionsPasskeyResetLink: 'Забыли PIN-код или парольную фразу? Задайте новые с помощью passkey',
   optionsPasskeyRemoveConfirm: 'Удалить passkey',
   optionsPasskeyRemoveNote:
@@ -970,6 +974,14 @@ const ru: TranslationMap = {
     'Отключить блокировку хранилища? Хранилище будет храниться без шифрования, а passkey, который его разблокирует ({count}), перестанет работать. Он останется у вашего провайдера passkey, пока вы не удалите его там.',
   optionsRemoveConfirmWithPasskeys_other:
     'Отключить блокировку хранилища? Хранилище будет храниться без шифрования, а passkey, которые его разблокируют ({count}), перестанут работать. Они останутся у вашего провайдера passkey, пока вы не удалите их там.',
+  unlockCloseTab: 'Закрыть вкладку',
+  unlockEnrollDoneHeading: 'Passkey добавлен',
+  unlockOpenSecuritySettings: 'Открыть настройки безопасности',
+  popupVaultDamagedNoPasskey:
+    'Данные блокировки этого хранилища повреждены, и открыть его нельзя. Восстановите данные из резервной копии.',
+  optionsRemoveNeedsCurrent:
+    'Чтобы отключить блокировку хранилища, введите выше текущий PIN-код или парольную фразу.',
+  optionsRemoveConfirm: 'Отключить блокировку хранилища? Хранилище будет храниться без шифрования.',
 };
 
 const zh_CN: TranslationMap = {
@@ -1123,16 +1135,15 @@ const zh_CN: TranslationMap = {
     '此保险库的锁定数据已损坏，无法通过这种方式打开。请尝试另一种解锁方式，或从备份恢复。',
   popupSetupPasskeyLater: '设置后，你可以添加用于解锁保险库的 passkey。',
   popupPasskeyOfferTitle: '使用 passkey 解锁',
-  popupPasskeyOfferBody: '用你的设备、手机或安全密钥打开保险库，无需输入 PIN 码或密码短语。',
+  popupPasskeyOfferBody: '用你的设备、手机或安全密钥代替输入。',
   popupPasskeyOfferSetup: '设置',
   popupPasskeyOfferDismiss: '以后再说',
   unlockPageTitle: 'Passkey.bond — passkey 解锁',
   unlockHeading: '解锁保险库',
-  unlockHelp: '使用可解锁此保险库的 passkey，或使用 PIN 码或密码短语。',
   unlockSecretLabel: 'PIN 码或密码短语',
   unlockSecretRequired: '请输入 PIN 码或密码短语。',
   unlockWaiting: '正在等待你的 passkey…',
-  unlockUnlocked: '保险库已解锁。你可以关闭此标签页。',
+  unlockUnlocked: '保险库已解锁',
   unlockEnrollHeading: '添加用于解锁保险库的 passkey',
   unlockEnrollHelp:
     'passkey 由你的 passkey 提供方保管，例如这台设备、手机或安全密钥，不会存入 Passkey.bond。提供方会询问两次：一次创建 passkey，一次确认。',
@@ -1157,8 +1168,8 @@ const zh_CN: TranslationMap = {
   unlockResetConfirmLabel: '确认 PIN 码或密码短语',
   unlockSecretsNoMatch: '两次输入不一致',
   unlockResetConfirmBtn: '使用 passkey 确认',
-  unlockResetDone: '新的 PIN 码或密码短语已设置。',
-  unlockNeedsUnlocked: '保险库已锁定。请先解锁，然后回到此标签页。',
+  unlockResetDone: '新的 PIN 码或密码短语已设置',
+  unlockNeedsUnlocked: '保险库已锁定。请先解锁以继续。',
   unlockNoPasskey: '尚未设置可解锁此保险库的 passkey。',
   unlockErrVaultLocked: '在 passkey 提示打开期间，保险库已锁定。请解锁后重试。',
   unlockErrPasskeyUnknown: '该 passkey 已不再用于此保险库。',
@@ -1191,8 +1202,10 @@ const zh_CN: TranslationMap = {
   optionsPasskeyAdded: '添加于 {date}',
   optionsPasskeyRename: '重命名',
   optionsPasskeyAdd: '添加 passkey',
-  optionsPasskeyDamaged_one: '有 {count} 条已保存的 passkey 记录已损坏，无法使用。',
-  optionsPasskeyDamaged_other: '有 {count} 条已保存的 passkey 记录已损坏，无法使用。',
+  optionsPasskeyDamaged_one:
+    '有 {count} 条已保存的 passkey 记录已损坏，无法解锁保险库。下次添加、重命名或移除 passkey 时会清除这些记录。如果此列表中缺少你的某个 passkey，请重新添加。',
+  optionsPasskeyDamaged_other:
+    '有 {count} 条已保存的 passkey 记录已损坏，无法解锁保险库。下次添加、重命名或移除 passkey 时会清除这些记录。如果此列表中缺少你的某个 passkey，请重新添加。',
   optionsPasskeyResetLink: '忘记了 PIN 码或密码短语？使用 passkey 设置新的',
   optionsPasskeyRemoveConfirm: '移除 passkey',
   optionsPasskeyRemoveNote:
@@ -1204,6 +1217,12 @@ const zh_CN: TranslationMap = {
     '要关闭保险库锁定吗？保险库将以未加密方式存储，可解锁它的 {count} 个 passkey 将失效。在你从 passkey 提供方处删除之前，它们仍会保留在那里。',
   optionsRemoveConfirmWithPasskeys_other:
     '要关闭保险库锁定吗？保险库将以未加密方式存储，可解锁它的 {count} 个 passkey 将失效。在你从 passkey 提供方处删除之前，它们仍会保留在那里。',
+  unlockCloseTab: '关闭此标签页',
+  unlockEnrollDoneHeading: 'passkey 已添加',
+  unlockOpenSecuritySettings: '打开安全设置',
+  popupVaultDamagedNoPasskey: '此保险库的锁定数据已损坏，无法打开。请从备份恢复。',
+  optionsRemoveNeedsCurrent: '请在上方输入当前的 PIN 码或密码短语，以关闭保险库锁定。',
+  optionsRemoveConfirm: '要关闭保险库锁定吗？保险库将以未加密方式存储。',
 };
 
 const ar: TranslationMap = {
@@ -1353,17 +1372,15 @@ const ar: TranslationMap = {
     'بيانات قفل هذه الخزنة تالفة ولا يمكن فتحها بهذه الطريقة. جرّب طريقة الفتح الأخرى، أو استعد نسخة احتياطية.',
   popupSetupPasskeyLater: 'بعد ذلك يمكنك إضافة مفتاح مرور لفتح الخزنة.',
   popupPasskeyOfferTitle: 'الفتح بمفتاح مرور',
-  popupPasskeyOfferBody:
-    'افتح خزنتك بجهازك أو هاتفك أو مفتاح الأمان بدلًا من كتابة رمز PIN أو عبارة المرور.',
+  popupPasskeyOfferBody: 'استخدم جهازك أو هاتفك أو مفتاح الأمان بدلًا من الكتابة.',
   popupPasskeyOfferSetup: 'إعداد',
   popupPasskeyOfferDismiss: 'ليس الآن',
   unlockPageTitle: 'Passkey.bond — الفتح بمفتاح مرور',
   unlockHeading: 'فتح الخزنة',
-  unlockHelp: 'استخدم مفتاح مرور يفتح هذه الخزنة، أو رمز PIN أو عبارة المرور.',
   unlockSecretLabel: 'رمز PIN أو عبارة المرور',
   unlockSecretRequired: 'أدخل رمز PIN أو عبارة المرور.',
   unlockWaiting: 'في انتظار مفتاح المرور…',
-  unlockUnlocked: 'الخزنة مفتوحة. يمكنك إغلاق هذا التبويب.',
+  unlockUnlocked: 'الخزنة مفتوحة',
   unlockEnrollHeading: 'إضافة مفتاح مرور يفتح الخزنة',
   unlockEnrollHelp:
     'يُحفظ مفتاح المرور لدى مزوّد مفاتيح المرور لديك، مثل هذا الجهاز أو هاتف أو مفتاح أمان، ولا يُخزَّن في Passkey.bond. سيسألك المزوّد مرتين: مرة لإنشاء المفتاح ومرة لتأكيده.',
@@ -1388,8 +1405,8 @@ const ar: TranslationMap = {
   unlockResetConfirmLabel: 'تأكيد رمز PIN أو عبارة المرور',
   unlockSecretsNoMatch: 'الإدخالان غير متطابقين',
   unlockResetConfirmBtn: 'التأكيد بمفتاح المرور',
-  unlockResetDone: 'تم تعيين رمز PIN أو عبارة المرور الجديدة.',
-  unlockNeedsUnlocked: 'الخزنة مقفلة. افتحها ثم عُد إلى هذا التبويب.',
+  unlockResetDone: 'تم تعيين رمز PIN أو عبارة المرور الجديدة',
+  unlockNeedsUnlocked: 'الخزنة مقفلة. افتحها للمتابعة.',
   unlockNoPasskey: 'لم يُعدّ أي مفتاح مرور لفتح هذه الخزنة.',
   unlockErrVaultLocked: 'قُفلت الخزنة أثناء فتح طلب مفتاح المرور. افتحها وحاول مرة أخرى.',
   unlockErrPasskeyUnknown: 'مفتاح المرور هذا لم يعد مُعدًّا لهذه الخزنة.',
@@ -1425,9 +1442,10 @@ const ar: TranslationMap = {
   optionsPasskeyAdded: 'أُضيف في {date}',
   optionsPasskeyRename: 'إعادة التسمية',
   optionsPasskeyAdd: 'إضافة مفتاح مرور',
-  optionsPasskeyDamaged_one: 'يوجد إدخال مفتاح مرور محفوظ واحد ({count}) تالف ولا يمكن استخدامه.',
+  optionsPasskeyDamaged_one:
+    'يوجد إدخال مفتاح مرور محفوظ واحد ({count}) تالف ولا يستطيع فتح الخزنة. سيُمسح عند إضافة مفتاح مرور أو إعادة تسميته أو إزالته في المرة القادمة. إن كان أحد مفاتيح المرور لديك غير موجود في هذه القائمة فأضفه مجددًا.',
   optionsPasskeyDamaged_other:
-    'عدد إدخالات مفاتيح المرور المحفوظة التالفة التي لا يمكن استخدامها: {count}.',
+    'عدد إدخالات مفاتيح المرور المحفوظة التالفة التي لا تستطيع فتح الخزنة: {count}. ستُمسح عند إضافة مفتاح مرور أو إعادة تسميته أو إزالته في المرة القادمة. إن كان أحد مفاتيح المرور لديك غير موجود في هذه القائمة فأضفه مجددًا.',
   optionsPasskeyResetLink: 'نسيت رمز PIN أو عبارة المرور؟ عيّن جديدًا بمفتاح مرور',
   optionsPasskeyRemoveConfirm: 'إزالة مفتاح المرور',
   optionsPasskeyRemoveNote:
@@ -1439,6 +1457,12 @@ const ar: TranslationMap = {
     'هل تريد إيقاف قفل الخزنة؟ ستُخزَّن خزنتك دون تشفير، وسيتوقف مفتاح المرور الذي يفتحها ({count}) عن العمل. يبقى لدى مزوّد مفاتيح المرور إلى أن تحذفه هناك.',
   optionsRemoveConfirmWithPasskeys_other:
     'هل تريد إيقاف قفل الخزنة؟ ستُخزَّن خزنتك دون تشفير، وستتوقف مفاتيح المرور التي تفتحها ({count}) عن العمل. تبقى لدى مزوّد مفاتيح المرور إلى أن تحذفها هناك.',
+  unlockCloseTab: 'إغلاق هذا التبويب',
+  unlockEnrollDoneHeading: 'أُضيف مفتاح المرور',
+  unlockOpenSecuritySettings: 'فتح إعدادات الأمان',
+  popupVaultDamagedNoPasskey: 'بيانات قفل هذه الخزنة تالفة ولا يمكن فتحها. استعد نسخة احتياطية.',
+  optionsRemoveNeedsCurrent: 'أدخل رمز PIN أو عبارة المرور الحالية أعلاه لإيقاف قفل الخزنة.',
+  optionsRemoveConfirm: 'هل تريد إيقاف قفل الخزنة؟ ستُخزَّن خزنتك دون تشفير.',
 };
 
 const fa: TranslationMap = {
@@ -1677,18 +1701,15 @@ const fa: TranslationMap = {
     'داده‌های قفل این گاوصندوق آسیب دیده است و از این راه باز نمی‌شود. روش دیگر باز کردن را امتحان کنید یا از پشتیبان بازیابی کنید.',
   popupSetupPasskeyLater: 'پس از آن می‌توانید کلید عبوری برای باز کردن گاوصندوق اضافه کنید.',
   popupPasskeyOfferTitle: 'باز کردن با کلید عبور',
-  popupPasskeyOfferBody:
-    'گاوصندوق را به‌جای وارد کردن پین یا عبارت عبور، با دستگاه، تلفن یا کلید امنیتی خود باز کنید.',
+  popupPasskeyOfferBody: 'به‌جای تایپ کردن، از دستگاه، تلفن یا کلید امنیتی خود استفاده کنید.',
   popupPasskeyOfferSetup: 'راه‌اندازی',
   popupPasskeyOfferDismiss: 'اکنون نه',
   unlockPageTitle: 'Passkey.bond — باز کردن با کلید عبور',
   unlockHeading: 'باز کردن گاوصندوق',
-  unlockHelp:
-    'از کلید عبوری که این گاوصندوق را باز می‌کند، یا از پین یا عبارت عبور خود استفاده کنید.',
   unlockSecretLabel: 'پین یا عبارت عبور',
   unlockSecretRequired: 'پین یا عبارت عبور خود را وارد کنید.',
   unlockWaiting: 'در انتظار کلید عبور شما…',
-  unlockUnlocked: 'گاوصندوق باز است. می‌توانید این زبانه را ببندید.',
+  unlockUnlocked: 'گاوصندوق باز است',
   unlockEnrollHeading: 'افزودن کلید عبوری که گاوصندوق را باز می‌کند',
   unlockEnrollHelp:
     'کلید عبور نزد ارائه‌دهندهٔ کلید عبور شما می‌ماند، مانند همین دستگاه، تلفن یا کلید امنیتی، و در Passkey.bond ذخیره نمی‌شود. ارائه‌دهنده دو بار می‌پرسد: یک بار برای ساختن کلید و یک بار برای تأیید آن.',
@@ -1715,8 +1736,8 @@ const fa: TranslationMap = {
   unlockResetConfirmLabel: 'تأیید پین یا عبارت عبور',
   unlockSecretsNoMatch: 'دو مقدار واردشده یکسان نیستند',
   unlockResetConfirmBtn: 'تأیید با کلید عبور',
-  unlockResetDone: 'پین یا عبارت عبور جدید شما تعیین شد.',
-  unlockNeedsUnlocked: 'گاوصندوق قفل است. آن را باز کنید و سپس به این زبانه برگردید.',
+  unlockResetDone: 'پین یا عبارت عبور جدید شما تعیین شد',
+  unlockNeedsUnlocked: 'گاوصندوق قفل است. برای ادامه آن را باز کنید.',
   unlockNoPasskey: 'هیچ کلید عبوری برای باز کردن این گاوصندوق تنظیم نشده است.',
   unlockErrVaultLocked:
     'هنگامی که درخواست کلید عبور باز بود، گاوصندوق قفل شد. آن را باز کنید و دوباره امتحان کنید.',
@@ -1754,9 +1775,9 @@ const fa: TranslationMap = {
   optionsPasskeyRename: 'تغییر نام',
   optionsPasskeyAdd: 'افزودن کلید عبور',
   optionsPasskeyDamaged_one:
-    '{count} ورودی ذخیره‌شدهٔ کلید عبور آسیب دیده است و قابل استفاده نیست.',
+    '{count} ورودی ذخیره‌شدهٔ کلید عبور آسیب دیده است و نمی‌تواند گاوصندوق را باز کند. دفعهٔ بعد که کلید عبوری اضافه، تغییر نام یا حذف کنید پاک می‌شود. اگر یکی از کلیدهای عبور شما در این فهرست نیست، آن را دوباره اضافه کنید.',
   optionsPasskeyDamaged_other:
-    '{count} ورودی ذخیره‌شدهٔ کلید عبور آسیب دیده است و قابل استفاده نیست.',
+    '{count} ورودی ذخیره‌شدهٔ کلید عبور آسیب دیده است و نمی‌تواند گاوصندوق را باز کند. دفعهٔ بعد که کلید عبوری اضافه، تغییر نام یا حذف کنید پاک می‌شوند. اگر یکی از کلیدهای عبور شما در این فهرست نیست، آن را دوباره اضافه کنید.',
   optionsPasskeyResetLink:
     'پین یا عبارت عبور را فراموش کرده‌اید؟ با کلید عبور مورد جدیدی تعیین کنید',
   optionsPasskeyRemoveConfirm: 'حذف کلید عبور',
@@ -1769,6 +1790,14 @@ const fa: TranslationMap = {
     'قفل گاوصندوق خاموش شود؟ گاوصندوق شما بدون رمزگذاری ذخیره می‌شود و {count} کلید عبوری که آن را باز می‌کند از کار می‌افتد. تا وقتی آن را نزد ارائه‌دهندهٔ کلید عبور حذف نکنید، همان‌جا می‌ماند.',
   optionsRemoveConfirmWithPasskeys_other:
     'قفل گاوصندوق خاموش شود؟ گاوصندوق شما بدون رمزگذاری ذخیره می‌شود و {count} کلید عبوری که آن را باز می‌کنند از کار می‌افتند. تا وقتی آن‌ها را نزد ارائه‌دهندهٔ کلید عبور حذف نکنید، همان‌جا می‌مانند.',
+  unlockCloseTab: 'بستن این زبانه',
+  unlockEnrollDoneHeading: 'کلید عبور افزوده شد',
+  unlockOpenSecuritySettings: 'باز کردن تنظیمات امنیتی',
+  popupVaultDamagedNoPasskey:
+    'داده‌های قفل این گاوصندوق آسیب دیده است و باز نمی‌شود. از پشتیبان بازیابی کنید.',
+  optionsRemoveNeedsCurrent:
+    'برای خاموش کردن قفل گاوصندوق، پین یا عبارت عبور فعلی را در بالا وارد کنید.',
+  optionsRemoveConfirm: 'قفل گاوصندوق خاموش شود؟ گاوصندوق شما بدون رمزگذاری ذخیره می‌شود.',
 };
 
 const es: TranslationMap = {
@@ -1923,16 +1952,15 @@ const es: TranslationMap = {
   popupSetupPasskeyLater: 'Después podrás añadir una passkey para desbloquear la bóveda.',
   popupPasskeyOfferTitle: 'Desbloquea con una passkey',
   popupPasskeyOfferBody:
-    'Abre tu bóveda con tu dispositivo, tu teléfono o una llave de seguridad en lugar de escribir el PIN o la frase de contraseña.',
+    'Usa tu dispositivo, tu teléfono o una llave de seguridad en lugar de escribir.',
   popupPasskeyOfferSetup: 'Configurar',
   popupPasskeyOfferDismiss: 'Ahora no',
   unlockPageTitle: 'Passkey.bond — Desbloqueo con passkey',
   unlockHeading: 'Desbloquear la bóveda',
-  unlockHelp: 'Usa una passkey que desbloquee esta bóveda, o tu PIN o frase de contraseña.',
   unlockSecretLabel: 'PIN o frase de contraseña',
   unlockSecretRequired: 'Introduce tu PIN o frase de contraseña.',
   unlockWaiting: 'Esperando tu passkey…',
-  unlockUnlocked: 'La bóveda está desbloqueada. Puedes cerrar esta pestaña.',
+  unlockUnlocked: 'La bóveda está desbloqueada',
   unlockEnrollHeading: 'Añade una passkey que desbloquee la bóveda',
   unlockEnrollHelp:
     'La passkey la guarda tu proveedor de passkeys, como este dispositivo, un teléfono o una llave de seguridad. No se almacena en Passkey.bond. Tu proveedor preguntará dos veces: una para crear la passkey y otra para confirmarla.',
@@ -1959,8 +1987,8 @@ const es: TranslationMap = {
   unlockResetConfirmLabel: 'Confirma el PIN o la frase de contraseña',
   unlockSecretsNoMatch: 'Las dos entradas no coinciden',
   unlockResetConfirmBtn: 'Confirmar con passkey',
-  unlockResetDone: 'Tu nuevo PIN o frase de contraseña está establecido.',
-  unlockNeedsUnlocked: 'La bóveda está bloqueada. Desbloquéala y vuelve a esta pestaña.',
+  unlockResetDone: 'Tu nuevo PIN o frase de contraseña está establecido',
+  unlockNeedsUnlocked: 'La bóveda está bloqueada. Desbloquéala para continuar.',
   unlockNoPasskey: 'No hay ninguna passkey configurada para desbloquear esta bóveda.',
   unlockErrVaultLocked:
     'La bóveda se bloqueó mientras la solicitud de passkey estaba abierta. Desbloquéala e inténtalo de nuevo.',
@@ -1998,9 +2026,10 @@ const es: TranslationMap = {
   optionsPasskeyAdded: 'Añadida el {date}',
   optionsPasskeyRename: 'Cambiar nombre',
   optionsPasskeyAdd: 'Añadir una passkey',
-  optionsPasskeyDamaged_one: '{count} entrada de passkey guardada está dañada y no se puede usar.',
+  optionsPasskeyDamaged_one:
+    '{count} entrada de passkey guardada está dañada y no puede desbloquear la bóveda. Se borrará la próxima vez que añadas, renombres o quites una passkey. Si falta alguna de tus passkeys en esta lista, añádela de nuevo.',
   optionsPasskeyDamaged_other:
-    '{count} entradas de passkey guardadas están dañadas y no se pueden usar.',
+    '{count} entradas de passkey guardadas están dañadas y no pueden desbloquear la bóveda. Se borrarán la próxima vez que añadas, renombres o quites una passkey. Si falta alguna de tus passkeys en esta lista, añádela de nuevo.',
   optionsPasskeyResetLink:
     '¿Olvidaste tu PIN o frase de contraseña? Establece uno nuevo con una passkey',
   optionsPasskeyRemoveConfirm: 'Quitar passkey',
@@ -2013,6 +2042,14 @@ const es: TranslationMap = {
     '¿Desactivar el bloqueo de la bóveda? Tu bóveda se guardará sin cifrar y la {count} passkey que la desbloquea dejará de funcionar. Sigue en tu proveedor de passkeys hasta que la elimines allí.',
   optionsRemoveConfirmWithPasskeys_other:
     '¿Desactivar el bloqueo de la bóveda? Tu bóveda se guardará sin cifrar y las {count} passkeys que la desbloquean dejarán de funcionar. Siguen en tu proveedor de passkeys hasta que las elimines allí.',
+  unlockCloseTab: 'Cerrar esta pestaña',
+  unlockEnrollDoneHeading: 'Passkey añadida',
+  unlockOpenSecuritySettings: 'Abrir los ajustes de seguridad',
+  popupVaultDamagedNoPasskey:
+    'Los datos de bloqueo de esta bóveda están dañados y no se puede abrir. Restaura una copia de seguridad.',
+  optionsRemoveNeedsCurrent:
+    'Introduce arriba tu PIN o frase de contraseña actual para desactivar el bloqueo de la bóveda.',
+  optionsRemoveConfirm: '¿Desactivar el bloqueo de la bóveda? Tu bóveda se guardará sin cifrar.',
 };
 
 const fr: TranslationMap = {
@@ -2168,17 +2205,15 @@ const fr: TranslationMap = {
   popupSetupPasskeyLater: 'Vous pourrez ensuite ajouter une passkey pour déverrouiller le coffre.',
   popupPasskeyOfferTitle: 'Déverrouillez avec une passkey',
   popupPasskeyOfferBody:
-    'Ouvrez votre coffre avec votre appareil, votre téléphone ou une clé de sécurité au lieu de saisir le code PIN ou la phrase secrète.',
+    'Utilisez votre appareil, votre téléphone ou une clé de sécurité au lieu de saisir.',
   popupPasskeyOfferSetup: 'Configurer',
   popupPasskeyOfferDismiss: 'Pas maintenant',
   unlockPageTitle: 'Passkey.bond — Déverrouillage par passkey',
   unlockHeading: 'Déverrouiller le coffre',
-  unlockHelp:
-    'Utilisez une passkey qui déverrouille ce coffre, ou votre code PIN ou phrase secrète.',
   unlockSecretLabel: 'Code PIN ou phrase secrète',
   unlockSecretRequired: 'Saisissez votre code PIN ou votre phrase secrète.',
   unlockWaiting: 'En attente de votre passkey…',
-  unlockUnlocked: 'Le coffre est déverrouillé. Vous pouvez fermer cet onglet.',
+  unlockUnlocked: 'Le coffre est déverrouillé',
   unlockEnrollHeading: 'Ajouter une passkey qui déverrouille le coffre',
   unlockEnrollHelp:
     'La passkey est conservée par votre fournisseur de passkeys, par exemple cet appareil, un téléphone ou une clé de sécurité. Elle n’est pas stockée dans Passkey.bond. Votre fournisseur demandera deux fois : pour créer la passkey, puis pour la confirmer.',
@@ -2205,8 +2240,8 @@ const fr: TranslationMap = {
   unlockResetConfirmLabel: 'Confirmez le code PIN ou la phrase secrète',
   unlockSecretsNoMatch: 'Les deux saisies ne correspondent pas',
   unlockResetConfirmBtn: 'Confirmer avec une passkey',
-  unlockResetDone: 'Votre nouveau code PIN ou votre nouvelle phrase secrète est défini.',
-  unlockNeedsUnlocked: 'Le coffre est verrouillé. Déverrouillez-le, puis revenez à cet onglet.',
+  unlockResetDone: 'Votre nouveau code PIN ou votre nouvelle phrase secrète est défini',
+  unlockNeedsUnlocked: 'Le coffre est verrouillé. Déverrouillez-le pour continuer.',
   unlockNoPasskey: 'Aucune passkey n’est configurée pour déverrouiller ce coffre.',
   unlockErrVaultLocked:
     'Le coffre s’est verrouillé pendant que la demande de passkey était ouverte. Déverrouillez-le et réessayez.',
@@ -2246,9 +2281,9 @@ const fr: TranslationMap = {
   optionsPasskeyRename: 'Renommer',
   optionsPasskeyAdd: 'Ajouter une passkey',
   optionsPasskeyDamaged_one:
-    '{count} entrée de passkey enregistrée est endommagée et inutilisable.',
+    '{count} entrée de passkey enregistrée est endommagée et ne peut pas déverrouiller le coffre. Elle sera effacée la prochaine fois que vous ajouterez, renommerez ou retirerez une passkey. Si l’une de vos passkeys manque dans cette liste, ajoutez-la de nouveau.',
   optionsPasskeyDamaged_other:
-    '{count} entrées de passkey enregistrées sont endommagées et inutilisables.',
+    '{count} entrées de passkey enregistrées sont endommagées et ne peuvent pas déverrouiller le coffre. Elles seront effacées la prochaine fois que vous ajouterez, renommerez ou retirerez une passkey. Si l’une de vos passkeys manque dans cette liste, ajoutez-la de nouveau.',
   optionsPasskeyResetLink:
     'Code PIN ou phrase secrète oublié ? Définissez-en un nouveau avec une passkey',
   optionsPasskeyRemoveConfirm: 'Retirer la passkey',
@@ -2261,6 +2296,15 @@ const fr: TranslationMap = {
     'Désactiver le verrouillage du coffre ? Votre coffre sera stocké sans chiffrement, et la {count} passkey qui le déverrouille cessera de fonctionner. Elle reste chez votre fournisseur de passkeys jusqu’à ce que vous l’y supprimiez.',
   optionsRemoveConfirmWithPasskeys_other:
     'Désactiver le verrouillage du coffre ? Votre coffre sera stocké sans chiffrement, et les {count} passkeys qui le déverrouillent cesseront de fonctionner. Elles restent chez votre fournisseur de passkeys jusqu’à ce que vous les y supprimiez.',
+  unlockCloseTab: 'Fermer cet onglet',
+  unlockEnrollDoneHeading: 'Passkey ajoutée',
+  unlockOpenSecuritySettings: 'Ouvrir les paramètres de sécurité',
+  popupVaultDamagedNoPasskey:
+    'Les données de verrouillage de ce coffre sont endommagées et il ne peut pas être ouvert. Restaurez une sauvegarde.',
+  optionsRemoveNeedsCurrent:
+    'Saisissez ci-dessus votre code PIN ou votre phrase secrète actuel pour désactiver le verrouillage du coffre.',
+  optionsRemoveConfirm:
+    'Désactiver le verrouillage du coffre ? Votre coffre sera stocké sans chiffrement.',
 };
 
 export const translations: Record<ResolvedLanguage, TranslationMap> = {

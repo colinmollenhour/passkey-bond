@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadDeveloperSettings();
   loadExtensionInfo();
   fillExportFormats();
+  openSectionFromHash();
 });
 
 // ==================== GENERAL ====================
@@ -110,7 +111,15 @@ async function setupThemeSettings(): Promise<void> {
 
 // ==================== NAVIGATION ====================
 
+/** Open the section named in the URL, as in options.html#security. */
+function openSectionFromHash(): void {
+  const section = window.location.hash.replace(/^#/, '');
+  if (!/^[a-z-]+$/.test(section)) return;
+  document.querySelector<HTMLElement>(`.nav-item[data-section="${section}"]`)?.click();
+}
+
 function setupNavigation(): void {
+  window.addEventListener('hashchange', openSectionFromHash);
   const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach((item) => {
     item.addEventListener('click', () => {
@@ -464,8 +473,15 @@ async function refreshSecurityStatus(): Promise<void> {
 
   // With a passkey enrolled, a change of PIN or passphrase replaces only its
   // own wrapped copy of the vault's key, and the form says so.
-  const passkeyUnlock = response.passkeyUnlock as { count?: number } | undefined;
-  document.getElementById('change-pw-keeps-key-note')!.hidden = !((passkeyUnlock?.count ?? 0) > 0);
+  const passkeyUnlock = response.passkeyUnlock as
+    | { supported?: boolean; count?: number }
+    | undefined;
+  const enrolled = passkeyUnlock?.supported === true ? (passkeyUnlock.count ?? 0) : 0;
+  document.getElementById('change-pw-keeps-key-note')!.hidden = enrolled === 0;
+  // A forgotten PIN or passphrase can be replaced with one of those
+  // passkeys; the link sits where it would be typed. The page it opens
+  // unlocks the vault first if it has to.
+  document.getElementById('passkey-unlock-reset-link')!.hidden = enrolled === 0;
 
   if (response.isSetup === false) {
     statusEl.textContent = t('optionsNotSet');
@@ -548,7 +564,9 @@ async function refreshPasskeyUnlock(): Promise<void> {
   } catch {
     methods = {};
   }
-  if (!methods?.success || methods.supported !== true) {
+  // Hidden where the browser cannot do this, and while no lock is set: the
+  // card above already says to set one.
+  if (!methods?.success || methods.supported !== true || methods.isSetup !== true) {
     card.hidden = true;
     passkeyUnlockDrawn = '';
     return;
@@ -569,18 +587,15 @@ async function refreshPasskeyUnlock(): Promise<void> {
   // the card says that instead of offering a passkey that would be refused.
   const backupRequired = unlocked && methods.backupRequired === true;
 
-  const hintText =
-    methods.isSetup !== true
-      ? t('optionsPasskeySetSecretFirst')
-      : !unlocked
-        ? t('optionsPasskeyLockedHint')
-        : backupRequired
-          ? t('unlockErrBackupRequired')
-          : atLimit
-            ? t('unlockErrPasskeyLimit', { max })
-            : passkeys.length === 0
-              ? t('optionsPasskeyNone')
-              : '';
+  const hintText = !unlocked
+    ? t('optionsPasskeyLockedHint')
+    : backupRequired
+      ? t('unlockErrBackupRequired')
+      : atLimit
+        ? t('unlockErrPasskeyLimit', { max })
+        : passkeys.length === 0
+          ? t('optionsPasskeyNone')
+          : '';
   hint.textContent = hintText;
   hint.hidden = hintText === '';
 
@@ -600,11 +615,12 @@ async function refreshPasskeyUnlock(): Promise<void> {
 
   damaged.textContent = damagedCount > 0 ? formatCount('optionsPasskeyDamaged', damagedCount) : '';
   damaged.hidden = damagedCount === 0;
-  document.getElementById('passkey-unlock-disclosure')!.hidden = !unlocked;
+  // Only once a passkey is listed: before that, the PIN card's own advice
+  // about short PINs is all there is to say.
+  document.getElementById('passkey-unlock-disclosure')!.hidden = passkeys.length === 0;
   addBtn.hidden = !unlocked || atLimit || backupRequired;
-  openBtn.hidden = methods.isSetup !== true || unlocked;
+  openBtn.hidden = unlocked;
   document.getElementById('passkey-unlock-actions')!.hidden = addBtn.hidden && openBtn.hidden;
-  document.getElementById('passkey-unlock-reset-link')!.hidden = passkeys.length === 0;
   card.hidden = false;
 }
 

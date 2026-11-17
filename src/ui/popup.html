@@ -236,18 +236,34 @@
         <div class="passkey-offer-text">
           <strong data-i18n="popupPasskeyOfferTitle">Unlock with a passkey</strong>
           <span data-i18n="popupPasskeyOfferBody">
-            Open your vault with your device, phone or security key instead of typing your PIN or
-            passphrase.
+            Use your device, phone or security key instead of typing.
           </span>
         </div>
-        <div class="passkey-offer-actions">
-          <button type="button" id="passkey-offer-setup-btn" class="btn btn-primary btn-sm">
-            <span data-i18n="popupPasskeyOfferSetup">Set up</span>
-          </button>
-          <button type="button" id="passkey-offer-dismiss-btn" class="btn btn-ghost btn-sm">
-            <span data-i18n="popupPasskeyOfferDismiss">Not now</span>
-          </button>
-        </div>
+        <button type="button" id="passkey-offer-setup-btn" class="btn btn-secondary btn-sm">
+          <span data-i18n="popupPasskeyOfferSetup">Set up</span>
+        </button>
+        <button
+          type="button"
+          id="passkey-offer-dismiss-btn"
+          class="passkey-offer-dismiss"
+          title="Not now"
+          data-i18n-title="popupPasskeyOfferDismiss"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
 
       <div class="search-container">

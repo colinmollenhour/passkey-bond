@@ -202,7 +202,8 @@ import { checkBackupPassword } from '../crypto/backup-format';
     useSecretBtn.hidden = !hasPasskey;
     useSecretBtn.setAttribute('aria-expanded', String(!hasPasskey));
     secretForm.hidden = hasPasskey;
-    helpEl.textContent = hasPasskey ? t('unlockHelp') : t('popupUnlockHelp');
+    // The two buttons say what they do; the line is for the field alone.
+    helpEl.hidden = hasPasskey;
     unlockBtn.classList.toggle('btn-primary', !hasPasskey);
     unlockBtn.classList.toggle('btn-secondary', hasPasskey);
     passkeyBtn.onclick = () => openUnlockPage('unlock');
@@ -241,7 +242,10 @@ import { checkBackupPassword } from '../crypto/backup-format';
           response.code === 'UNSUPPORTED_KDF'
             ? t('popupVaultNeedsUpdate')
             : response.code === 'VAULT_DAMAGED'
-              ? t('popupVaultDamaged')
+              ? // With no passkey on offer there is no other method to suggest.
+                hasPasskey
+                ? t('popupVaultDamaged')
+                : t('popupVaultDamagedNoPasskey')
               : response.code === 'VAULT_WRITE_UNVERIFIED'
                 ? t('popupVaultWriteUnverified')
                 : t('popupWrongPassword');
@@ -404,6 +408,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
     } catch (error) {
       console.error('Failed to persist vault warning dismissal:', error);
     }
+    void initPasskeyOffer(); // it waited for this banner to go
   }
 
   /**
@@ -418,7 +423,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
     try {
       const [state, dismissed, backup] = await Promise.all([
         chrome.runtime.sendMessage({ type: 'IS_SECURE_STORAGE_UNLOCKED' }),
-        chrome.storage.local.get(PASSKEY_OFFER_DISMISSED_KEY),
+        chrome.storage.local.get([PASSKEY_OFFER_DISMISSED_KEY, VAULT_WARNING_DISMISSED_KEY]),
         chrome.runtime.sendMessage({ type: 'GET_UPGRADE_BACKUP_STATUS' }),
       ]);
       const passkeyUnlock: PasskeyUnlockState | undefined = state?.passkeyUnlock;
@@ -431,6 +436,9 @@ import { checkBackupPassword } from '../crypto/backup-format';
         // Enrolling is refused until an upgraded vault is backed up, which
         // the notice above asks for.
         backup?.required !== true &&
+        // One banner at a time: the backup warning comes first, and two
+        // would push the list out of the popup.
+        dismissed[VAULT_WARNING_DISMISSED_KEY] === true &&
         dismissed[PASSKEY_OFFER_DISMISSED_KEY] !== true
       );
     } catch {
@@ -438,15 +446,16 @@ import { checkBackupPassword } from '../crypto/backup-format';
     }
     (document.getElementById('passkey-offer-setup-btn') as HTMLButtonElement).onclick = () =>
       openUnlockPage('enroll');
-    (document.getElementById('passkey-offer-dismiss-btn') as HTMLButtonElement).onclick =
-      async () => {
-        offerEl.hidden = true;
-        try {
-          await chrome.storage.local.set({ [PASSKEY_OFFER_DISMISSED_KEY]: true });
-        } catch (error) {
-          console.error('Failed to persist passkey offer dismissal:', error);
-        }
-      };
+    const dismissBtn = document.getElementById('passkey-offer-dismiss-btn') as HTMLButtonElement;
+    dismissBtn.setAttribute('aria-label', t('popupPasskeyOfferDismiss'));
+    dismissBtn.onclick = async () => {
+      offerEl.hidden = true;
+      try {
+        await chrome.storage.local.set({ [PASSKEY_OFFER_DISMISSED_KEY]: true });
+      } catch (error) {
+        console.error('Failed to persist passkey offer dismissal:', error);
+      }
+    };
   }
 
   async function loadSyncStatus(): Promise<void> {

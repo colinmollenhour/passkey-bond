@@ -65,10 +65,15 @@ interface PendingEnrollment {
 
 /** A failure whose message is already the text to show. */
 class Shown extends Error {}
+/** The typed PIN or passphrase was not the vault's: shown under its field. */
+class WrongSecret extends Shown {}
 
 const CEREMONY_LOCK = 'passkey-bond-unlock-ceremony';
 /** A PIN shorter than this gets the stronger warning at enrollment. */
 const STRONG_PIN_DIGITS = 10;
+/** The shackle of the lock icon at the top of the page, closed and open. */
+const SHACKLE_CLOSED = 'M7 11V7a5 5 0 0 1 10 0v4';
+const SHACKLE_OPEN = 'M7 11V7a5 5 0 0 1 9.9-1';
 const VIEWS: View[] = ['unlock-view', 'enroll-view', 'reset-view', 'unavailable-view'];
 
 function modeFromHash(): Mode {
@@ -85,6 +90,8 @@ let fallbackOpen = false;
 let pending: PendingEnrollment | null = null;
 let enrolledName: string | null = null;
 let resetDone = false;
+/** What the button on the unavailable view does. */
+let unavailableWay: 'close' | 'settings' = 'close';
 
 function el<T extends HTMLElement = HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
@@ -94,6 +101,16 @@ function setText(id: string, text: string): void {
   const node = el(id);
   node.textContent = text;
   node.hidden = text === '';
+}
+
+/**
+ * Show an error directly under the field or button it is about. Each view
+ * has one error element, which is moved to that control.
+ */
+function showError(id: string, text: string, underId: string): void {
+  const node = el(id);
+  el(underId).after(node);
+  setText(id, text);
 }
 
 function clearMessages(): void {
@@ -226,12 +243,28 @@ function dropPending(): void {
 
 // ---------- Rendering ----------
 
-function show(view: View): void {
+function show(view: View, lockOpen = false): void {
   for (const id of VIEWS) el(id).hidden = id !== view;
+  document
+    .getElementById('lock-shackle')
+    ?.setAttribute('d', lockOpen ? SHACKLE_OPEN : SHACKLE_CLOSED);
 }
 
-function showUnavailable(text: string): void {
+function modeHeading(): string {
+  if (mode === 'enroll') return t('unlockEnrollHeading');
+  return mode === 'reset-secret' ? t('unlockResetHeading') : t('unlockHeading');
+}
+
+/**
+ * Say why the page cannot do what it was opened for, under that heading,
+ * with the one thing left to do: close the tab, or go and set a lock.
+ */
+function showUnavailable(text: string, way: 'close' | 'settings' = 'close'): void {
+  unavailableWay = way;
+  el('unavailable-title').textContent = modeHeading();
   el('unavailable-text').textContent = text;
+  el('unavailable-action-btn').textContent =
+    way === 'settings' ? t('unlockOpenSecuritySettings') : t('unlockCloseTab');
   show('unavailable-view');
 }
 
@@ -246,34 +279,50 @@ function render(): void {
     return;
   }
   if (!methods.isSetup) {
-    showUnavailable(t('optionsPasskeySetSecretFirst'));
+    showUnavailable(t('optionsPasskeySetSecretFirst'), 'settings');
     return;
   }
   const canUsePasskeys = methods.supported && pageSupportsPasskeys();
+  const hasPasskey = canUsePasskeys && methods.passkeys.length > 0;
 
   if (mode === 'unlock') {
-    renderUnlock(canUsePasskeys && methods.passkeys.length > 0);
+    renderUnlock(hasPasskey, false);
     return;
   }
 
-  // A finished enrollment or reset keeps its result on screen.
-  if (mode === 'enroll' && enrolledName !== null) {
+  // A finished enrollment or reset keeps its result on screen, under a
+  // heading that says so and without the instructions for getting there.
+  const enrolled = mode === 'enroll' && enrolledName !== null;
+  el('enroll-title').textContent = enrolled
+    ? t('unlockEnrollDoneHeading')
+    : t('unlockEnrollHeading');
+  el('enroll-help').hidden = enrolled;
+  el('enroll-done').hidden = !enrolled;
+  if (enrolled) {
     el('enroll-form').hidden = true;
-    el('enroll-done').hidden = false;
     el('enroll-done-text').textContent = t('unlockEnrollDone', { name: enrolledName });
     show('enroll-view');
     return;
   }
-  if (mode === 'reset-secret' && resetDone) {
+  const wasReset = mode === 'reset-secret' && resetDone;
+  el('reset-title').textContent = wasReset ? t('unlockResetDone') : t('unlockResetHeading');
+  el('reset-help').hidden = wasReset;
+  el('reset-done').hidden = !wasReset;
+  if (wasReset) {
     el('reset-form').hidden = true;
     show('reset-view');
     return;
   }
 
+  // An action that began on another view keeps that view while it runs,
+  // even if the vault locks under it; its commit reports the lock.
+  const onUnlockView = !el('unlock-view').hidden;
   if (!canUsePasskeys) {
     showUnavailable(t('unlockErrUnsupported'));
-  } else if (!methods.isUnlocked && !busy) {
-    showUnavailable(t('unlockNeedsUnlocked'));
+  } else if (!methods.isUnlocked && (!busy || onUnlockView)) {
+    // Locked: unlock right here, then carry on with what the page was
+    // opened for.
+    renderUnlock(hasPasskey, true);
   } else if (methods.backupRequired && !pending && !busy) {
     // Said before any form is filled in: the background would refuse the
     // change after the passkey prompt.
@@ -289,14 +338,26 @@ function render(): void {
   }
 }
 
-function renderUnlock(hasPasskey: boolean): void {
+/**
+ * The lock screen. `asStep` is when another mode needs the vault unlocked
+ * first: the same controls, with a line saying why they are here.
+ */
+function renderUnlock(hasPasskey: boolean, asStep: boolean): void {
   const unlocked = methods?.isUnlocked === true;
   // Without a passkey the PIN or passphrase form is the whole screen.
   const formOpen = !unlocked && (fallbackOpen || !hasPasskey);
   const toggle = el<HTMLButtonElement>('fallback-toggle');
+  const secretBtn = el<HTMLButtonElement>('fallback-unlock-btn');
 
-  el('unlock-help').textContent = hasPasskey ? t('unlockHelp') : t('popupUnlockHelp');
-  el('unlock-help').hidden = unlocked;
+  el('unlock-title').textContent = unlocked ? t('unlockUnlocked') : t('unlockHeading');
+  // The two buttons say what they do; a line above them is only for what
+  // they do not say.
+  el('unlock-help').textContent = asStep ? t('unlockNeedsUnlocked') : t('popupUnlockHelp');
+  el('unlock-help').hidden = unlocked || (hasPasskey && !asStep);
+  el('unlock-close-btn').hidden = !unlocked;
+  // The only action is the main one.
+  secretBtn.classList.toggle('btn-primary', !hasPasskey);
+  secretBtn.classList.toggle('btn-secondary', hasPasskey);
   el('passkey-unlock-btn').hidden = unlocked || !hasPasskey;
   toggle.hidden = unlocked || !hasPasskey || fallbackOpen;
   toggle.setAttribute('aria-expanded', String(formOpen));
@@ -306,11 +367,9 @@ function renderUnlock(hasPasskey: boolean): void {
   setFormDisabled('fallback-form', busy);
   if (unlocked) {
     setText('unlock-error', '');
-    setText('unlock-status', t('unlockUnlocked'));
-  } else if (!busy && el('unlock-status').textContent === t('unlockUnlocked')) {
-    setText('unlock-status', ''); // locked again since
+    setText('unlock-status', '');
   }
-  show('unlock-view');
+  show('unlock-view', unlocked);
 }
 
 function renderEnroll(): void {
@@ -329,10 +388,10 @@ function renderEnroll(): void {
     nameInput.value = t('unlockDefaultName', { n: methods.passkeys.length + 1 });
   }
   el('enroll-form').hidden = false;
-  el('enroll-done').hidden = true;
   // Once the passkey exists at the provider, the only step left is confirming
   // it: the secret is already checked and held, so its field goes away.
   el('enroll-secret-group').hidden = !!pending;
+  showShortPinWarning();
   el<HTMLInputElement>('enroll-secret').disabled = busy || !!pending;
   nameInput.disabled = busy || !!pending;
   el('enroll-create-btn').hidden = !!pending;
@@ -374,8 +433,9 @@ async function enterMode(next: Mode): Promise<void> {
   for (const id of ['reset-secret-new', 'reset-secret-confirm']) {
     el<HTMLInputElement>(id).value = '';
   }
-  el('enroll-short-pin-warning').hidden = true;
   await refresh();
+  // Tells a test, or anything else watching, that this mode is on screen.
+  if (mode === next) document.body.dataset.mode = next;
   focusFirstAction();
 }
 
@@ -392,8 +452,15 @@ async function closeThisTab(): Promise<void> {
 
 async function afterUnlock(): Promise<void> {
   el<HTMLInputElement>('fallback-secret').value = '';
+  fallbackOpen = false;
   await refresh();
-  if (loadedMode === 'unlock' && methods?.isUnlocked) await closeThisTab();
+  if (!methods?.isUnlocked) return;
+  if (mode === 'unlock' && loadedMode === 'unlock') {
+    await closeThisTab();
+  } else {
+    // Unlocked as a step towards something else, which is now on screen.
+    focusFirstAction();
+  }
 }
 
 function unlockWithPasskey(): Promise<void> {
@@ -422,7 +489,7 @@ function unlockWithPasskey(): Promise<void> {
       await afterUnlock();
     } catch (error) {
       setText('unlock-status', '');
-      setText('unlock-error', failureMessage(error, false));
+      showError('unlock-error', failureMessage(error, false), 'passkey-unlock-btn');
     }
   });
 }
@@ -433,7 +500,7 @@ function unlockWithSecret(): Promise<void> {
     const password = input.value;
     clearMessages();
     if (!password) {
-      setText('unlock-error', t('unlockSecretRequired'));
+      showError('unlock-error', t('unlockSecretRequired'), 'fallback-secret');
       return;
     }
     setText('unlock-status', t('popupUnlocking'));
@@ -444,13 +511,18 @@ function unlockWithSecret(): Promise<void> {
       return;
     }
     input.value = '';
-    setText(
+    // With no passkey on offer there is no other unlock method to suggest.
+    const noPasskey = el('passkey-unlock-btn').hidden;
+    showError(
       'unlock-error',
-      response.code === 'UNSUPPORTED_KDF' ||
-        response.code === 'VAULT_DAMAGED' ||
-        response.code === 'VAULT_WRITE_UNVERIFIED'
-        ? codeMessage(response.code)
-        : t('popupWrongPassword')
+      response.code === 'VAULT_DAMAGED' && noPasskey
+        ? t('popupVaultDamagedNoPasskey')
+        : response.code === 'UNSUPPORTED_KDF' ||
+            response.code === 'VAULT_DAMAGED' ||
+            response.code === 'VAULT_WRITE_UNVERIFIED'
+          ? codeMessage(response.code)
+          : t('popupWrongPassword'),
+      'fallback-secret'
     );
   }).then(() => {
     if (!el('fallback-form').hidden) el('fallback-secret').focus();
@@ -466,11 +538,11 @@ function createPasskey(): Promise<void> {
     const name = el<HTMLInputElement>('enroll-name').value.trim();
     clearMessages();
     if (!secret) {
-      setText('enroll-error', t('unlockSecretRequired'));
+      showError('enroll-error', t('unlockSecretRequired'), 'enroll-secret');
       return;
     }
     if (!name) {
-      setText('enroll-error', t('unlockEnrollNameRequired'));
+      showError('enroll-error', t('unlockEnrollNameRequired'), 'enroll-name');
       return;
     }
     setText('enroll-status', t('unlockEnrollVerifying'));
@@ -491,7 +563,7 @@ function createPasskey(): Promise<void> {
         // the provider that the vault never learns about.
         const verified = await send('VERIFY_MASTER_PASSWORD', { password: secret });
         if (!verified.success) throw new Shown(codeMessage(verified.code));
-        if (verified.valid !== true) throw new Shown(t('popupWrongPassword'));
+        if (verified.valid !== true) throw new WrongSecret(t('popupWrongPassword'));
 
         setText('enroll-status', t('unlockWaiting'));
         const created = await createUnlockPasskey(navigator.credentials, {
@@ -504,7 +576,11 @@ function createPasskey(): Promise<void> {
       setText('enroll-status', t('unlockEnrollCreated'));
     } catch (error) {
       setText('enroll-status', '');
-      setText('enroll-error', failureMessage(error, true));
+      showError(
+        'enroll-error',
+        failureMessage(error, true),
+        error instanceof WrongSecret ? 'enroll-secret' : 'enroll-create-btn'
+      );
     }
   }).then(() => {
     if (pending) el('enroll-confirm-btn').focus();
@@ -539,27 +615,37 @@ function confirmPasskey(): Promise<void> {
       });
       dropPending();
       el<HTMLInputElement>('enroll-name').value = '';
-      el('enroll-short-pin-warning').hidden = true;
       setText('enroll-status', '');
       methods = (await loadMethods()) ?? methods;
     } catch (error) {
       setText('enroll-status', '');
-      setText('enroll-error', failureMessage(error, true));
       // A dismissed prompt can be answered again. Anything else ends this
       // enrollment: nothing was stored, and the passkey just created may
       // remain at the provider.
       const retry = error instanceof UnlockCeremonyError && error.reason === 'cancelled';
       if (!retry) dropPending();
+      showError(
+        'enroll-error',
+        failureMessage(error, true),
+        retry ? 'enroll-confirm-btn' : 'enroll-create-btn'
+      );
     }
   }).then(() => {
-    if (enrolledName !== null) el('enroll-again-btn').focus();
+    if (enrolledName !== null) el('enroll-close-btn').focus();
     else if (pending) el('enroll-confirm-btn').focus();
   });
 }
 
+/**
+ * A short PIN typed for enrollment gets the stronger warning in place of the
+ * general note, so the screen says it once. Neither applies once the secret
+ * is checked and its field is gone.
+ */
 function showShortPinWarning(): void {
   const secret = el<HTMLInputElement>('enroll-secret').value;
-  el('enroll-short-pin-warning').hidden = !(isPin(secret) && secret.length < STRONG_PIN_DIGITS);
+  const short = !pending && isPin(secret) && secret.length < STRONG_PIN_DIGITS;
+  el('enroll-short-pin-warning').hidden = !short;
+  el('enroll-disclosure').hidden = short;
 }
 
 // ---------- New PIN or passphrase, authorized by a passkey ----------
@@ -570,14 +656,15 @@ function resetSecret(): Promise<void> {
     clearMessages();
     const problem = checkVaultSecret(next);
     if (problem) {
-      setText(
+      showError(
         'reset-error',
-        problem === 'too-long' ? t('vaultSecretTooLong') : t('popupPasswordMin')
+        problem === 'too-long' ? t('vaultSecretTooLong') : t('popupPasswordMin'),
+        'reset-secret-new'
       );
       return;
     }
     if (next !== el<HTMLInputElement>('reset-secret-confirm').value) {
-      setText('reset-error', t('unlockSecretsNoMatch'));
+      showError('reset-error', t('unlockSecretsNoMatch'), 'reset-secret-confirm');
       return;
     }
     setText('reset-status', t('unlockWaiting'));
@@ -608,11 +695,13 @@ function resetSecret(): Promise<void> {
       el<HTMLInputElement>('reset-secret-new').value = '';
       el<HTMLInputElement>('reset-secret-confirm').value = '';
       resetDone = true;
-      setText('reset-status', t('unlockResetDone'));
+      setText('reset-status', '');
     } catch (error) {
       setText('reset-status', '');
-      setText('reset-error', failureMessage(error, false));
+      showError('reset-error', failureMessage(error, false), 'reset-confirm-btn');
     }
+  }).then(() => {
+    if (resetDone) el('reset-close-btn').focus();
   });
 }
 
@@ -639,6 +728,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   el('enroll-confirm-btn').addEventListener('click', () => void confirmPasskey());
   el('enroll-again-btn').addEventListener('click', () => void enterMode('enroll'));
   el('enroll-secret').addEventListener('input', showShortPinWarning);
+  for (const id of ['unlock-close-btn', 'enroll-close-btn', 'reset-close-btn']) {
+    el(id).addEventListener('click', () => void closeThisTab());
+  }
+  el('unavailable-action-btn').addEventListener('click', () => {
+    if (unavailableWay === 'settings') {
+      void chrome.tabs.create({ url: chrome.runtime.getURL('options.html#security') });
+    } else {
+      void closeThisTab();
+    }
+  });
+  el('fallback-secret').setAttribute('aria-label', t('unlockSecretLabel'));
 
   el('reset-form').addEventListener('submit', (event) => {
     event.preventDefault();
