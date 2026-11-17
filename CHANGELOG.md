@@ -12,10 +12,10 @@ entries use the old names. The format follows
 
 ### Passkey.bond: a fork of Fenko Vault
 
-Passkey.bond is an independent fork of Fenko Vault, started because work on
-Fenko Vault had slowed. Fenko Vault carries on as its own project. The fork
-has its own name, icon and identifiers, is maintained by Colin Mollenhour, and
-installs next to Fenko Vault rather than over it:
+Passkey.bond is an independent fork of Fenko Vault. Fenko Vault carries on as
+its own project. The fork has its own name, icon and identifiers, is
+maintained by Colin Mollenhour, and installs next to Fenko Vault rather than
+over it:
 
 - **New IDs.** The development-build extension ID is now
   `odoehegfpkpmhicjkpdajlpdhcaghkhi`, the Firefox add-on ID is
