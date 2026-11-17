@@ -219,7 +219,10 @@ test('sets up a new vault with a passphrase from the popup', async () => {
   await worker.evaluate(() => chrome.storage.local.remove('master_password_setup_skipped'));
   const popup = await openPage('popup.html');
   await popup.locator('#setup-screen').waitFor({ state: 'visible' });
-  assert.match(await popup.locator('#setup-screen .auth-note').textContent(), /passphrase/);
+  assert.match(
+    await popup.locator('#setup-screen [data-i18n="vaultSecretHint"]').textContent(),
+    /passphrase/
+  );
 
   // Too short a passphrase is refused before it reaches the background.
   await popup.fill('#setup-password', 'abc123');

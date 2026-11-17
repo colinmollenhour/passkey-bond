@@ -141,15 +141,17 @@ async function lockVault() {
   assert.equal((await vaultState()).isUnlocked, false);
 }
 
-async function waitUntilUnlocked() {
-  await ceremony.waitForFunction(
-    async () =>
-      (await chrome.runtime.sendMessage({ type: 'IS_SECURE_STORAGE_UNLOCKED' })).isUnlocked ===
-      true,
-    null,
-    { polling: 200 }
-  );
+/** Poll from here until `check` holds: waitForFunction does not await an async predicate. */
+async function eventually(check, what) {
+  const deadline = Date.now() + 20000;
+  while (!(await check())) {
+    assert.ok(Date.now() < deadline, `timed out waiting until ${what}`);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
 }
+
+const waitUntilUnlocked = () =>
+  eventually(async () => (await vaultState()).isUnlocked === true, 'the vault is unlocked');
 
 /** The popup, in a tab, once it shows the seeded record: proof the vault decrypts. */
 async function popupListsTheRecord() {
@@ -382,23 +384,24 @@ test('the locked popup leads with the passkey, and the passkey opens the vault',
 
 test('a vault unlocked with a passkey stays unlocked when the service worker restarts', async () => {
   const session = await context.browser().newBrowserCDPSession();
-  const workerTarget = async () =>
-    (await session.send('Target.getTargets')).targetInfos.find(
+  const workerTargets = async () =>
+    (await session.send('Target.getTargets')).targetInfos.filter(
       (target) =>
         target.type === 'service_worker' &&
         target.url.startsWith(`chrome-extension://${extensionId}/`)
     );
-  const old = await workerTarget();
-  assert.ok(old, 'the service worker is running');
-  await session.send('Target.closeTarget', { targetId: old.targetId });
+  const [running] = await workerTargets();
+  assert.ok(running, 'the service worker is running');
+  await session.send('Target.closeTarget', { targetId: running.targetId });
+  // Chromium gives the next worker the same target ID, so the restart shows as
+  // the target going away and, once a message needs it, coming back.
+  await eventually(async () => (await workerTargets()).length === 0, 'the worker has stopped');
 
-  // The next message starts a new worker, which has only the session copy of the key.
+  // The new worker has nothing in memory: only the session copy of the key.
   const state = await vaultState();
   assert.equal(state.isSetup, true);
   assert.equal(state.isUnlocked, true);
-  const fresh = await workerTarget();
-  assert.ok(fresh, 'a new service worker answered');
-  assert.notEqual(fresh.targetId, old.targetId);
+  assert.equal((await workerTargets()).length, 1, 'a new service worker answered');
   await session.detach();
   await (await popupListsTheRecord()).close();
 });
