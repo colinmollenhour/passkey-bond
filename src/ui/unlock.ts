@@ -45,6 +45,8 @@ interface UnlockMethods {
   passkeys: UnlockPasskeyInfo[];
   damagedPasskeys: number;
   max: number;
+  /** An upgraded vault that takes no change to its lock until backed up. */
+  backupRequired: boolean;
 }
 
 interface BackgroundResponse {
@@ -122,6 +124,7 @@ async function loadMethods(): Promise<UnlockMethods | null> {
     passkeys: Array.isArray(response.passkeys) ? (response.passkeys as UnlockPasskeyInfo[]) : [],
     damagedPasskeys: Number(response.damagedPasskeys) || 0,
     max: Number(response.max) || 0,
+    backupRequired: response.backupRequired === true,
   };
 }
 
@@ -142,6 +145,10 @@ function codeMessage(code: unknown): string {
       return t('popupVaultNeedsUpdate');
     case 'VAULT_DAMAGED':
       return t('popupVaultDamaged');
+    case 'VAULT_WRITE_UNVERIFIED':
+      return t('popupVaultWriteUnverified');
+    case 'UPGRADE_BACKUP_REQUIRED':
+      return t('unlockErrBackupRequired');
     case 'WRONG_SECRET':
       return t('popupWrongPassword');
     case 'UNLOCK_PASSKEY_UNKNOWN':
@@ -267,6 +274,10 @@ function render(): void {
     showUnavailable(t('unlockErrUnsupported'));
   } else if (!methods.isUnlocked && !busy) {
     showUnavailable(t('unlockNeedsUnlocked'));
+  } else if (methods.backupRequired && !pending && !busy) {
+    // Said before any form is filled in: the background would refuse the
+    // change after the passkey prompt.
+    showUnavailable(t('unlockErrBackupRequired'));
   } else if (mode === 'enroll') {
     renderEnroll();
   } else if (methods.passkeys.length === 0) {
@@ -435,7 +446,9 @@ function unlockWithSecret(): Promise<void> {
     input.value = '';
     setText(
       'unlock-error',
-      response.code === 'UNSUPPORTED_KDF' || response.code === 'VAULT_DAMAGED'
+      response.code === 'UNSUPPORTED_KDF' ||
+        response.code === 'VAULT_DAMAGED' ||
+        response.code === 'VAULT_WRITE_UNVERIFIED'
         ? codeMessage(response.code)
         : t('popupWrongPassword')
     );
@@ -466,7 +479,11 @@ function createPasskey(): Promise<void> {
         const fresh = await loadMethods();
         if (!fresh) throw new Shown(t('unlockErrGeneric'));
         methods = fresh;
-        if (!fresh.isUnlocked) throw new Shown(codeMessage('VAULT_LOCKED'));
+        // Found before any prompt opened, unlike a refusal from the background.
+        if (!fresh.isUnlocked) throw new Shown(t('unlockNeedsUnlocked'));
+        // A passkey created now would be refused when it is stored, and
+        // would stay behind at the provider.
+        if (fresh.backupRequired) throw new Shown(codeMessage('UPGRADE_BACKUP_REQUIRED'));
         if (fresh.format === 'legacy') throw new Shown(codeMessage('VAULT_FORMAT_PENDING'));
         if (!fresh.vaultId) throw new Shown(codeMessage('VAULT_DAMAGED'));
 
@@ -569,7 +586,9 @@ function resetSecret(): Promise<void> {
         const fresh = await loadMethods();
         if (!fresh) throw new Shown(t('unlockErrGeneric'));
         methods = fresh;
-        if (!fresh.isUnlocked) throw new Shown(codeMessage('VAULT_LOCKED'));
+        // Found before any prompt opened, unlike a refusal from the background.
+        if (!fresh.isUnlocked) throw new Shown(t('unlockNeedsUnlocked'));
+        if (fresh.backupRequired) throw new Shown(codeMessage('UPGRADE_BACKUP_REQUIRED'));
         if (fresh.passkeys.length === 0) throw new Shown(t('unlockNoPasskey'));
 
         const { credentialId, prfOutput } = await readUnlockPrf(

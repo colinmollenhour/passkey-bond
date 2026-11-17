@@ -32,6 +32,16 @@ jest.mock('../src/sync/sync-service', () => ({
   },
 }));
 
+/** Set to make every stored KDF record count as weaker than the default. */
+const mockKdf = { weak: false };
+jest.mock('../src/crypto/kdf', () => {
+  const actual = jest.requireActual('../src/crypto/kdf');
+  return {
+    ...actual,
+    isWeakerThanDefault: (spec: unknown) => mockKdf.weak || actual.isWeakerThanDefault(spec),
+  };
+});
+
 const PIN = '482916';
 const NEW_PIN = '975310';
 
@@ -190,6 +200,7 @@ async function enrolledVault() {
 let storage: StorageData;
 
 beforeEach(() => {
+  mockKdf.weak = false;
   storage = useFakeStorage();
 });
 
@@ -261,6 +272,7 @@ describe('enrolling an unlock passkey', () => {
       ],
       damagedPasskeys: 0,
       max: 8,
+      backupRequired: false,
     });
     expect(JSON.stringify(methods)).not.toContain('wrapped');
     expect(await send({ type: 'IS_SECURE_STORAGE_UNLOCKED' })).toMatchObject({
@@ -672,6 +684,143 @@ describe('several unlock passkeys', () => {
       code: 'VAULT_LOCKED',
     });
     expect(vaultState()).toEqual(before);
+  });
+});
+
+describe('a vault whose PIN wrapper cannot be read, unlocked with a passkey', () => {
+  async function damagedPinVault() {
+    const vault = await enrolledVault();
+    await lock(vault.send);
+    record().pin.wrapped.data = 'AAAA';
+    expect((await unlockWith(vault.send, vault.unlockPasskey)).success).toBe(true);
+    return vault;
+  }
+
+  // Options shows these as damage, next to the link that sets a new PIN.
+  it('answers a rename and a removal with the damage code, changing nothing', async () => {
+    const { send, unlockPasskey } = await damagedPinVault();
+    const before = vaultState();
+
+    const renamed = await send({
+      type: 'RENAME_UNLOCK_PASSKEY',
+      payload: { credentialId: unlockPasskey.credentialId, name: 'Desk' },
+    });
+    const removed = await send({
+      type: 'REMOVE_UNLOCK_PASSKEY',
+      payload: { password: PIN, credentialId: unlockPasskey.credentialId },
+    });
+
+    expect(renamed).toMatchObject({ success: false, code: 'VAULT_DAMAGED' });
+    expect(removed).toMatchObject({ success: false, code: 'VAULT_DAMAGED' });
+    expect(vaultState()).toEqual(before);
+  });
+});
+
+describe('an upgraded vault that still owes its backup', () => {
+  const BACKUP_FLAG = 'upgrade_backup_required_0_9_5';
+  const REFUSED = { success: false, code: 'UPGRADE_BACKUP_REQUIRED' };
+
+  it('refuses every change to how it unlocks with a code, and says so beforehand', async () => {
+    const { send, unlockPasskey } = await enrolledVault();
+    storage[BACKUP_FLAG] = true;
+    const before = vaultState();
+
+    // What a page asks before it opens a passkey prompt.
+    expect((await send({ type: 'GET_UNLOCK_METHODS' })).backupRequired).toBe(true);
+
+    expect(await enroll(send, newPasskey())).toMatchObject(REFUSED);
+    expect(
+      await send({
+        type: 'REMOVE_UNLOCK_PASSKEY',
+        payload: { password: PIN, credentialId: unlockPasskey.credentialId },
+      })
+    ).toMatchObject(REFUSED);
+    expect(
+      await send({
+        type: 'CHANGE_MASTER_PASSWORD_WITH_PASSKEY',
+        payload: {
+          credentialId: unlockPasskey.credentialId,
+          prfOutput: unlockPasskey.prfOutput,
+          newPassword: NEW_PIN,
+        },
+      })
+    ).toMatchObject(REFUSED);
+    expect(vaultState()).toEqual(before);
+
+    // Checking the PIN and unlocking are not changes.
+    expect(
+      await send({ type: 'VERIFY_MASTER_PASSWORD', payload: { password: PIN } })
+    ).toMatchObject({ success: true, valid: true });
+    await lock(send);
+    expect((await unlockWith(send, unlockPasskey)).success).toBe(true);
+  });
+
+  it('takes the changes again once the backup is made', async () => {
+    const { send } = await enrolledVault();
+    storage[BACKUP_FLAG] = true;
+    expect(await enroll(send, newPasskey())).toMatchObject(REFUSED);
+
+    expect((await send({ type: 'COMPLETE_UPGRADE_BACKUP' })).success).toBe(true);
+
+    expect((await send({ type: 'GET_UNLOCK_METHODS' })).backupRequired).toBe(false);
+    expect((await enroll(send, newPasskey())).success).toBe(true);
+    expect(record().passkeys).toHaveLength(2);
+  });
+
+  it('reports no backup owed on a vault that was not upgraded', async () => {
+    const { send } = await enrolledVault();
+    expect((await send({ type: 'GET_UNLOCK_METHODS' })).backupRequired).toBe(false);
+  });
+});
+
+describe('a PIN wrapper under a weaker KDF than the default', () => {
+  it('is replaced at the next PIN unlock, and nothing else in the record is', async () => {
+    const { send, unlockPasskey } = await enrolledVault();
+    await lock(send);
+    const before = clone(record());
+    const blobs = { ...vaultState(), passext_vault_unlock: undefined };
+    const key = dataKey();
+    mockKdf.weak = true;
+
+    expect(
+      (await send({ type: 'UNLOCK_SECURE_STORAGE', payload: { password: PIN } })).success
+    ).toBe(true);
+    mockKdf.weak = false;
+
+    expect(record().pin.kdf.salt).not.toBe(before.pin.kdf.salt);
+    expect(record().pin.wrapped).not.toEqual(before.pin.wrapped);
+    expect(record()).toEqual({ ...before, pin: record().pin });
+    expect({ ...vaultState(), passext_vault_unlock: undefined }).toEqual(blobs);
+    // The new wrapper holds the same data key, and both methods still open.
+    expect(dataKey()).toEqual(key);
+    expect((await send({ type: 'LIST_PASSKEYS' })).passkeys).toEqual([passkey]);
+    await lock(send);
+    expect((await unlockWith(send, unlockPasskey)).success).toBe(true);
+    expect(await unlocksWith(send, PIN)).toBe(true);
+    expect((await send({ type: 'LIST_PASSKEYS' })).passkeys).toEqual([passkey]);
+  });
+
+  it('still unlocks, leaving the record as it was, when the replacement cannot be written', async () => {
+    const { send, unlockPasskey } = await enrolledVault();
+    await lock(send);
+    const before = vaultState();
+    const write = local().set.getMockImplementation()!;
+    local().set.mockImplementation(async (items: StorageData) => {
+      if ('passext_vault_unlock' in items) throw new Error('QUOTA_BYTES quota exceeded');
+      return write(items);
+    });
+    mockKdf.weak = true;
+
+    const unlocked = await send({ type: 'UNLOCK_SECURE_STORAGE', payload: { password: PIN } });
+    mockKdf.weak = false;
+    local().set.mockImplementation(write);
+
+    expect(unlocked.success).toBe(true);
+    expect(vaultState()).toEqual(before);
+    expect((await send({ type: 'LIST_PASSKEYS' })).passkeys).toEqual([passkey]);
+    await lock(send);
+    expect((await unlockWith(send, unlockPasskey)).success).toBe(true);
+    expect(await unlocksWith(send, PIN)).toBe(true);
   });
 });
 

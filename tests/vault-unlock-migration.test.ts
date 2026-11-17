@@ -493,6 +493,8 @@ describe.each([
 
       expect(unlock.success).toBe(false);
       expect(unlock.error).toEqual(expect.stringContaining('could not be read back'));
+      // Coded, so a lock screen does not call a correct PIN wrong.
+      expect(unlock.code).toBe('VAULT_WRITE_UNVERIFIED');
       expect((await send({ type: 'IS_SECURE_STORAGE_UNLOCKED' })).isUnlocked).toBe(false);
       expect(storage.passext_encryption_salt).toBeDefined();
       const removedSalt = local().remove.mock.calls.some(([keys]) =>
@@ -607,6 +609,45 @@ describe.each([
       local().set.mockImplementation(write);
       return background;
     }
+
+    // A lock screen left open can send the PIN again while the vault is
+    // unlocked on its old key. If that retry's write lands but both the write
+    // and its read-back report a failure, the old key no longer opens what
+    // is stored: holding on to it would read every list as empty and
+    // overwrite them.
+    it('locks when a repeated unlock migrates the vault but cannot tell that it did', async () => {
+      const { send, secure } = await unlockedUnmigrated();
+      expect(secure.isStorageUnlocked()).toBe(true);
+      const write = local().set.getMockImplementation()!;
+      local().set.mockImplementation(async (items: StorageData) => {
+        await write(items);
+        if (!isVaultWrite(items)) return;
+        local().get.mockImplementationOnce(async () => {
+          throw new Error('read-back failed');
+        });
+        throw new Error('reported late');
+      });
+
+      const again = await send({ type: 'UNLOCK_SECURE_STORAGE', payload: { password: PIN } });
+      local().set.mockImplementation(write);
+
+      expect(storage.passext_vault_kdf).toEqual(SENTINEL);
+      expect(again.success).toBe(false);
+      expect(secure.isStorageUnlocked()).toBe(false);
+      expect((await send({ type: 'IS_SECURE_STORAGE_UNLOCKED' })).isUnlocked).toBe(false);
+
+      // The PIN opens the migrated vault, with everything still in it.
+      expect(
+        (await send({ type: 'UNLOCK_SECURE_STORAGE', payload: { password: PIN } })).success
+      ).toBe(true);
+      expect((await send({ type: 'LIST_PASSKEYS' })).passkeys).toEqual([passkey]);
+      expect(await secure.getTotpEntries()).toEqual([totp]);
+      await secure.storeTotpEntries([totp, { ...totp, id: 'totp-2' }]);
+      expect(await contentsWith(PIN)).toEqual({
+        ...EVERYTHING,
+        totp: [totp, { ...totp, id: 'totp-2' }],
+      });
+    });
 
     it('refuses to enroll an unlock passkey', async () => {
       const { send } = await unlockedUnmigrated();

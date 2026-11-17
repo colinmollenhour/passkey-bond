@@ -274,6 +274,89 @@ describe('the element IDs other pages and tests rely on', () => {
   });
 });
 
+describe('what is checked before a passkey prompt opens', () => {
+  /** The source of one top-level function of the unlock page. */
+  function pageFunction(name: string): string {
+    const source = read('src/ui/unlock.ts');
+    const start = source.indexOf(`\nfunction ${name}(`);
+    expect(start).toBeGreaterThan(-1);
+    const end = source.indexOf('\n}\n', start);
+    return source.slice(start, end);
+  }
+
+  // A passkey created for a vault that then refuses it stays at the provider.
+  it('asks whether an upgrade backup is owed before creating a passkey', () => {
+    const body = pageFunction('createPasskey');
+    const check = body.indexOf('fresh.backupRequired');
+    expect(check).toBeGreaterThan(-1);
+    expect(check).toBeLessThan(body.indexOf('createUnlockPasskey('));
+    expect(check).toBeLessThan(body.indexOf("send('VERIFY_MASTER_PASSWORD'"));
+    expect(read('src/ui/unlock.ts')).toContain('backupRequired: response.backupRequired === true');
+  });
+
+  it('asks the same before a passkey sets a new PIN', () => {
+    const body = pageFunction('resetSecret');
+    const check = body.indexOf('fresh.backupRequired');
+    expect(check).toBeGreaterThan(-1);
+    expect(check).toBeLessThan(body.indexOf('readUnlockPrf('));
+  });
+
+  it('says a lock found before the prompt is a lock, not one during the prompt', () => {
+    for (const name of ['createPasskey', 'resetSecret']) {
+      const body = pageFunction(name);
+      expect(body).toContain("if (!fresh.isUnlocked) throw new Shown(t('unlockNeedsUnlocked'))");
+      expect(body).not.toContain("codeMessage('VAULT_LOCKED')");
+    }
+  });
+
+  it('does not offer a passkey in the popup or Options while the backup is owed', () => {
+    expect(read('src/ui/popup.ts')).toMatch(/backup\?\.required !== true/);
+    expect(read('src/ui/options.ts')).toMatch(/addBtn\.hidden = .*backupRequired/);
+  });
+});
+
+describe('the codes each screen has words for', () => {
+  const cases = (source: string) =>
+    [...source.matchAll(/case '([A-Z_]+)':\s*return t\('([A-Za-z]+)'/g)].map(
+      (match) => `${match[1]} -> ${match[2]}`
+    );
+
+  it('explains damage and an owed backup in Options', () => {
+    const source = read('src/ui/options.ts');
+    const body = source.slice(
+      source.indexOf('function passkeyUnlockFailure('),
+      source.indexOf('function openUnlockPage(')
+    );
+    expect(cases(body)).toEqual(
+      expect.arrayContaining([
+        'VAULT_DAMAGED -> popupVaultDamaged',
+        'UPGRADE_BACKUP_REQUIRED -> unlockErrBackupRequired',
+      ])
+    );
+  });
+
+  it('explains an owed backup and an unconfirmed format upgrade on the unlock page', () => {
+    const source = read('src/ui/unlock.ts');
+    expect(cases(source)).toEqual(
+      expect.arrayContaining([
+        'UPGRADE_BACKUP_REQUIRED -> unlockErrBackupRequired',
+        'VAULT_WRITE_UNVERIFIED -> popupVaultWriteUnverified',
+      ])
+    );
+    // The PIN form reports it instead of "wrong PIN".
+    expect(source).toMatch(/response\.code === 'VAULT_WRITE_UNVERIFIED'\s*\?\s*codeMessage/);
+  });
+
+  it('explains an unconfirmed format upgrade on the popup lock screen', () => {
+    expect(read('src/ui/popup.ts')).toMatch(
+      /response\.code === 'VAULT_WRITE_UNVERIFIED'\s*\?\s*t\('popupVaultWriteUnverified'\)/
+    );
+    expect(missingTranslations(['popupVaultWriteUnverified', 'unlockErrBackupRequired'])).toEqual(
+      []
+    );
+  });
+});
+
 describe('the words on these screens', () => {
   it('has every string of the unlock page in all seven languages', () => {
     const source = read('src/ui/unlock.ts');

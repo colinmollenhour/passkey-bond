@@ -32,6 +32,7 @@ import {
   secureStorage,
   StorageActivity,
   UnsupportedKdfError,
+  VaultWriteUnverifiedError,
 } from '../crypto/secure-storage';
 import {
   cleanPasskeyName,
@@ -370,6 +371,20 @@ class VaultLockedError extends Error {
 }
 
 /**
+ * An upgraded vault that still holds entries must be backed up before it is
+ * changed. Responses carry `code: 'UPGRADE_BACKUP_REQUIRED'` so a page can
+ * say what to do about it.
+ */
+class UpgradeBackupRequiredError extends Error {
+  readonly code = 'UPGRADE_BACKUP_REQUIRED';
+
+  constructor() {
+    super('Export an encrypted backup before changing this upgraded vault.');
+    this.name = 'UpgradeBackupRequiredError';
+  }
+}
+
+/**
  * Whether this browser can unlock the vault with a passkey. The relying
  * party is the extension's own origin, which Firefox does not accept.
  */
@@ -382,6 +397,7 @@ function unlockErrorCode(error: unknown): string | undefined {
   return error instanceof UnsupportedKdfError ||
     error instanceof VaultDamagedError ||
     error instanceof UnlockError ||
+    error instanceof VaultWriteUnverifiedError ||
     error instanceof VaultLockedError
     ? error.code
     : undefined;
@@ -936,9 +952,13 @@ class BackgroundService {
       sendResponse(response);
     } catch (error: unknown) {
       const message_str = error instanceof Error ? error.message : String(error);
-      const code = error instanceof VaultLockedError ? error.code : undefined;
-      // A locked vault is a normal state that the caller handles, not an
-      // error for chrome://extensions to list against the extension.
+      const code =
+        error instanceof VaultLockedError || error instanceof UpgradeBackupRequiredError
+          ? error.code
+          : undefined;
+      // A locked vault, or one waiting for its backup, is a normal state that
+      // the caller handles, not an error for chrome://extensions to list
+      // against the extension.
       if (!code) {
         console.error('Message handling error:', error);
       }
@@ -989,8 +1009,9 @@ class BackgroundService {
       'FACTORY_RESET',
       'CHANGE_MASTER_PASSWORD',
       'REMOVE_MASTER_PASSWORD',
-      // Changes to how the vault unlocks need it unlocked, plus their own
-      // proof: the secret, or the passkey's PRF output.
+      // Reading or changing how the vault unlocks needs it unlocked. Adding
+      // or removing a passkey, or setting a new PIN, also needs the secret or
+      // a passkey's PRF output; renaming does not.
       'VERIFY_MASTER_PASSWORD',
       'ENROLL_UNLOCK_PASSKEY',
       'RENAME_UNLOCK_PASSKEY',
@@ -1022,7 +1043,7 @@ class BackgroundService {
       throw new VaultLockedError();
     }
     if (upgradeBlockedTypes.has(type) && (await this.isUpgradeBackupRequired())) {
-      throw new Error('Export an encrypted backup before changing this upgraded vault.');
+      throw new UpgradeBackupRequiredError();
     }
     // A web page signs only with the passkey the user picked in the vault's
     // dialog, and creates one only when the user confirmed it there, for
@@ -1886,11 +1907,14 @@ class BackgroundService {
    * no backup to export that would clear it. While the vault is locked its
    * contents are unknown, so the gate stays.
    */
-  private async isUpgradeBackupRequired(): Promise<boolean> {
+  private async isUpgradeBackupRequired(activity = StorageActivity.Record): Promise<boolean> {
     const result = await chrome.storage.local.get(UPGRADE_BACKUP_REQUIRED_KEY);
     if (result[UPGRADE_BACKUP_REQUIRED_KEY] !== true) return false;
     try {
-      const [passkeys, totpEntries] = await Promise.all([this.loadPasskeys(), loadTotpEntries()]);
+      const [passkeys, totpEntries] = await Promise.all([
+        this.loadPasskeys(activity),
+        loadTotpEntries(activity),
+      ]);
       if (passkeys.length > 0 || totpEntries.length > 0) return true;
     } catch {
       return true;
@@ -2609,6 +2633,10 @@ class BackgroundService {
         passkeys: methods.passkeys,
         damagedPasskeys: methods.damagedPasskeys,
         max: MAX_UNLOCK_PASSKEYS,
+        // Adding or removing a passkey and setting a new PIN are refused
+        // while this is true; pages check it before any passkey prompt.
+        // Asking is not use of the vault, so it does not put off the auto-lock.
+        backupRequired: await this.isUpgradeBackupRequired(StorageActivity.Maintenance),
       };
     } catch (error: unknown) {
       return unlockFailure(error);

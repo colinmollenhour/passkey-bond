@@ -515,6 +515,10 @@ function passkeyUnlockFailure(code: unknown): string {
       return t('optionsPasskeyLockedHint');
     case 'UNLOCK_PASSKEY_UNKNOWN':
       return t('unlockErrPasskeyUnknown');
+    case 'VAULT_DAMAGED':
+      return t('popupVaultDamaged');
+    case 'UPGRADE_BACKUP_REQUIRED':
+      return t('unlockErrBackupRequired');
     default:
       return t('unlockErrGeneric');
   }
@@ -561,16 +565,22 @@ async function refreshPasskeyUnlock(): Promise<void> {
   const atLimit = max > 0 && passkeys.length >= max;
   const damagedCount = unlocked ? Number(methods.damagedPasskeys) || 0 : 0;
 
+  // An upgraded vault takes no change to its lock until it is backed up, so
+  // the card says that instead of offering a passkey that would be refused.
+  const backupRequired = unlocked && methods.backupRequired === true;
+
   const hintText =
     methods.isSetup !== true
       ? t('optionsPasskeySetSecretFirst')
       : !unlocked
         ? t('optionsPasskeyLockedHint')
-        : atLimit
-          ? t('unlockErrPasskeyLimit', { max })
-          : passkeys.length === 0
-            ? t('optionsPasskeyNone')
-            : '';
+        : backupRequired
+          ? t('unlockErrBackupRequired')
+          : atLimit
+            ? t('unlockErrPasskeyLimit', { max })
+            : passkeys.length === 0
+              ? t('optionsPasskeyNone')
+              : '';
   hint.textContent = hintText;
   hint.hidden = hintText === '';
 
@@ -591,7 +601,7 @@ async function refreshPasskeyUnlock(): Promise<void> {
   damaged.textContent = damagedCount > 0 ? formatCount('optionsPasskeyDamaged', damagedCount) : '';
   damaged.hidden = damagedCount === 0;
   document.getElementById('passkey-unlock-disclosure')!.hidden = !unlocked;
-  addBtn.hidden = !unlocked || atLimit;
+  addBtn.hidden = !unlocked || atLimit || backupRequired;
   openBtn.hidden = methods.isSetup !== true || unlocked;
   document.getElementById('passkey-unlock-actions')!.hidden = addBtn.hidden && openBtn.hidden;
   document.getElementById('passkey-unlock-reset-link')!.hidden = passkeys.length === 0;

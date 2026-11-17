@@ -78,8 +78,11 @@ supplies. `tests/e2e/passkey-unlock.test.cjs` is the one place the browser's
 own WebAuthn client runs: it attaches CDP virtual authenticators to the
 extension's unlock page. An authenticator without PRF is refused; one with
 PRF adds a passkey, which then opens the vault after a lock and after a
-service worker restart; a second authenticator adds a second passkey; and an
-authenticator that fails user verification unlocks nothing. All of it happens
+service worker restart; a second authenticator adds a second passkey; a
+passkey sets a new PIN on the page, after which the old PIN is refused; a
+passkey the vault refuses to store is dropped instead of being offered for
+confirming again; and an authenticator that fails user verification unlocks
+nothing. All of it happens
 in one tab, because a virtual authenticator and its credentials belong to the
 tab they were attached to. The failed verification is the last ceremony: after
 it, Chromium refuses every later request in that tab.

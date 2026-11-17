@@ -23,6 +23,7 @@
 import {
   arrayBufferToBase64,
   arrayBufferToBase64URL,
+  base64ToUint8Array,
   base64URLToArrayBuffer,
 } from '../utils/base64';
 
@@ -82,13 +83,6 @@ function copyBytes(value: unknown): Uint8Array | null {
     }
   }
   return null;
-}
-
-function fromBase64(value: string): Uint8Array {
-  const binary = atob(value);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
 }
 
 function credentialIdBytes(credentialId: string): Uint8Array {
@@ -232,7 +226,7 @@ export async function readUnlockPrf(
 
   const evalByCredential: Record<string, { first: Uint8Array }> = {};
   for (const passkey of enrolled) {
-    evalByCredential[passkey.credentialId] = { first: fromBase64(passkey.prfSalt) };
+    evalByCredential[passkey.credentialId] = { first: base64ToUint8Array(passkey.prfSalt) };
   }
   const publicKey = {
     // No rpId: the relying party is this extension's origin.

@@ -234,14 +234,17 @@ import { checkBackupPassword } from '../crypto/backup-format';
       if (response.success) {
         showMainScreen();
       } else {
-        // A vault set up by a newer build, or one whose lock data is
-        // damaged, is not a wrong PIN.
+        // A vault set up by a newer build, one whose lock data is damaged,
+        // or one whose format upgrade could not be confirmed, is not a
+        // wrong PIN.
         errorEl.textContent =
           response.code === 'UNSUPPORTED_KDF'
             ? t('popupVaultNeedsUpdate')
             : response.code === 'VAULT_DAMAGED'
               ? t('popupVaultDamaged')
-              : t('popupWrongPassword');
+              : response.code === 'VAULT_WRITE_UNVERIFIED'
+                ? t('popupVaultWriteUnverified')
+                : t('popupWrongPassword');
         errorEl.style.display = 'block';
         passwordInput.value = '';
         passwordInput.focus();
@@ -406,16 +409,17 @@ import { checkBackupPassword } from '../crypto/backup-format';
   /**
    * Offer passkey unlock on the main screen: only for a vault that has a
    * lock, is unlocked and has no passkey yet, in a browser that can do it,
-   * and until the offer is dismissed.
+   * while no upgrade backup is owed, and until the offer is dismissed.
    */
   async function initPasskeyOffer(): Promise<void> {
     const offerEl = document.getElementById('passkey-offer') as HTMLElement | null;
     if (!offerEl) return;
     offerEl.hidden = true;
     try {
-      const [state, dismissed] = await Promise.all([
+      const [state, dismissed, backup] = await Promise.all([
         chrome.runtime.sendMessage({ type: 'IS_SECURE_STORAGE_UNLOCKED' }),
         chrome.storage.local.get(PASSKEY_OFFER_DISMISSED_KEY),
+        chrome.runtime.sendMessage({ type: 'GET_UPGRADE_BACKUP_STATUS' }),
       ]);
       const passkeyUnlock: PasskeyUnlockState | undefined = state?.passkeyUnlock;
       offerEl.hidden = !(
@@ -424,6 +428,9 @@ import { checkBackupPassword } from '../crypto/backup-format';
         state.isUnlocked &&
         passkeyUnlock?.supported === true &&
         passkeyUnlock.count === 0 &&
+        // Enrolling is refused until an upgraded vault is backed up, which
+        // the notice above asks for.
+        backup?.required !== true &&
         dismissed[PASSKEY_OFFER_DISMISSED_KEY] !== true
       );
     } catch {
@@ -1115,6 +1122,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
       downloadJson(encryptedBackup, `passkey-bond-backup-${getDateString()}.json`);
       await chrome.runtime.sendMessage({ type: 'COMPLETE_UPGRADE_BACKUP' });
       document.getElementById('upgrade-backup-required')?.remove();
+      void initPasskeyOffer(); // held back while the backup was owed
       showNotification(t('popupExportedPasskeys', { count: passkeys.length + totpEntries.length }));
     } catch (error) {
       console.error('Error exporting passkeys:', error);

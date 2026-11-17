@@ -4,8 +4,9 @@
 // the new storage format; a passkey on a CDP virtual authenticator with PRF is
 // added on the extension's unlock page and opens the vault after a lock and
 // after a service worker restart; a second passkey on a second authenticator
-// does the same; the PIN keeps working; and Options renames and removes
-// passkeys and turns the lock off.
+// does the same; a passkey sets a new PIN on the page for a forgotten one;
+// the PIN keeps working; and Options renames and removes passkeys and turns
+// the lock off.
 //
 // Every ceremony runs in one tab, the one the popup's offer opens: a virtual
 // authenticator and its credentials belong to the tab they were attached to.
@@ -22,6 +23,8 @@ const { chromium } = require('playwright');
 
 const DIST = path.resolve(__dirname, '../../dist');
 const PIN = '482916';
+/** Set with a passkey part-way through; the tests after that use it. */
+const NEW_PIN = '975310';
 const SENTINEL = { kdf: 'wrapped-data-key', version: 1 };
 
 const PASSKEY = {
@@ -228,6 +231,10 @@ async function credentialsOn(name) {
   }));
 }
 
+async function credentialsOnAuthenticator(authenticatorId) {
+  return (await webauthn.send('WebAuthn.getCredentials', { authenticatorId })).credentials;
+}
+
 async function startEnrollment(name) {
   await showMode('#enroll');
   await ceremony.fill('#enroll-secret', PIN);
@@ -308,6 +315,76 @@ test('a passkey provider without PRF is refused and nothing is saved', async () 
   assert.equal(await ceremony.locator('#enroll-done').isVisible(), false);
   assert.deepEqual(await unlockRecord(), migrated);
   await webauthn.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId: withoutPrf });
+});
+
+test('an upgraded vault that owes its backup says so before any passkey is created', async () => {
+  const spare = await addAuthenticator({ transport: 'internal' });
+  await ceremony.evaluate(() => chrome.storage.local.set({ upgrade_backup_required_0_9_5: true }));
+  assert.equal((await send('GET_UNLOCK_METHODS')).backupRequired, true);
+
+  // The page explains instead of showing the form whose result would be refused.
+  await ceremony.evaluate(() => {
+    location.hash = '#unlock';
+  });
+  await ceremony.locator('#unlock-view').waitFor({ state: 'visible' });
+  await ceremony.evaluate(() => {
+    location.hash = '#enroll';
+  });
+  await ceremony.locator('#unavailable-view').waitFor({ state: 'visible' });
+  assert.match(
+    await ceremony.locator('#unavailable-text').textContent(),
+    /export an encrypted backup/
+  );
+  assert.equal(await ceremony.locator('#enroll-view').isVisible(), false);
+  assert.deepEqual(await credentialsOnAuthenticator(spare), []);
+
+  // Neither the popup nor Options offers what would be refused.
+  const popup = await popupListsTheRecord();
+  await popup.locator('#upgrade-backup-required').waitFor({ state: 'visible' });
+  assert.equal(await popup.locator('#passkey-offer').isVisible(), false);
+  await popup.close();
+  const options = await openPage('options.html');
+  await options.click('.nav-item[data-section="security"]');
+  await options.locator('#passkey-unlock-card').waitFor({ state: 'visible' });
+  assert.match(
+    await options.locator('#passkey-unlock-hint').textContent(),
+    /export an encrypted backup/
+  );
+  assert.equal(await options.locator('#passkey-unlock-add-btn').isVisible(), false);
+  await options.close();
+
+  // The background refuses it as well, with the code the pages have words for.
+  const refused = await send('ENROLL_UNLOCK_PASSKEY', {});
+  assert.equal(refused.success, false);
+  assert.equal(refused.code, 'UPGRADE_BACKUP_REQUIRED');
+  assert.deepEqual(await unlockRecord(), migrated);
+
+  // Exporting the backup clears it; here the message the export ends with does.
+  assert.equal((await send('COMPLETE_UPGRADE_BACKUP')).success, true);
+  await showMode('#enroll');
+  assert.equal(await ceremony.locator('#enroll-create-btn').isVisible(), true);
+  await webauthn.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId: spare });
+});
+
+test('a passkey the vault refuses to store is dropped, not offered for confirming again', async () => {
+  const spare = await addAuthenticator({ transport: 'internal' });
+  await startEnrollment('Dropped');
+  await ceremony.locator('#enroll-confirm-btn').waitFor({ state: 'visible' });
+  // The vault locks between the two steps, so the commit comes back refused.
+  await lockVault();
+  await ceremony.click('#enroll-confirm-btn');
+  await ceremony.locator('#enroll-error').waitFor({ state: 'visible' });
+  assert.match(
+    await ceremony.locator('#enroll-error').textContent(),
+    /locked while the passkey prompt was open/
+  );
+  // Only a dismissed prompt can be answered again. This enrollment is over.
+  assert.equal(await ceremony.locator('#enroll-confirm-btn').isVisible(), false);
+  assert.equal(await ceremony.locator('#enroll-done').isVisible(), false);
+  assert.deepEqual(await unlockRecord(), migrated);
+
+  assert.equal((await send('UNLOCK_SECURE_STORAGE', { password: PIN })).success, true);
+  await webauthn.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId: spare });
 });
 
 test('adds a passkey in two steps and stores only its public record', async () => {
@@ -448,6 +525,49 @@ test('a provider that already holds a passkey for this vault is not given anothe
   assert.equal((await credentialsOn('laptop')).length, 1);
 });
 
+test('a passkey sets a new PIN on the page, and the old PIN stops working', async () => {
+  await onlyAnswers('laptop');
+  const before = await unlockRecord();
+  const [{ signCount }] = await credentialsOn('laptop');
+  await showMode('#reset-secret');
+
+  // The two entries must agree before any prompt opens.
+  await ceremony.fill('#reset-secret-new', NEW_PIN);
+  await ceremony.fill('#reset-secret-confirm', PIN);
+  await ceremony.click('#reset-confirm-btn');
+  await ceremony.locator('#reset-error').waitFor({ state: 'visible' });
+  assert.match(await ceremony.locator('#reset-error').textContent(), /don't match/);
+  assert.equal((await credentialsOn('laptop'))[0].signCount, signCount);
+  assert.deepEqual(await unlockRecord(), before);
+
+  await ceremony.fill('#reset-secret-confirm', NEW_PIN);
+  await ceremony.click('#reset-confirm-btn');
+  await ceremony.locator('#reset-status').waitFor({ state: 'visible' });
+  await ceremony.waitForFunction(() =>
+    /new PIN or passphrase is set/.test(document.getElementById('reset-status').textContent)
+  );
+  assert.equal(await ceremony.locator('#reset-error').isVisible(), false);
+  // Done: the form is gone and its fields hold nothing.
+  assert.equal(await ceremony.locator('#reset-form').isVisible(), false);
+  assert.equal(await ceremony.inputValue('#reset-secret-new'), '');
+  assert.ok((await credentialsOn('laptop'))[0].signCount > signCount, 'the passkey authorized it');
+
+  // Only the PIN wrapper changed: the passkeys still wrap the same data key.
+  const record = await unlockRecord();
+  assert.equal(record.vaultId, before.vaultId);
+  assert.deepEqual(record.passkeys, before.passkeys);
+  assert.notDeepEqual(record.pin, before.pin);
+
+  await lockVault();
+  assert.equal((await send('UNLOCK_SECURE_STORAGE', { password: PIN })).success, false);
+  assert.equal((await vaultState()).isUnlocked, false);
+  assert.equal((await send('UNLOCK_SECURE_STORAGE', { password: NEW_PIN })).success, true);
+  await (await popupListsTheRecord()).close();
+  await lockVault();
+  await unlockWithPasskey();
+  await (await popupListsTheRecord()).close();
+});
+
 // Last of the ceremonies: once a virtual authenticator has failed user
 // verification, Chromium refuses every later WebAuthn request in this tab,
 // whatever the authenticators are set to afterwards.
@@ -470,7 +590,7 @@ test('a failed user verification unlocks nothing, and the PIN still works on the
   if (!(await ceremony.locator('#fallback-secret').isVisible())) {
     await ceremony.click('#fallback-toggle');
   }
-  await ceremony.fill('#fallback-secret', PIN);
+  await ceremony.fill('#fallback-secret', NEW_PIN);
   await ceremony.click('#fallback-unlock-btn');
   await waitUntilUnlocked();
   assert.equal(ceremony.isClosed(), false);
@@ -489,7 +609,7 @@ test("the popup's second action unlocks with the PIN", async () => {
   await popup.locator('#unlock-error').waitFor({ state: 'visible' });
   assert.match(await popup.locator('#unlock-error').textContent(), /Wrong PIN or passphrase/);
 
-  await popup.fill('#unlock-password', PIN);
+  await popup.fill('#unlock-password', NEW_PIN);
   await popup.click('#unlock-btn');
   await popup.locator('#main-container').waitFor({ state: 'visible' });
   await popup.locator('.passkey-item', { hasText: 'legacy.example' }).waitFor();
@@ -553,7 +673,7 @@ test('Options lists the passkeys, renames one and removes one with the PIN', asy
   if (!(await options.locator('#passkey-unlock-remove-form').isVisible())) {
     await securityKey.locator('.unlock-passkey-remove-btn').click();
   }
-  await options.fill('#passkey-unlock-remove-secret', PIN);
+  await options.fill('#passkey-unlock-remove-secret', NEW_PIN);
   await options.click('#passkey-unlock-remove-confirm-btn');
   await rowCount(1);
   assert.deepEqual(await names(), ['Desk laptop']);
@@ -576,7 +696,7 @@ test('turning off the vault lock says how many passkeys stop working and removes
     confirmation = dialog.message();
     return dialog.accept();
   });
-  await options.fill('#change-pw-current', PIN);
+  await options.fill('#change-pw-current', NEW_PIN);
   await options.click('#remove-pw-btn');
   await options.locator('#master-pw-set').waitFor({ state: 'visible' });
   assert.match(confirmation, /Turn off the vault lock\?/);

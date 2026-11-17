@@ -134,6 +134,8 @@ export interface UnlockMethods {
  * The new key must not be used, and the old one may no longer open the vault.
  */
 export class VaultWriteUnverifiedError extends Error {
+  readonly code = 'VAULT_WRITE_UNVERIFIED';
+
   constructor() {
     super('The vault was written but could not be read back; it stays locked');
     this.name = 'VaultWriteUnverifiedError';
@@ -776,8 +778,15 @@ export class SecureStorage {
             throw error;
           }
           console.error('Vault format upgrade failed; it will be retried next unlock:', error);
-          // Unlock with the old key, unless the vault moved on regardless.
-          if (!(await this.sameVault(state, oldKey))) return false;
+          // Unlock with the old key, unless the vault moved on regardless. A
+          // repeated unlock may already hold that old key from an earlier
+          // failed upgrade: once it no longer opens what is stored (or that
+          // cannot be told), holding it would read the vault as empty and
+          // overwrite it, so the vault locks.
+          if (!(await this.sameVault(state, oldKey).catch(() => null))) {
+            if (this.isStorageUnlocked()) await this.autoLock();
+            return false;
+          }
         }
         this.install(oldKey);
         await this.dropStaleLegacySalt();

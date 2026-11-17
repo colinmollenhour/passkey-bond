@@ -315,7 +315,6 @@ const en: TranslationMap = {
   optionsSetMasterDesc: 'Set a PIN or passphrase to lock your vault.',
   optionsSetPassword: 'Set',
   optionsChangePassword: 'Change',
-  optionsRemovePassword: 'Remove',
   optionsNewPasswordPlaceholder: 'PIN or passphrase',
   optionsNewPasswordChangePlaceholder: 'New PIN or passphrase',
   optionsCurrentPasswordPlaceholder: 'Current PIN or passphrase',
@@ -664,6 +663,10 @@ const en: TranslationMap = {
   unlockErrExcluded: 'This passkey provider already holds a passkey for this vault.',
   unlockErrBusy: 'Another passkey prompt is already open in a different tab.',
   unlockErrGeneric: 'Something went wrong. Try again.',
+  unlockErrBackupRequired:
+    'This vault was upgraded and needs a backup before its lock can be changed. Open the Passkey.bond popup, export an encrypted backup, then try again.',
+  popupVaultWriteUnverified:
+    "The vault's format upgrade could not be confirmed, so the vault stays locked. Try again; if this keeps happening, restore from a backup.",
   optionsPasskeyUnlock: 'Passkey unlock',
   optionsPasskeyUnlockDesc:
     'Passkeys that unlock this vault. They are kept by your passkey provider, not in Passkey.bond.',
@@ -939,6 +942,10 @@ const ru: TranslationMap = {
   unlockErrExcluded: 'У этого провайдера passkey уже есть passkey для этого хранилища.',
   unlockErrBusy: 'Другой запрос passkey уже открыт в другой вкладке.',
   unlockErrGeneric: 'Что-то пошло не так. Повторите попытку.',
+  unlockErrBackupRequired:
+    'Это хранилище было обновлено, и перед изменением его блокировки нужна резервная копия. Откройте всплывающее окно Passkey.bond, экспортируйте зашифрованную резервную копию и повторите попытку.',
+  popupVaultWriteUnverified:
+    'Не удалось подтвердить обновление формата хранилища, поэтому оно остаётся заблокированным. Повторите попытку; если это повторяется, восстановите данные из резервной копии.',
   optionsPasskeyUnlock: 'Разблокировка с помощью passkey',
   optionsPasskeyUnlockDesc:
     'Passkey, которые разблокируют это хранилище. Они хранятся у вашего провайдера passkey, а не в Passkey.bond.',
@@ -1171,6 +1178,10 @@ const zh_CN: TranslationMap = {
   unlockErrExcluded: '此 passkey 提供方已保存了用于此保险库的 passkey。',
   unlockErrBusy: '另一个标签页中已打开了 passkey 提示。',
   unlockErrGeneric: '出了点问题。请重试。',
+  unlockErrBackupRequired:
+    '此保险库已升级，更改其锁定方式前需要先备份。请打开 Passkey.bond 弹出窗口，导出加密备份，然后重试。',
+  popupVaultWriteUnverified:
+    '无法确认保险库的格式升级，因此保险库保持锁定。请重试；如果问题持续出现，请从备份恢复。',
   optionsPasskeyUnlock: 'passkey 解锁',
   optionsPasskeyUnlockDesc:
     '可解锁此保险库的 passkey。它们由你的 passkey 提供方保管，不存放在 Passkey.bond 中。',
@@ -1401,6 +1412,10 @@ const ar: TranslationMap = {
   unlockErrExcluded: 'مزوّد مفاتيح المرور هذا لديه بالفعل مفتاح مرور لهذه الخزنة.',
   unlockErrBusy: 'يوجد طلب مفتاح مرور آخر مفتوح بالفعل في تبويب مختلف.',
   unlockErrGeneric: 'حدث خطأ ما. حاول مرة أخرى.',
+  unlockErrBackupRequired:
+    'تمت ترقية هذه الخزنة وتحتاج إلى نسخة احتياطية قبل تغيير قفلها. افتح نافذة Passkey.bond المنبثقة، وصدّر نسخة احتياطية مشفّرة، ثم حاول مرة أخرى.',
+  popupVaultWriteUnverified:
+    'تعذّر تأكيد ترقية تنسيق الخزنة، لذا تبقى مقفلة. حاول مرة أخرى؛ وإذا تكرر ذلك، استعد نسخة احتياطية.',
   optionsPasskeyUnlock: 'الفتح بمفتاح مرور',
   optionsPasskeyUnlockDesc:
     'مفاتيح المرور التي تفتح هذه الخزنة. تُحفظ لدى مزوّد مفاتيح المرور لديك، لا في Passkey.bond.',
@@ -1725,6 +1740,10 @@ const fa: TranslationMap = {
   unlockErrExcluded: 'این ارائه‌دهندهٔ کلید عبور از پیش کلید عبوری برای این گاوصندوق دارد.',
   unlockErrBusy: 'درخواست کلید عبور دیگری هم‌اکنون در زبانه‌ای دیگر باز است.',
   unlockErrGeneric: 'مشکلی پیش آمد. دوباره امتحان کنید.',
+  unlockErrBackupRequired:
+    'این گاوصندوق ارتقا یافته است و پیش از تغییر قفل آن به پشتیبان نیاز دارد. پنجرهٔ بازشوی Passkey.bond را باز کنید، یک پشتیبان رمزگذاری‌شده بگیرید و دوباره امتحان کنید.',
+  popupVaultWriteUnverified:
+    'ارتقای قالب گاوصندوق تأیید نشد، بنابراین گاوصندوق قفل می‌ماند. دوباره امتحان کنید؛ اگر تکرار شد، از پشتیبان بازیابی کنید.',
   optionsPasskeyUnlock: 'باز کردن با کلید عبور',
   optionsPasskeyUnlockDesc:
     'کلیدهای عبوری که این گاوصندوق را باز می‌کنند. آن‌ها نزد ارائه‌دهندهٔ کلید عبور شما می‌مانند، نه در Passkey.bond.',
@@ -1966,6 +1985,10 @@ const es: TranslationMap = {
   unlockErrExcluded: 'Este proveedor de passkeys ya tiene una passkey para esta bóveda.',
   unlockErrBusy: 'Ya hay otra solicitud de passkey abierta en otra pestaña.',
   unlockErrGeneric: 'Algo salió mal. Inténtalo de nuevo.',
+  unlockErrBackupRequired:
+    'Esta bóveda se actualizó y necesita una copia de seguridad antes de cambiar su bloqueo. Abre la ventana emergente de Passkey.bond, exporta una copia de seguridad cifrada e inténtalo de nuevo.',
+  popupVaultWriteUnverified:
+    'No se pudo confirmar la actualización de formato de la bóveda, así que permanece bloqueada. Inténtalo de nuevo; si sigue ocurriendo, restaura una copia de seguridad.',
   optionsPasskeyUnlock: 'Desbloqueo con passkey',
   optionsPasskeyUnlockDesc:
     'Passkeys que desbloquean esta bóveda. Las guarda tu proveedor de passkeys, no Passkey.bond.',
@@ -2208,6 +2231,10 @@ const fr: TranslationMap = {
   unlockErrExcluded: 'Ce fournisseur de passkeys détient déjà une passkey pour ce coffre.',
   unlockErrBusy: 'Une autre demande de passkey est déjà ouverte dans un autre onglet.',
   unlockErrGeneric: 'Une erreur s’est produite. Réessayez.',
+  unlockErrBackupRequired:
+    'Ce coffre a été mis à niveau et doit être sauvegardé avant que son verrouillage puisse être modifié. Ouvrez la fenêtre de Passkey.bond, exportez une sauvegarde chiffrée, puis réessayez.',
+  popupVaultWriteUnverified:
+    'La mise à niveau du format du coffre n’a pas pu être confirmée ; il reste donc verrouillé. Réessayez ; si cela se reproduit, restaurez une sauvegarde.',
   optionsPasskeyUnlock: 'Déverrouillage par passkey',
   optionsPasskeyUnlockDesc:
     'Passkeys qui déverrouillent ce coffre. Elles sont conservées par votre fournisseur de passkeys, pas dans Passkey.bond.',
