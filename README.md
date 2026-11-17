@@ -175,4 +175,4 @@ src/
 
 ## License
 
-MIT. See [LICENSE](LICENSE). Passkey.bond is © Colin Mollenhour and contains code from Fenko Vault, © Fenko, under the same license.
+MIT. See [LICENSE](LICENSE). Passkey.bond is © Dragonstone Labs and contains code from Fenko Vault, © Fenko, under the same license.

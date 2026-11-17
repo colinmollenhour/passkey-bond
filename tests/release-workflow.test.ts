@@ -35,8 +35,11 @@ test.each([
 });
 
 test('development version validates with a short Git abbreviation setting', () => {
-  const env = {
+  // The release job sets PASSKEY_BOND_RELEASE for the whole job; this test
+  // needs a development build.
+  const env: NodeJS.ProcessEnv = {
     ...process.env,
+    PASSKEY_BOND_RELEASE: undefined,
     GIT_CONFIG_COUNT: '1',
     GIT_CONFIG_KEY_0: 'core.abbrev',
     GIT_CONFIG_VALUE_0: '4',

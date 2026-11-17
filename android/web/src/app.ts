@@ -2155,7 +2155,7 @@ function renderTools(): string {
           <img class="brand-mark" src="icon.png" alt="" aria-hidden="true" />
           <div>
             <h2 class="about-title"><span class="wordmark">Passkey<em>.bond</em></span></h2>
-            <p class="muted">Version ${escapeHtml(__APP_VERSION__)} &middot; Colin Mollenhour</p>
+            <p class="muted">Version ${escapeHtml(__APP_VERSION__)} &middot; Dragonstone Labs</p>
           </div>
         </div>
         <p class="muted">
