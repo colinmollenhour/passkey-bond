@@ -1372,6 +1372,11 @@ a.btn {
   margin-bottom: 12px;
 }
 
+/* A hint that ends the card needs no space under it */
+#passkey-unlock-card > .card-hint:not(:has(~ :not([hidden]))) {
+  margin-bottom: 0;
+}
+
 /* Under the current-PIN field: the way on for someone who forgot it */
 .unlock-passkey-reset {
   align-self: flex-start;

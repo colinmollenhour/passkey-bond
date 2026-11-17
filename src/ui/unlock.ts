@@ -90,6 +90,8 @@ let fallbackOpen = false;
 let pending: PendingEnrollment | null = null;
 let enrolledName: string | null = null;
 let resetDone = false;
+/** The secret typed for enrollment was refused and has not been retyped. */
+let secretRefused = false;
 /** What the button on the unavailable view does. */
 let unavailableWay: 'close' | 'settings' = 'close';
 
@@ -286,7 +288,7 @@ function render(): void {
   const hasPasskey = canUsePasskeys && methods.passkeys.length > 0;
 
   if (mode === 'unlock') {
-    renderUnlock(hasPasskey, false);
+    renderUnlock(hasPasskey, null);
     return;
   }
 
@@ -322,7 +324,12 @@ function render(): void {
   } else if (!methods.isUnlocked && (!busy || onUnlockView)) {
     // Locked: unlock right here, then carry on with what the page was
     // opened for.
-    renderUnlock(hasPasskey, true);
+    if (mode === 'reset-secret' && !hasPasskey) {
+      // Only a passkey can take this further, and there is none to ask.
+      showUnavailable(t('unlockNoPasskey'));
+    } else {
+      renderUnlock(hasPasskey, mode);
+    }
   } else if (methods.backupRequired && !pending && !busy) {
     // Said before any form is filled in: the background would refuse the
     // change after the passkey prompt.
@@ -339,27 +346,39 @@ function render(): void {
 }
 
 /**
- * The lock screen. `asStep` is when another mode needs the vault unlocked
- * first: the same controls, with a line saying why they are here.
+ * The lock screen. `step` is the mode that needs the vault unlocked first, if
+ * that is why it shows: the line above the controls then says what follows.
+ * Someone setting a new PIN or passphrase has forgotten the old one, so that
+ * step offers the passkey alone, and closing the tab as the way out.
  */
-function renderUnlock(hasPasskey: boolean, asStep: boolean): void {
+function renderUnlock(hasPasskey: boolean, step: Mode | null): void {
   const unlocked = methods?.isUnlocked === true;
+  const passkeyOnly = step === 'reset-secret';
   // Without a passkey the PIN or passphrase form is the whole screen.
-  const formOpen = !unlocked && (fallbackOpen || !hasPasskey);
+  const formOpen = !unlocked && !passkeyOnly && (fallbackOpen || !hasPasskey);
   const toggle = el<HTMLButtonElement>('fallback-toggle');
   const secretBtn = el<HTMLButtonElement>('fallback-unlock-btn');
 
   el('unlock-title').textContent = unlocked ? t('unlockUnlocked') : t('unlockHeading');
   // The two buttons say what they do; a line above them is only for what
   // they do not say.
-  el('unlock-help').textContent = asStep ? t('unlockNeedsUnlocked') : t('popupUnlockHelp');
-  el('unlock-help').hidden = unlocked || (hasPasskey && !asStep);
-  el('unlock-close-btn').hidden = !unlocked;
+  el('unlock-help').textContent =
+    step === 'enroll'
+      ? t('unlockNeedsUnlockedEnroll')
+      : step === 'reset-secret'
+        ? t('unlockNeedsUnlockedReset')
+        : t('popupUnlockHelp');
+  el('unlock-help').hidden = unlocked || (hasPasskey && !step);
+  // The way on once unlocked; the way out where only the passkey is offered.
+  const closeBtn = el('unlock-close-btn');
+  closeBtn.hidden = !unlocked && !passkeyOnly;
+  closeBtn.classList.toggle('btn-primary', unlocked);
+  closeBtn.classList.toggle('btn-ghost', !unlocked);
   // The only action is the main one.
   secretBtn.classList.toggle('btn-primary', !hasPasskey);
   secretBtn.classList.toggle('btn-secondary', hasPasskey);
   el('passkey-unlock-btn').hidden = unlocked || !hasPasskey;
-  toggle.hidden = unlocked || !hasPasskey || fallbackOpen;
+  toggle.hidden = unlocked || !hasPasskey || fallbackOpen || passkeyOnly;
   toggle.setAttribute('aria-expanded', String(formOpen));
   el('fallback-form').hidden = !formOpen;
   el<HTMLButtonElement>('passkey-unlock-btn').disabled = busy;
@@ -425,6 +444,7 @@ async function enterMode(next: Mode): Promise<void> {
   dropPending();
   enrolledName = null;
   resetDone = false;
+  secretRefused = false;
   fallbackOpen = false;
   clearMessages();
   for (const id of ['fallback-secret', 'enroll-secret', 'enroll-name']) {
@@ -576,10 +596,11 @@ function createPasskey(): Promise<void> {
       setText('enroll-status', t('unlockEnrollCreated'));
     } catch (error) {
       setText('enroll-status', '');
+      secretRefused = error instanceof WrongSecret;
       showError(
         'enroll-error',
         failureMessage(error, true),
-        error instanceof WrongSecret ? 'enroll-secret' : 'enroll-create-btn'
+        secretRefused ? 'enroll-secret' : 'enroll-create-btn'
       );
     }
   }).then(() => {
@@ -643,9 +664,12 @@ function confirmPasskey(): Promise<void> {
  */
 function showShortPinWarning(): void {
   const secret = el<HTMLInputElement>('enroll-secret').value;
-  const short = !pending && isPin(secret) && secret.length < STRONG_PIN_DIGITS;
+  // Not for a secret the vault has just refused: it is not the vault's PIN.
+  const short = !pending && !secretRefused && isPin(secret) && secret.length < STRONG_PIN_DIGITS;
   el('enroll-short-pin-warning').hidden = !short;
-  el('enroll-disclosure').hidden = short;
+  // The general note gives way to the warning, and is done with once the
+  // passkey exists and only confirming is left.
+  el('enroll-disclosure').hidden = short || !!pending;
 }
 
 // ---------- New PIN or passphrase, authorized by a passkey ----------
@@ -727,7 +751,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   el('enroll-confirm-btn').addEventListener('click', () => void confirmPasskey());
   el('enroll-again-btn').addEventListener('click', () => void enterMode('enroll'));
-  el('enroll-secret').addEventListener('input', showShortPinWarning);
+  el('enroll-secret').addEventListener('input', () => {
+    if (secretRefused) {
+      // Retyping: the refusal was about what was there before.
+      secretRefused = false;
+      setText('enroll-error', '');
+    }
+    showShortPinWarning();
+  });
   for (const id of ['unlock-close-btn', 'enroll-close-btn', 'reset-close-btn']) {
     el(id).addEventListener('click', () => void closeThisTab());
   }

@@ -402,7 +402,16 @@ test('a passkey the vault refuses to store is dropped, not offered for confirmin
 test('adds a passkey in two steps and stores only its public record', async () => {
   authenticators.laptop = await addAuthenticator({ transport: 'internal' });
   await showMode('#enroll');
+  // A refused PIN is not the vault's, so it gets no advice about its length.
+  await ceremony.fill('#enroll-secret', '000000');
+  await ceremony.locator('#enroll-short-pin-warning').waitFor({ state: 'visible' });
+  await ceremony.click('#enroll-create-btn');
+  await ceremony.locator('#enroll-error').waitFor({ state: 'visible' });
+  assert.match(await ceremony.locator('#enroll-error').textContent(), /Wrong PIN or passphrase/);
+  assert.equal(await ceremony.locator('#enroll-short-pin-warning').isVisible(), false);
+  // Retyping clears the refusal.
   await ceremony.fill('#enroll-secret', PIN);
+  assert.equal(await ceremony.locator('#enroll-error').isVisible(), false);
   // The PIN is six digits: the page warns about it, in place of its general note.
   await ceremony.locator('#enroll-short-pin-warning').waitFor({ state: 'visible' });
   assert.equal(await ceremony.locator('#enroll-disclosure').isVisible(), false);
@@ -412,6 +421,7 @@ test('adds a passkey in two steps and stores only its public record', async () =
   // The PIN is checked and its field gone, and the warning with it.
   assert.equal(await ceremony.locator('#enroll-secret').isVisible(), false);
   assert.equal(await ceremony.locator('#enroll-short-pin-warning').isVisible(), false);
+  assert.equal(await ceremony.locator('#enroll-disclosure').isVisible(), false);
   // Nothing is saved until the passkey has opened the vault's key once.
   assert.deepEqual((await unlockRecord()).passkeys, []);
   await ceremony.click('#enroll-confirm-btn');
@@ -641,7 +651,7 @@ test('a failed user verification unlocks nothing, and the PIN still works on the
 test('a page opened to add a passkey unlocks a locked vault first, then carries on', async () => {
   await lockVault();
   await showModeLocked('#enroll');
-  assert.match(await ceremony.locator('#unlock-help').textContent(), /Unlock it to continue/);
+  assert.match(await ceremony.locator('#unlock-help').textContent(), /Unlock it to add a passkey/);
   assert.equal(await ceremony.locator('#enroll-view').isVisible(), false);
 
   if (!(await ceremony.locator('#fallback-secret').isVisible())) {
@@ -654,6 +664,19 @@ test('a page opened to add a passkey unlocks a locked vault first, then carries 
   await ceremony.locator('#enroll-secret').waitFor({ state: 'visible' });
   assert.equal((await vaultState()).isUnlocked, true);
   assert.equal(ceremony.isClosed(), false);
+
+  // Someone setting a new PIN has forgotten the old one: only the passkey is
+  // offered there, with closing the tab as the way out.
+  await lockVault();
+  await showModeLocked('#reset-secret');
+  assert.match(
+    await ceremony.locator('#unlock-help').textContent(),
+    /Unlock it with a passkey to set a new PIN or passphrase/
+  );
+  assert.equal(await ceremony.locator('#passkey-unlock-btn').isVisible(), true);
+  assert.equal(await ceremony.locator('#fallback-toggle').isVisible(), false);
+  assert.equal(await ceremony.locator('#fallback-secret').isVisible(), false);
+  assert.equal(await ceremony.locator('#unlock-close-btn').isVisible(), true);
 });
 
 test("the popup's second action unlocks with the PIN", async () => {

@@ -2215,6 +2215,11 @@ html:has(.sync-settings) {
   display: none;
 }
 
+/* Lock screen without its hint line: keep the heading off the first button */
+.auth-no-hint .auth-form {
+  margin-top: 20px;
+}
+
 /* Main screen: the offer to add a passkey that unlocks the vault. One plain
    row, so it does not read as a second warning. */
 .passkey-offer {

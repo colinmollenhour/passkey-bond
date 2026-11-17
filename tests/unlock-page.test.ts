@@ -301,9 +301,7 @@ describe('what the screens say, and where', () => {
         'reset-error under reset-confirm-btn',
       ])
     );
-    expect(unlockPage).toContain(
-      "error instanceof WrongSecret ? 'enroll-secret' : 'enroll-create-btn'"
-    );
+    expect(unlockPage).toContain("secretRefused ? 'enroll-secret' : 'enroll-create-btn'");
     // Every view keeps its error and status inside its form.
     const doc = page('unlock.html');
     for (const view of ['enroll', 'reset']) {
@@ -314,8 +312,10 @@ describe('what the screens say, and where', () => {
 
   it('gives the short-PIN advice once on the enrollment screen', () => {
     expect(unlockPage).toContain("el('enroll-short-pin-warning').hidden = !short;");
-    expect(unlockPage).toContain("el('enroll-disclosure').hidden = short;");
-    expect(unlockPage).toContain('const short = !pending &&');
+    expect(unlockPage).toContain("el('enroll-disclosure').hidden = short || !!pending;");
+    // Never for a secret the vault refused, nor once the secret field is gone.
+    expect(unlockPage).toMatch(/const short =\s*!pending && !secretRefused &&/);
+    expect(unlockPage).toContain('secretRefused = error instanceof WrongSecret;');
   });
 
   it('ends each state of the unlock page with a heading for it and a way on', () => {
@@ -335,14 +335,26 @@ describe('what the screens say, and where', () => {
     expect(unlockPage).toContain("chrome.runtime.getURL('options.html#security')");
     expect(read('src/ui/options.ts')).toContain('openSectionFromHash');
     // Locked: the page unlocks right there, then shows what it was opened for.
-    expect(unlockPage).toContain('renderUnlock(hasPasskey, true)');
+    expect(unlockPage).toContain('renderUnlock(hasPasskey, mode)');
+    // It says what it leads to, and a forgotten PIN is not asked for again.
+    expect(unlockPage).toContain("t('unlockNeedsUnlockedEnroll')");
+    expect(unlockPage).toContain("t('unlockNeedsUnlockedReset')");
+    expect(unlockPage).toContain("const passkeyOnly = step === 'reset-secret';");
+    expect(unlockPage).toContain(
+      'toggle.hidden = unlocked || !hasPasskey || fallbackOpen || passkeyOnly;'
+    );
+    expect(unlockPage).toContain('closeBtn.hidden = !unlocked && !passkeyOnly;');
     expect(unlockPage).toContain("if (mode === 'unlock' && loadedMode === 'unlock')");
   });
 
   it('does not repeat the two unlock buttons in a line above them', () => {
     expect(translations.en.unlockHelp).toBeUndefined();
     expect(read('src/ui/popup.ts')).toContain('helpEl.hidden = hasPasskey;');
-    expect(unlockPage).toContain("el('unlock-help').hidden = unlocked || (hasPasskey && !asStep);");
+    expect(unlockPage).toContain("el('unlock-help').hidden = unlocked || (hasPasskey && !step);");
+    // The popup keeps its heading off the first button without the line.
+    expect(read('src/ui/popup.ts')).toContain(
+      "lockScreen.classList.toggle('auth-no-hint', hasPasskey);"
+    );
   });
 
   it('suggests another unlock method only where one is on offer', () => {

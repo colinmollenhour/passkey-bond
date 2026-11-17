@@ -204,6 +204,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
     secretForm.hidden = hasPasskey;
     // The two buttons say what they do; the line is for the field alone.
     helpEl.hidden = hasPasskey;
+    lockScreen.classList.toggle('auth-no-hint', hasPasskey);
     unlockBtn.classList.toggle('btn-primary', !hasPasskey);
     unlockBtn.classList.toggle('btn-secondary', hasPasskey);
     passkeyBtn.onclick = () => openUnlockPage('unlock');

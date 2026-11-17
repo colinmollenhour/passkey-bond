@@ -695,6 +695,9 @@ const en: TranslationMap = {
   unlockOpenSecuritySettings: 'Open security settings',
   popupVaultDamagedNoPasskey:
     "This vault's lock data is damaged and cannot be opened. Restore from a backup.",
+  unlockNeedsUnlockedEnroll: 'The vault is locked. Unlock it to add a passkey.',
+  unlockNeedsUnlockedReset:
+    'The vault is locked. Unlock it with a passkey to set a new PIN or passphrase.',
 };
 
 const ru: TranslationMap = {
@@ -982,6 +985,9 @@ const ru: TranslationMap = {
   optionsRemoveNeedsCurrent:
     'Чтобы отключить блокировку хранилища, введите выше текущий PIN-код или парольную фразу.',
   optionsRemoveConfirm: 'Отключить блокировку хранилища? Хранилище будет храниться без шифрования.',
+  unlockNeedsUnlockedEnroll: 'Хранилище заблокировано. Разблокируйте его, чтобы добавить passkey.',
+  unlockNeedsUnlockedReset:
+    'Хранилище заблокировано. Разблокируйте его с помощью passkey, чтобы задать новый PIN-код или парольную фразу.',
 };
 
 const zh_CN: TranslationMap = {
@@ -1223,6 +1229,8 @@ const zh_CN: TranslationMap = {
   popupVaultDamagedNoPasskey: '此保险库的锁定数据已损坏，无法打开。请从备份恢复。',
   optionsRemoveNeedsCurrent: '请在上方输入当前的 PIN 码或密码短语，以关闭保险库锁定。',
   optionsRemoveConfirm: '要关闭保险库锁定吗？保险库将以未加密方式存储。',
+  unlockNeedsUnlockedEnroll: '保险库已锁定。请先解锁，再添加 passkey。',
+  unlockNeedsUnlockedReset: '保险库已锁定。请使用 passkey 解锁，再设置新的 PIN 码或密码短语。',
 };
 
 const ar: TranslationMap = {
@@ -1463,6 +1471,8 @@ const ar: TranslationMap = {
   popupVaultDamagedNoPasskey: 'بيانات قفل هذه الخزنة تالفة ولا يمكن فتحها. استعد نسخة احتياطية.',
   optionsRemoveNeedsCurrent: 'أدخل رمز PIN أو عبارة المرور الحالية أعلاه لإيقاف قفل الخزنة.',
   optionsRemoveConfirm: 'هل تريد إيقاف قفل الخزنة؟ ستُخزَّن خزنتك دون تشفير.',
+  unlockNeedsUnlockedEnroll: 'الخزنة مقفلة. افتحها لإضافة مفتاح مرور.',
+  unlockNeedsUnlockedReset: 'الخزنة مقفلة. افتحها بمفتاح مرور لتعيين رمز PIN أو عبارة مرور جديدة.',
 };
 
 const fa: TranslationMap = {
@@ -1798,6 +1808,9 @@ const fa: TranslationMap = {
   optionsRemoveNeedsCurrent:
     'برای خاموش کردن قفل گاوصندوق، پین یا عبارت عبور فعلی را در بالا وارد کنید.',
   optionsRemoveConfirm: 'قفل گاوصندوق خاموش شود؟ گاوصندوق شما بدون رمزگذاری ذخیره می‌شود.',
+  unlockNeedsUnlockedEnroll: 'گاوصندوق قفل است. برای افزودن کلید عبور آن را باز کنید.',
+  unlockNeedsUnlockedReset:
+    'گاوصندوق قفل است. برای تعیین پین یا عبارت عبور جدید، آن را با کلید عبور باز کنید.',
 };
 
 const es: TranslationMap = {
@@ -2050,6 +2063,9 @@ const es: TranslationMap = {
   optionsRemoveNeedsCurrent:
     'Introduce arriba tu PIN o frase de contraseña actual para desactivar el bloqueo de la bóveda.',
   optionsRemoveConfirm: '¿Desactivar el bloqueo de la bóveda? Tu bóveda se guardará sin cifrar.',
+  unlockNeedsUnlockedEnroll: 'La bóveda está bloqueada. Desbloquéala para añadir una passkey.',
+  unlockNeedsUnlockedReset:
+    'La bóveda está bloqueada. Desbloquéala con una passkey para establecer un nuevo PIN o frase de contraseña.',
 };
 
 const fr: TranslationMap = {
@@ -2305,6 +2321,9 @@ const fr: TranslationMap = {
     'Saisissez ci-dessus votre code PIN ou votre phrase secrète actuel pour désactiver le verrouillage du coffre.',
   optionsRemoveConfirm:
     'Désactiver le verrouillage du coffre ? Votre coffre sera stocké sans chiffrement.',
+  unlockNeedsUnlockedEnroll: 'Le coffre est verrouillé. Déverrouillez-le pour ajouter une passkey.',
+  unlockNeedsUnlockedReset:
+    'Le coffre est verrouillé. Déverrouillez-le avec une passkey pour définir un nouveau code PIN ou une nouvelle phrase secrète.',
 };
 
 export const translations: Record<ResolvedLanguage, TranslationMap> = {
