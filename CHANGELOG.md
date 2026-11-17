@@ -44,6 +44,9 @@ or a security key.
   you delete them there, and cannot open a lock you set up later.
 - **Firefox** unlocks with the PIN or passphrase only for now. Firefox does
   not let an extension register a passkey under its own address.
+- **The Android and iOS apps are unchanged.** They have no PIN or passphrase:
+  the vault there opens with the device's own lock (face, fingerprint, or
+  screen lock or passcode), so there is no PIN for a passkey to stand in for.
 - **New vault storage format.** Every locked vault, in Chrome and in Firefox,
   moves to it the next time it is unlocked with its PIN or passphrase. Version
   0.13.0 then says the vault needs a newer version and cannot open it; earlier

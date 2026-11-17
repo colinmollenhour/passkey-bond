@@ -113,7 +113,7 @@
                 <tr><th scope="row">Data key</th><td>256 random bits. Each way of unlocking keeps its own copy, wrapped with AES-256-GCM and bound to this vault and that method.</td></tr>
                 <tr><th scope="row">Key derivation</th><td>scrypt, <code>N = 2^17, r = 8, p = 1</code> (128 MiB), from the PIN or passphrase to the key that wraps its copy</td></tr>
                 <tr><th scope="row">Parameters</th><td>Stored with the vault. Vaults sealed with weaker settings, or by version 0.13.0 and earlier, move to this layout at the next PIN or passphrase unlock.</td></tr>
-                <tr><th scope="row">Passkey unlock</th><td>Chromium browsers. The passkey's WebAuthn PRF output, through HKDF-SHA256, gives the key that wraps its copy, with user verification required every time. A prompt that returns no PRF output unlocks nothing. Whether a provider supports PRF is checked when you add the passkey. Firefox: PIN or passphrase only.</td></tr>
+                <tr><th scope="row">Passkey unlock</th><td>Chromium browsers. The passkey's WebAuthn PRF output, through HKDF-SHA256, gives the key that wraps its copy, with user verification required every time. A prompt that returns no PRF output unlocks nothing. Whether a provider supports PRF is checked when you add the passkey. Firefox: PIN or passphrase only. The Android and iOS apps have no PIN, so this doesn't apply there.</td></tr>
                 <tr><th scope="row">Phone</th><td>Unlocks with the system's own BiometricPrompt: face, fingerprint or screen lock. Locks itself again after 5 minutes by default.</td></tr>
               </table>
             </div>

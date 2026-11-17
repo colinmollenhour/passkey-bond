@@ -6,7 +6,8 @@ and it is not on the App Store yet. It will be a paid one-time purchase
 (US$2.95).
 
 The app stores passkeys and authenticator entries in an encrypted vault unlocked
-with Face ID, Touch ID, or the device passcode. It provides encrypted backups,
+with Face ID, Touch ID, or the device passcode. There is no app PIN, so the
+browser extension's passkey unlock does not apply here. It provides encrypted backups,
 TOTP and HOTP codes, QR setup, and end-to-end encrypted sync with Passkey.bond on
 your other devices (the browser extensions and the Android app). The AutoFill
 extension creates and uses passkeys in Safari and supported apps.

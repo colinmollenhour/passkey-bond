@@ -40,7 +40,7 @@ Supported Android versions:
 - Android Credential Manager provider (API 34+): passkey create and get flows through the OS picker, with entries encoded in the androidx.credentials slice format.
 - Native WebAuthn signing for provider flows. Uses the caller-supplied `clientDataHash` when present (browser flows) and the same Passkey.bond AAGUID as the extension.
 - Native/WebView vault snapshot bridge so provider-created passkeys appear in the app vault and vice versa.
-- Vault lock via the device lock mechanism only (BiometricPrompt: face, fingerprint, or screen-lock credential). No app-specific PIN. Auto-lock timer (default 5 minutes, configurable in Tools).
+- Vault lock via the device lock mechanism only (BiometricPrompt: face, fingerprint, or screen-lock credential). No app-specific PIN, so the browser extension's passkey unlock does not apply here. Auto-lock timer (default 5 minutes, configurable in Tools).
 - Delete protection: long-press an item, confirm, and it moves to a recycle bin in Tools for 7 days before permanent removal.
 - Pull-to-refresh on the vault triggers a sync.
 - Nostr sync matching the extension protocol. Default relays are `wss://relay.passkey.bond` (ours, sync events only), `wss://relay.damus.io` and `wss://nos.lol` (`DEFAULT_RELAYS` in `src/sync/protocol.ts`).
