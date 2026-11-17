@@ -27,6 +27,9 @@ enum Brand {
     /// Icons and the wordmark's ".bond" (--wordmark-accent).
     static let gold = dynamic(light: deepGold, dark: goldHex)
     static let danger = dynamic(light: oxblood, dark: 0xE07A86)
+    /// Filled destructive controls (swipe actions) carry a light label, so
+    /// they stay oxblood in dark mode too.
+    static let dangerFill = dynamic(light: oxblood, dark: oxblood)
     static let success = dynamic(light: racingGreen, dark: 0x6FB592)
     static let separator = dynamic(light: 0xD8CCB4, dark: 0x30363D)
 
@@ -144,6 +147,7 @@ struct BrandSection<Content: View>: View {
         }
         .listRowBackground(Brand.surface)
         .textCase(nil)
+        .headerProminence(.increased)
     }
 }
 

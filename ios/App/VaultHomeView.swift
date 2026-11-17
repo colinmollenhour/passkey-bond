@@ -20,6 +20,10 @@ private struct BackupDocument: FileDocument {
     }
 }
 
+private enum HomeTab: Hashable {
+    case vault, sync, settings
+}
+
 struct VaultHomeView: View {
     @StateObject private var model: NativeVaultModel
     @StateObject private var sync: NativeSyncModel
@@ -33,6 +37,7 @@ struct VaultHomeView: View {
     @State private var addingOTP = false
     @State private var deleting: VaultItem?
     @State private var clipboard = VaultClipboard()
+    @State private var tab = HomeTab.vault
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     init() {
@@ -51,10 +56,11 @@ struct VaultHomeView: View {
     var body: some View {
         Group {
             if model.session == .unlocked {
-                TabView {
-                    vault.tabItem { Label("Vault", systemImage: "key.fill") }
+                TabView(selection: $tab) {
+                    vault.tabItem { Label("Vault", systemImage: "key.fill") }.tag(HomeTab.vault)
                     NativeSyncView(model: sync).tabItem { Label("Sync", systemImage: "arrow.triangle.2.circlepath") }
-                    settings.tabItem { Label("Settings", systemImage: "gearshape") }
+                        .tag(HomeTab.sync)
+                    settings.tabItem { Label("Settings", systemImage: "gearshape") }.tag(HomeTab.settings)
                 }
             } else {
                 lockScreen
@@ -177,7 +183,7 @@ struct VaultHomeView: View {
                     .accessibilityElement(children: .combine)
                     .listRowBackground(Brand.surface)
                     .swipeActions {
-                        Button("Delete", role: .destructive) { deleting = item }.tint(Brand.danger)
+                        Button("Delete", role: .destructive) { deleting = item }.tint(Brand.dangerFill)
                     }
                 }
             }

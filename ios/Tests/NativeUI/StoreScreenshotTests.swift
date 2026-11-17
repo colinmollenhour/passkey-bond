@@ -41,15 +41,15 @@ final class StoreScreenshotTests: XCTestCase {
         app.buttons["Cancel"].tap()
         XCTAssertTrue(app.navigationBars["Add 2FA code"].waitForNonExistence(timeout: 5))
 
-        tab(app, "Sync").tap()
+        select(app, "Sync")
         XCTAssertTrue(app.buttons["Create sync chain"].waitForExistence(timeout: 5))
         capture(app, "04-sync")
 
-        tab(app, "Settings").tap()
+        select(app, "Settings")
         XCTAssertTrue(app.buttons["Export encrypted backup"].waitForExistence(timeout: 5))
         capture(app, "05-settings")
 
-        tab(app, "Vault").tap()
+        select(app, "Vault")
         XCTAssertTrue(bank.waitForExistence(timeout: 5))
         XCUIDevice.shared.appearance = .dark
         // Let the trait change redraw before capturing.
@@ -62,6 +62,18 @@ final class StoreScreenshotTests: XCTestCase {
     private func tab(_ app: XCUIApplication, _ name: String) -> XCUIElement {
         let item = app.tabBars.buttons[name]
         return item.exists ? item : app.buttons[name].firstMatch
+    }
+
+    /// Selects a tab, tapping again if the first tap was swallowed (it can be
+    /// right after a sheet closes).
+    private func select(_ app: XCUIApplication, _ name: String) {
+        for _ in 0..<3 {
+            let item = tab(app, name)
+            XCTAssertTrue(item.waitForExistence(timeout: 5))
+            item.tap()
+            if item.wait(for: \.isSelected, toEqual: true, timeout: 2) { return }
+        }
+        XCTFail("Could not select the \(name) tab")
     }
 
     private func dismissKeyboard(_ app: XCUIApplication) {
