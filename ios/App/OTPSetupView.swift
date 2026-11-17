@@ -43,9 +43,15 @@ struct OTPSetupView: View {
                     }
                     Stepper("Digits: \(digits)", value: $digits, in: 6...10)
                     if kind == .totp {
-                        TextField("Period in seconds", text: $period).keyboardType(.numberPad)
+                        LabeledContent("Period in seconds") {
+                            TextField("Period in seconds", text: $period)
+                                .keyboardType(.numberPad).multilineTextAlignment(.trailing)
+                        }
                     } else {
-                        TextField("Starting counter", text: $counter).keyboardType(.numberPad)
+                        LabeledContent("Starting counter") {
+                            TextField("Starting counter", text: $counter)
+                                .keyboardType(.numberPad).multilineTextAlignment(.trailing)
+                        }
                     }
                     Text("Use the settings supplied by the service.")
                         .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)

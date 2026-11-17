@@ -102,7 +102,7 @@ struct VaultHomeView: View {
             password = ""
             confirmation = ""
         }
-        .sheet(isPresented: $addingOTP) { OTPSetupView(model: model) }
+        .sheet(isPresented: $addingOTP) { OTPSetupView(model: model).presentationBackground(Brand.page) }
         .confirmationDialog("Delete this entry?", isPresented: Binding(
             get: { deleting != nil }, set: { if !$0 { deleting = nil } }
         ), titleVisibility: .visible) {
@@ -209,6 +209,7 @@ struct VaultHomeView: View {
                     #endif
                 } header: { BrandHeader("Passkeys") }
                 .listRowBackground(Brand.surface)
+                .textCase(nil)
                 Section {
                     SecureField("Backup password", text: $password)
                     SecureField("Confirm password for export", text: $confirmation)
@@ -226,12 +227,14 @@ struct VaultHomeView: View {
                         .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
                 } header: { BrandHeader("Backup and restore") }
                 .listRowBackground(Brand.surface)
+                .textCase(nil)
                 Section {
                     Text("The vault locks when you leave the app or after five minutes without activity.")
                     Text("Copied codes stay on this device and expire after 30 seconds.")
                     Button("Lock vault") { model.lock() }
                 } header: { BrandHeader("Security") }
                 .listRowBackground(Brand.surface)
+                .textCase(nil)
                 Section {
                     Text("QR codes are read on this device. Camera images are not uploaded.")
                     Text("Sync encrypts your vault contents. Relays can see your IP address, sync identifiers and update times. Leaving sync does not delete records already held by relays.")
@@ -240,6 +243,7 @@ struct VaultHomeView: View {
                     NavigationLink("About and licenses") { OpenSourceView() }
                 } header: { BrandHeader("Privacy and support") }
                 .listRowBackground(Brand.surface)
+                .textCase(nil)
             }
             .brandList()
             .onChange(of: password) { _, _ in model.touch() }

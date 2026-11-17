@@ -143,6 +143,7 @@ struct BrandSection<Content: View>: View {
             BrandHeader(title)
         }
         .listRowBackground(Brand.surface)
+        .textCase(nil)
     }
 }
 
@@ -150,8 +151,9 @@ extension View {
     /// Brand page background behind a List or Form, with brand-coloured rows.
     func brandList() -> some View {
         scrollContentBackground(.hidden)
-            .background(Brand.page)
-            .listRowBackground(Brand.surface)
+            // Fill behind the keyboard too, or a sheet shows a white band
+            // where the keyboard was.
+            .background { Brand.page.ignoresSafeArea() }
             .textCase(nil)
     }
 

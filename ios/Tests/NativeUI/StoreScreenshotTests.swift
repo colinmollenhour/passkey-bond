@@ -27,16 +27,19 @@ final class StoreScreenshotTests: XCTestCase {
         capture(app, "02-vault")
 
         app.buttons["Add 2FA code"].tap()
-        let link = app.secureTextFields["otpauth:// link"]
-        XCTAssertTrue(link.waitForExistence(timeout: 5))
-        link.tap()
-        link.typeText("otpauth://totp/Example%20Mail:alex%40example.com?secret=MFRGGZDFMZTWQ2LK&issuer=Example%20Mail")
-        app.buttons["Read setup link"].tap()
-        XCTAssertEqual(app.textFields["Issuer or service"].value as? String, "Example Mail")
+        // Fill in the visible fields only: iOS leaves secure fields blank in
+        // screenshots, so the setup key keeps its placeholder.
+        let issuer = app.textFields["Issuer or service"]
+        XCTAssertTrue(issuer.waitForExistence(timeout: 5))
+        issuer.tap()
+        issuer.typeText("Example Mail")
+        let account = app.textFields["Account"]
+        account.tap()
+        account.typeText("alex@example.com\n")
         dismissKeyboard(app)
         capture(app, "03-add-code")
         app.buttons["Cancel"].tap()
-        XCTAssertTrue(bank.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Add 2FA code"].waitForNonExistence(timeout: 5))
 
         tab(app, "Sync").tap()
         XCTAssertTrue(app.buttons["Create sync chain"].waitForExistence(timeout: 5))
