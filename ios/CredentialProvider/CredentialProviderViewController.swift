@@ -106,7 +106,8 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
         hosted?.willMove(toParent: nil)
         hosted?.view.removeFromSuperview()
         hosted?.removeFromParent()
-        let controller = UIHostingController(rootView: content)
+        Brand.applyAppearance()
+        let controller = UIHostingController(rootView: content.brandChrome())
         addChild(controller)
         view.addSubview(controller.view)
         controller.view.translatesAutoresizingMaskIntoConstraints = false
@@ -131,9 +132,16 @@ private struct ProviderPicker: View {
         NavigationStack {
             List(choices) { choice in
                 Button { choose(choice.id) } label: {
-                    Label(choice.account, systemImage: "key.fill").padding(.vertical, 8)
+                    Label {
+                        Text(choice.account).foregroundStyle(Brand.text)
+                    } icon: {
+                        Image(systemName: "person.badge.key.fill").foregroundStyle(Brand.gold)
+                    }
+                    .padding(.vertical, 8)
                 }
+                .listRowBackground(Brand.surface)
             }
+            .brandList()
             .overlay {
                 if choices.isEmpty {
                     ContentUnavailableView("No matching passkey", systemImage: "key",
@@ -155,12 +163,14 @@ private struct ProviderRegistration: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                Image(systemName: "key.fill").font(.largeTitle)
-                Text("Save a passkey?").font(.title)
-                Text(rpId).font(.headline)
-                Text(account).foregroundStyle(.secondary)
-                Button("Save in Passkey.bond", action: save).buttonStyle(.borderedProminent)
+                Image(systemName: "person.badge.key.fill").font(.largeTitle).foregroundStyle(Brand.gold)
+                Text("Save a passkey?").font(.jost(28, .semibold, relativeTo: .title))
+                Text(rpId).font(.jost(18, .medium, relativeTo: .headline))
+                Text(account).foregroundStyle(Brand.muted)
+                Button("Save in Passkey.bond", action: save).buttonStyle(.brandProminent)
             }.padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Brand.page)
                 .toolbar { Button("Cancel", action: cancel) }
         }
     }
@@ -170,10 +180,12 @@ private struct ProviderConfiguration: View {
     let done: () -> Void
     var body: some View {
         VStack(spacing: 20) {
-            Label("Passkey.bond", systemImage: "key.fill").font(.title)
+            BrandWordmark(size: 34)
             Text("Open Passkey.bond to unlock your vault and import your credentials. You can then save and use passkeys in apps and Safari.")
                 .multilineTextAlignment(.center)
-            Button("Done", action: done).buttonStyle(.borderedProminent)
+            Button("Done", action: done).buttonStyle(.brandProminent)
         }.padding(32)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Brand.page)
     }
 }

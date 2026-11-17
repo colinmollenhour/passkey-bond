@@ -19,10 +19,6 @@ final class VaultUITests: XCTestCase {
         app.buttons["Save"].tap()
         let entry = app.cells.containing(.staticText, identifier: "Example").firstMatch
         XCTAssertTrue(entry.waitForExistence(timeout: 5))
-        let screenshot = XCTAttachment(screenshot: app.screenshot())
-        screenshot.name = "Native vault with authenticator"
-        screenshot.lifetime = .keepAlways
-        add(screenshot)
         entry.swipeLeft()
         app.buttons["Delete"].tap()
         XCTAssertTrue(app.buttons["Delete Example"].waitForExistence(timeout: 5))

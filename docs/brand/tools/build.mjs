@@ -375,6 +375,21 @@ write(
     2,
   ) + '\n',
 );
+// The mark on the iOS lock screen, as a vector image set.
+const iosMarkDir = path.relative(BRAND, path.resolve(IOS_ICONSET, '../BrandMark.imageset'));
+write(`${iosMarkDir}/BrandMark.svg`, files['passkey-bond-mark.svg']);
+write(
+  `${iosMarkDir}/Contents.json`,
+  JSON.stringify(
+    {
+      images: [{ filename: 'BrandMark.svg', idiom: 'universal' }],
+      info: { author: 'xcode', version: 1 },
+      properties: { 'preserves-vector-representation': true },
+    },
+    null,
+    2,
+  ) + '\n',
+);
 // Raster logo used by scripts/capture-promo-video.js.
 png(files['passkey-bond-mark.svg'], 512, 'passkey-bond-logo.png');
 

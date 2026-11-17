@@ -9,39 +9,42 @@ struct NativeSyncView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Status") {
+                BrandSection("Status") {
                     Text(model.statusText)
                     Text("Sync runs while the vault is unlocked. Relay acceptance confirms upload; another device must connect to receive it.")
-                        .font(.footnote).foregroundStyle(.secondary)
+                        .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
                 }
                 if model.enabled {
-                    Section("Devices") {
+                    BrandSection("Devices") {
                         ForEach(model.peers) { peer in
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(peer.name)
-                                Text(peer.type).font(.footnote).foregroundStyle(.secondary)
+                                Text(peer.type).font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
                             }
                         }
                         Button("Retry sync") { model.retry() }
                     }
                     Section {
                         Button("Leave sync chain", role: .destructive) { leaving = true }
+                            .foregroundStyle(Brand.danger)
                     } footer: {
                         Text("Leaving keeps this device's vault entries. It does not remove copies on other devices or records held by relays.")
+                            .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
                     }
+                    .listRowBackground(Brand.surface)
                 } else {
-                    Section("Sync privacy") {
+                    BrandSection("Sync privacy") {
                         Text("Your vault contents are encrypted before upload. Relays can see your IP address, sync identifiers and update times. They may retain these records after you leave sync.")
                     }
-                    Section("This device") {
+                    BrandSection("This device") {
                         TextField("Device name", text: $model.deviceName)
                     }
-                    Section("Start a chain") {
+                    BrandSection("Start a chain") {
                         Button("Create sync chain") { model.create() }
                         Text("Save the recovery phrase, then enter it on your other devices.")
-                            .font(.footnote).foregroundStyle(.secondary)
+                            .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
                     }
-                    Section("Join an existing chain") {
+                    BrandSection("Join an existing chain") {
                         SecureField("12- or 24-word recovery phrase", text: $phrase)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("Join sync chain") {
@@ -50,6 +53,7 @@ struct NativeSyncView: View {
                     }
                 }
             }
+            .brandList()
             .navigationTitle("Sync")
             .confirmationDialog("Leave this sync chain?", isPresented: $leaving, titleVisibility: .visible) {
                 Button("Leave chain", role: .destructive) { model.leave() }
@@ -59,19 +63,22 @@ struct NativeSyncView: View {
                                          set: { if !$0 { model.recoveryPhrase = nil } })) {
                 NavigationStack {
                     VStack(alignment: .leading, spacing: 24) {
-                        Text("Save your recovery phrase").font(.title2)
+                        Text("Save your recovery phrase").font(.jost(24, .semibold, relativeTo: .title2))
                         Text("Anyone with this phrase can join your chain and read its vault entries. Keep it private.")
                         Text(model.recoveryPhrase ?? "")
-                            .font(.title3.monospaced()).textSelection(.enabled).privacySensitive()
+                            .font(.system(.title3, design: .monospaced)).textSelection(.enabled).privacySensitive()
                         Text("This phrase is shown once. Keep an encrypted backup as well.")
-                            .font(.footnote).foregroundStyle(.secondary)
+                            .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
                         Button("I've saved it") { model.recoveryPhrase = nil }
-                            .buttonStyle(.borderedProminent)
+                            .buttonStyle(.brandProminent)
                     }
                     .padding(24)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .background(Brand.page)
                     .overlay {
-                        if scenePhase != .active { Rectangle().fill(.background) }
+                        if scenePhase != .active { Rectangle().fill(Brand.page).ignoresSafeArea() }
                     }
+                    .brandChrome()
                 }
             }
         }

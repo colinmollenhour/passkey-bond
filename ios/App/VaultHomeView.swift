@@ -34,7 +34,6 @@ struct VaultHomeView: View {
     @State private var deleting: VaultItem?
     @State private var clipboard = VaultClipboard()
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    private let amber = Color(red: 0.96, green: 0.65, blue: 0.14)
 
     init() {
         let sync = NativeSyncModel()
@@ -61,8 +60,7 @@ struct VaultHomeView: View {
                 lockScreen
             }
         }
-        .tint(amber)
-        .font(.custom("Jost-Regular", size: 17, relativeTo: .body))
+        .brandChrome()
         .simultaneousGesture(TapGesture().onEnded { model.touch() })
         .onReceive(timer) { _ in model.tick() }
         .onChange(of: scenePhase) { _, phase in
@@ -85,9 +83,8 @@ struct VaultHomeView: View {
         }
         .overlay {
             if scenePhase != .active {
-                Rectangle().fill(.background).overlay {
-                    Label("Passkey.bond", systemImage: "lock.fill")
-                        .font(.custom("Jost-Regular", size: 28, relativeTo: .title))
+                Rectangle().fill(Brand.page).overlay {
+                    BrandWordmark(size: 32)
                 }.ignoresSafeArea()
             }
         }
@@ -123,23 +120,26 @@ struct VaultHomeView: View {
 
     private var lockScreen: some View {
         VStack(spacing: 24) {
-            Image(systemName: "lock.shield").font(.system(size: 64)).foregroundStyle(amber)
-            Text("Passkey.bond").font(.custom("Jost-Regular", size: 36, relativeTo: .largeTitle))
+            Image("BrandMark")
+                .resizable().scaledToFit().frame(width: 112, height: 112)
+                .accessibilityHidden(true)
+            BrandWordmark(size: 40)
             Text("Your passkeys and 2FA codes, on your device.")
-                .foregroundStyle(.secondary).multilineTextAlignment(.center)
+                .foregroundStyle(Brand.muted).multilineTextAlignment(.center)
             Button {
                 Task { await model.unlock() }
             } label: {
-                if model.session == .unlocking { ProgressView() }
+                if model.session == .unlocking { ProgressView().tint(Brand.onAccent) }
                 else { Label("Unlock vault", systemImage: "faceid") }
             }
-            .buttonStyle(.borderedProminent)
-            .foregroundStyle(.black)
+            .buttonStyle(.brandProminent)
             .disabled(model.session == .unlocking)
             Text("Use Face ID, Touch ID, or your device passcode.")
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
         }
         .padding(32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Brand.page)
     }
 
     private var vault: some View {
@@ -149,14 +149,15 @@ struct VaultHomeView: View {
                     search.isEmpty || (item.title + " " + item.account).localizedCaseInsensitiveContains(search)
                 }) { item in
                     HStack(spacing: 14) {
-                        Image(systemName: item.kind == .passkey ? "key.fill" : "number.square")
-                            .foregroundStyle(amber).frame(width: 28)
+                        Image(systemName: item.kind == .passkey ? "person.badge.key.fill" : "number.square")
+                            .font(.title3).foregroundStyle(Brand.gold).frame(width: 30)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(item.title).font(.custom("Jost-Regular", size: 19, relativeTo: .headline))
-                            Text(item.account).font(.subheadline).foregroundStyle(.secondary)
+                            Text(item.title).font(.jost(18, .medium, relativeTo: .headline))
+                            Text(item.account).font(.jost(15, relativeTo: .subheadline)).foregroundStyle(Brand.muted)
                             if let code = item.code ?? model.issuedCodes[item.id] {
                                 HStack {
-                                    Text(code).font(.title2.monospacedDigit())
+                                    Text(code).font(.jost(26, .medium, relativeTo: .title2).monospacedDigit())
+                                        .tracking(1.5)
                                     Button("Copy code", systemImage: "doc.on.doc") {
                                         clipboard.copyCode(code)
                                         model.touch()
@@ -174,11 +175,13 @@ struct VaultHomeView: View {
                         .padding(.vertical, 6)
                     }
                     .accessibilityElement(children: .combine)
+                    .listRowBackground(Brand.surface)
                     .swipeActions {
-                        Button("Delete", role: .destructive) { deleting = item }
+                        Button("Delete", role: .destructive) { deleting = item }.tint(Brand.danger)
                     }
                 }
             }
+            .brandList()
             .overlay {
                 if model.items.isEmpty {
                     ContentUnavailableView("Your vault is empty", systemImage: "key",
@@ -198,14 +201,15 @@ struct VaultHomeView: View {
     private var settings: some View {
         NavigationStack {
             Form {
-                Section("Passkeys") {
+                Section {
                     #if LOCAL_DEVICE_TEST
                     Text("This test app supports vault storage and backups. Passkey AutoFill requires the full Passkey.bond build.")
                     #else
                     Text("Enable Passkey.bond in your device's Password AutoFill settings to create and use passkeys in apps and Safari.")
                     #endif
-                }
-                Section("Backup and restore") {
+                } header: { BrandHeader("Passkeys") }
+                .listRowBackground(Brand.surface)
+                Section {
                     SecureField("Backup password", text: $password)
                     SecureField("Confirm password for export", text: $confirmation)
                     Button("Export encrypted backup") {
@@ -219,21 +223,25 @@ struct VaultHomeView: View {
                     .disabled(password.isEmpty || password != confirmation)
                     Button("Import backup") { importing = true }
                     Text("Keep the file and password safe. Nobody can recover them for you.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                }
-                Section("Security") {
+                        .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
+                } header: { BrandHeader("Backup and restore") }
+                .listRowBackground(Brand.surface)
+                Section {
                     Text("The vault locks when you leave the app or after five minutes without activity.")
                     Text("Copied codes stay on this device and expire after 30 seconds.")
                     Button("Lock vault") { model.lock() }
-                }
-                Section("Privacy and support") {
+                } header: { BrandHeader("Security") }
+                .listRowBackground(Brand.surface)
+                Section {
                     Text("QR codes are read on this device. Camera images are not uploaded.")
                     Text("Sync encrypts your vault contents. Relays can see your IP address, sync identifiers and update times. Leaving sync does not delete records already held by relays.")
                     Link("Privacy policy", destination: VaultLinks.privacy)
                     Link("Contact support", destination: VaultLinks.support)
-                    NavigationLink("Open source licenses") { OpenSourceView() }
-                }
+                    NavigationLink("About and licenses") { OpenSourceView() }
+                } header: { BrandHeader("Privacy and support") }
+                .listRowBackground(Brand.surface)
             }
+            .brandList()
             .onChange(of: password) { _, _ in model.touch() }
             .onChange(of: confirmation) { _, _ in model.touch() }
             .navigationTitle("Settings")

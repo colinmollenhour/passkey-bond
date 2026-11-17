@@ -19,14 +19,14 @@ struct OTPSetupView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Setup link") {
+                BrandSection("Setup link") {
                     Button("Scan QR code", systemImage: "qrcode.viewfinder") {
                         requestingCamera = true
                     }.disabled(requestingCamera)
                     SecureField("otpauth:// link", text: $uri)
                     Button("Read setup link") { readLink() }.disabled(uri.isEmpty)
                 }
-                Section("Authenticator") {
+                BrandSection("Authenticator") {
                     TextField("Issuer or service", text: $issuer)
                     TextField("Account", text: $account)
                         .textInputAutocapitalization(.never)
@@ -37,7 +37,7 @@ struct OTPSetupView: View {
                         Text("Counter-based (HOTP)").tag(OTPKind.hotp)
                     }
                 }
-                Section("Advanced settings") {
+                BrandSection("Advanced settings") {
                     Picker("Algorithm", selection: $algorithm) {
                         ForEach(OTPAlgorithm.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                     }
@@ -48,10 +48,11 @@ struct OTPSetupView: View {
                         TextField("Starting counter", text: $counter).keyboardType(.numberPad)
                     }
                     Text("Use the settings supplied by the service.")
-                        .font(.footnote).foregroundStyle(.secondary)
+                        .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
                 }
-                if let error { Text(error).foregroundStyle(.red) }
+                if let error { Text(error).foregroundStyle(Brand.danger).listRowBackground(Brand.surface) }
             }
+            .brandList()
             .autocorrectionDisabled()
             .navigationTitle("Add 2FA code")
             .toolbar {
@@ -83,11 +84,12 @@ struct OTPSetupView: View {
                         scanning = false
                         error = "The camera could not scan the code. Try again or enter the setup key."
                     }
-                    .navigationTitle("Scan authenticator QR")
+                    .navigationTitle("Scan authenticator code")
                     .toolbar { Button("Cancel") { scanning = false } }
                 }
             }
         }
+        .brandChrome()
     }
 
     private func readLink() {
