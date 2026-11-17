@@ -148,7 +148,7 @@ as vectors.
 
 - [x] Extension icons: `src/icons/icon16/32/48/128.png` are the `png/extension/` exports.
 - [x] Android launcher icons: the build writes the adaptive icon's foreground and monochrome (themed icon) layers and the legacy `ic_launcher.png` into `android/app/src/main/res/mipmap-*`, the in-app mark `android/web/src/icon.png`, and the Play listing icon `android/play/icon-512.png`. The icon tile is ivory, or tuxedo black in dark mode (`@color/icon_background`).
-- [ ] iOS app icon: the iOS project has no asset catalog yet.
+- [x] iOS app icon: the build writes the 1024 px universal icon `AppIcon.png` (ivory tile) and its dark appearance `AppIcon-dark.png` (tuxedo black) into `ios/App/Assets.xcassets/AppIcon.appiconset/`, with `Contents.json`. They are full squares (iOS applies the mask) and opaque RGB, because the App Store rejects an alpha channel.
 - [x] Interface: the popup, options, vault dialog, emergency and import pages, in-page prompts and the Android web UI use the brand colours, Jost for the interface and the Bodoni Moda wordmark. The fonts are bundled in `src/assets/fonts/` and `android/web/src/fonts/`.
 - [x] Store assets: `scripts/capture-assets.js` (Chrome Web Store screenshots and promo tiles) and `scripts/capture-promo-video.js` use the brand colours and type.
 - [ ] FIDO Metadata Service listing (the statement is ready in `docs/aaguid/`).

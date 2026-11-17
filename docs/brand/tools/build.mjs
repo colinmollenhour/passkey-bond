@@ -3,6 +3,7 @@
 // Fonts (SIL OFL, from Google Fonts) are downloaded into .fonts/ on first run;
 // the wordmark is converted to outlines so the SVGs never depend on them.
 import fs from 'node:fs';
+import zlib from 'node:zlib';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Resvg } from '@resvg/resvg-js';
@@ -300,6 +301,80 @@ for (const [dpi, scale] of Object.entries({ mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi
 png(files['passkey-bond-mark.svg'], 256, path.relative(BRAND, path.resolve(BRAND, '../../android/web/src/icon.png')));
 // Google Play wants a full square; it rounds the corners itself.
 png(svg(iconBody(COLORS.black).replace('rx="112" ', '')), 512, path.relative(BRAND, path.join(ANDROID_PLAY, 'icon-512.png')));
+// iOS app icon: a full 1024 square (iOS applies the rounded mask) in the same
+// proportions as the Play icon, as an opaque RGB PNG since the App Store
+// rejects icons with an alpha channel. Ivory by default, tuxedo black for the
+// dark appearance.
+const IOS_ICONSET = path.resolve(BRAND, '../../ios/App/Assets.xcassets/AppIcon.appiconset');
+const crcTable = Array.from({ length: 256 }, (_, n) => {
+  let c = n;
+  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+  return c >>> 0;
+});
+function pngChunk(type, data) {
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+  let c = 0xffffffff;
+  for (const b of body) c = crcTable[(c ^ b) & 0xff] ^ (c >>> 8);
+  const len = Buffer.alloc(4), crc = Buffer.alloc(4);
+  len.writeUInt32BE(data.length);
+  crc.writeUInt32BE((c ^ 0xffffffff) >>> 0);
+  return Buffer.concat([len, body, crc]);
+}
+// Renders an SVG whose drawing covers the whole canvas and writes it as an 8-bit RGB PNG.
+function pngOpaque(svgText, size, rel) {
+  const img = new Resvg(svgText, { fitTo: { mode: 'width', value: size } }).render();
+  const rgba = img.pixels;
+  if (img.width !== size || img.height !== size) throw new Error(`${rel}: expected ${size}x${size}`);
+  const raw = Buffer.alloc(size * (size * 3 + 1));
+  for (let y = 0; y < size; y++) {
+    const row = y * (size * 3 + 1);
+    for (let x = 0; x < size; x++) {
+      const i = (y * size + x) * 4;
+      if (rgba[i + 3] !== 255) throw new Error(`${rel}: transparent pixel at ${x},${y}`);
+      raw[row + 1 + x * 3] = rgba[i];
+      raw[row + 2 + x * 3] = rgba[i + 1];
+      raw[row + 3 + x * 3] = rgba[i + 2];
+    }
+  }
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 2; // colour type: RGB, no alpha
+  const out = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pngChunk('IHDR', ihdr),
+    pngChunk('IDAT', zlib.deflateSync(raw, { level: 9 })),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
+  const p = path.join(BRAND, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, out);
+}
+const iosTile = (tile) => svg(iconBody(tile).replace('rx="112" ', ''));
+const iosDir = path.relative(BRAND, IOS_ICONSET);
+pngOpaque(iosTile(COLORS.ivory), 1024, `${iosDir}/AppIcon.png`);
+pngOpaque(iosTile(COLORS.black), 1024, `${iosDir}/AppIcon-dark.png`);
+write(
+  `${iosDir}/Contents.json`,
+  JSON.stringify(
+    {
+      images: [
+        { filename: 'AppIcon.png', idiom: 'universal', platform: 'ios', size: '1024x1024' },
+        {
+          appearances: [{ appearance: 'luminosity', value: 'dark' }],
+          filename: 'AppIcon-dark.png',
+          idiom: 'universal',
+          platform: 'ios',
+          size: '1024x1024',
+        },
+      ],
+      info: { author: 'xcode', version: 1 },
+    },
+    null,
+    2,
+  ) + '\n',
+);
 // Raster logo used by scripts/capture-promo-video.js.
 png(files['passkey-bond-mark.svg'], 512, 'passkey-bond-logo.png');
 
