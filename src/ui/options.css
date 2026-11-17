@@ -1295,3 +1295,103 @@ a.btn {
 .about-notice strong {
   color: var(--warning);
 }
+
+/* ---------- Passkey unlock ---------- */
+.card-actions[hidden] {
+  display: none;
+}
+
+.unlock-passkey-list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  /* Keeps the tinted removal prompt inside the rounded corners */
+  overflow: hidden;
+}
+
+.unlock-passkey-list[hidden] {
+  display: none;
+}
+
+.unlock-passkey-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.unlock-passkey-row:first-child {
+  border-top: none;
+}
+
+.unlock-passkey-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.unlock-passkey-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.unlock-passkey-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.unlock-passkey-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* The secret prompt for removing one passkey, shown under its row */
+.unlock-passkey-remove {
+  margin: 0;
+  padding: 12px;
+  border-top: 1px solid var(--border-soft);
+  background: var(--bg-elev);
+}
+
+.unlock-passkey-remove .card-hint {
+  margin: 0;
+}
+
+.unlock-passkey-remove .card-actions {
+  margin-top: 4px;
+}
+
+#passkey-unlock-card > .field-error {
+  margin-bottom: 12px;
+}
+
+/* A hint that ends the card needs no space under it */
+#passkey-unlock-card > .card-hint:not(:has(~ :not([hidden]))) {
+  margin-bottom: 0;
+}
+
+/* Under the current-PIN field: the way on for someone who forgot it */
+.unlock-passkey-reset {
+  align-self: flex-start;
+  margin-bottom: 4px;
+  font-size: 12.5px;
+  color: var(--accent);
+}
+
+/* The status label of the PIN card, in the casing of the labels around it */
+.card-row > .info-label {
+  font-size: 12.5px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.unlock-passkey-reset[hidden] {
+  display: none;
+}

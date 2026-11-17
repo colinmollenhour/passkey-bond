@@ -77,6 +77,8 @@ function main() {
     'options.html',
     'options.js',
     'options.css',
+    'unlock.html',
+    'unlock.js',
     'vault-dialog.html',
     'vault-dialog.js',
     'vault-dialog.css',

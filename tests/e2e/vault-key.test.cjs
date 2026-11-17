@@ -1,8 +1,8 @@
 // End-to-end: the vault key in the built extension, with the production KDF.
 // A vault written the way builds before KDF records wrote it is unlocked
-// through the popup, upgraded to scrypt in the real MV3 service worker, moved
-// to a passphrase in Options, unlocked with it, and removed; then a fresh
-// vault is set up with a passphrase. Prints how long an unlock and a backup
+// through the popup, moved to a wrapped data key behind scrypt in the real MV3
+// service worker, moved to a passphrase in Options, unlocked with it, and
+// removed; then a fresh vault is set up with a passphrase. Prints how long an unlock and a backup
 // take in the worker.
 //
 //   npm run build:chrome && node tests/e2e/vault-key.test.cjs
@@ -107,6 +107,11 @@ async function openPage(name) {
 
 const stored = (keys) => worker.evaluate((k) => chrome.storage.local.get(k), keys);
 
+// What passext_vault_kdf holds once the vault key is a wrapped data key: a
+// marker that 0.13.0 refuses. The KDF itself is in the unlock record.
+const SENTINEL = { kdf: 'wrapped-data-key', version: 1 };
+const PRODUCTION_SCRYPT = { N: 131072, r: 8, p: 1 };
+
 /** Type the secret into the popup's lock screen and wait for the vault list. */
 async function unlockInPopup(popup, secret) {
   await popup.locator('#lock-screen').waitFor({ state: 'visible' });
@@ -136,14 +141,22 @@ async function timeUnlockMessage(page, secret) {
   }, secret);
 }
 
-test('unlocks a vault from before KDF records and upgrades its key to scrypt', async () => {
+test('unlocks a vault from before KDF records and moves it to a data key behind scrypt', async () => {
   const popup = await openPage('popup.html');
   await unlockInPopup(popup, PIN);
 
   await popup.locator('.passkey-item', { hasText: 'legacy.example' }).waitFor();
-  const after = await stored(['passext_vault_kdf', 'passext_encryption_salt']);
-  assert.equal(after.passext_vault_kdf.kdf, 'scrypt');
-  assert.deepEqual(after.passext_vault_kdf.params, { N: 131072, r: 8, p: 1 });
+  const after = await stored([
+    'passext_vault_kdf',
+    'passext_vault_unlock',
+    'passext_encryption_salt',
+  ]);
+  assert.deepEqual(after.passext_vault_kdf, SENTINEL);
+  const record = after.passext_vault_unlock;
+  assert.equal(record.version, 1);
+  assert.equal(record.pin.kdf.kdf, 'scrypt');
+  assert.deepEqual(record.pin.kdf.params, PRODUCTION_SCRYPT);
+  assert.deepEqual(record.passkeys, []);
   assert.equal(after.passext_encryption_salt, undefined);
   await popup.close();
 });
@@ -206,7 +219,10 @@ test('sets up a new vault with a passphrase from the popup', async () => {
   await worker.evaluate(() => chrome.storage.local.remove('master_password_setup_skipped'));
   const popup = await openPage('popup.html');
   await popup.locator('#setup-screen').waitFor({ state: 'visible' });
-  assert.match(await popup.locator('#setup-screen .auth-note').textContent(), /passphrase/);
+  assert.match(
+    await popup.locator('#setup-screen [data-i18n="vaultSecretHint"]').textContent(),
+    /passphrase/
+  );
 
   // Too short a passphrase is refused before it reaches the background.
   await popup.fill('#setup-password', 'abc123');
@@ -218,8 +234,11 @@ test('sets up a new vault with a passphrase from the popup', async () => {
   await popup.fill('#setup-password-confirm', PASSPHRASE);
   await popup.click('#setup-btn');
   await popup.locator('#main-container').waitFor({ state: 'visible' });
-  const { passext_vault_kdf: kdf } = await stored(['passext_vault_kdf']);
-  assert.equal(kdf.kdf, 'scrypt');
+  const fresh = await stored(['passext_vault_kdf', 'passext_vault_unlock']);
+  assert.deepEqual(fresh.passext_vault_kdf, SENTINEL);
+  assert.equal(fresh.passext_vault_unlock.pin.kdf.kdf, 'scrypt');
+  assert.deepEqual(fresh.passext_vault_unlock.pin.kdf.params, PRODUCTION_SCRYPT);
+  assert.deepEqual(fresh.passext_vault_unlock.passkeys, []);
 
   await lockAndReload(popup);
   await unlockInPopup(popup, PASSPHRASE);

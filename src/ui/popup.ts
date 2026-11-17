@@ -46,6 +46,13 @@ import { checkBackupPassword } from '../crypto/backup-format';
   const VAULT_WARNING_DISMISSED_KEY = 'vault_warning_dismissed';
   const EXPORT_VERSION = '1.0';
   const SETUP_SKIPPED_KEY = 'master_password_setup_skipped';
+  const PASSKEY_OFFER_DISMISSED_KEY = 'passkey_unlock_offer_dismissed';
+
+  /** What the background says about unlocking this vault with a passkey. */
+  interface PasskeyUnlockState {
+    supported?: boolean;
+    count?: number;
+  }
 
   interface PopupTotpEntry {
     id: string;
@@ -122,14 +129,14 @@ import { checkBackupPassword } from '../crypto/backup-format';
 
       if (response.isSetup && !response.isUnlocked) {
         // Master password exists but vault is locked
-        showLockScreen();
+        showLockScreen(response.passkeyUnlock);
       } else if (!response.isSetup) {
         // Check if user previously skipped setup
         const skipped = await chrome.storage.local.get(SETUP_SKIPPED_KEY);
         if (skipped[SETUP_SKIPPED_KEY]) {
           showMainScreen();
         } else {
-          showSetupScreen();
+          showSetupScreen(response.passkeyUnlock);
         }
       } else {
         // Unlocked — show main
@@ -144,11 +151,13 @@ import { checkBackupPassword } from '../crypto/backup-format';
   // Manually lock the vault from the popup. If no master password is set yet,
   // there's nothing to lock behind — send the user to set one up first.
   async function lockVault(): Promise<void> {
+    let passkeyUnlock: PasskeyUnlockState | undefined;
     try {
       const state = await chrome.runtime.sendMessage({ type: 'IS_SECURE_STORAGE_UNLOCKED' });
+      passkeyUnlock = state?.passkeyUnlock;
       if (state?.success && state.isSetup === false) {
         showNotification(t('popupLockNoPasswordPrompt'));
-        showSetupScreen();
+        showSetupScreen(passkeyUnlock);
         return;
       }
       await chrome.runtime.sendMessage({ type: 'LOCK_SECURE_STORAGE' });
@@ -160,10 +169,15 @@ import { checkBackupPassword } from '../crypto/backup-format';
     allTotpEntries = [];
     codeCache.clear();
     if (vaultListEl) vaultListEl.innerHTML = '';
-    showLockScreen();
+    showLockScreen(passkeyUnlock);
   }
 
-  function showLockScreen(): void {
+  /** The passkey unlock page, in a tab: a popup closes when a passkey prompt takes focus. */
+  function openUnlockPage(mode: 'unlock' | 'enroll'): void {
+    void chrome.tabs.create({ url: chrome.runtime.getURL(`unlock.html#${mode}`) });
+  }
+
+  function showLockScreen(passkeyUnlock?: PasskeyUnlockState): void {
     lockScreen.style.display = 'block';
     setupScreen.style.display = 'none';
     mainContainer.style.display = 'none';
@@ -171,11 +185,40 @@ import { checkBackupPassword } from '../crypto/backup-format';
     const passwordInput = document.getElementById('unlock-password') as HTMLInputElement;
     const unlockBtn = document.getElementById('unlock-btn') as HTMLButtonElement;
     const errorEl = document.getElementById('unlock-error') as HTMLElement;
+    const passkeyBtn = document.getElementById('unlock-passkey-btn') as HTMLButtonElement;
+    const useSecretBtn = document.getElementById('unlock-use-secret-btn') as HTMLButtonElement;
+    const secretForm = document.getElementById('unlock-secret-form') as HTMLElement;
+    const helpEl = document.getElementById('unlock-help') as HTMLElement;
 
     // Never carry a PIN over from a previous session/entry
     passwordInput.value = '';
     errorEl.style.display = 'none';
-    passwordInput.focus();
+
+    // With a passkey that unlocks this vault, the passkey leads and the PIN
+    // or passphrase field waits behind the second button. Without one the
+    // screen is the field alone.
+    const hasPasskey = passkeyUnlock?.supported === true && (passkeyUnlock.count ?? 0) > 0;
+    passkeyBtn.hidden = !hasPasskey;
+    useSecretBtn.hidden = !hasPasskey;
+    useSecretBtn.setAttribute('aria-expanded', String(!hasPasskey));
+    secretForm.hidden = hasPasskey;
+    // The two buttons say what they do; the line is for the field alone.
+    helpEl.hidden = hasPasskey;
+    lockScreen.classList.toggle('auth-no-hint', hasPasskey);
+    unlockBtn.classList.toggle('btn-primary', !hasPasskey);
+    unlockBtn.classList.toggle('btn-secondary', hasPasskey);
+    passkeyBtn.onclick = () => openUnlockPage('unlock');
+    useSecretBtn.onclick = () => {
+      useSecretBtn.hidden = true;
+      useSecretBtn.setAttribute('aria-expanded', 'true');
+      secretForm.hidden = false;
+      passwordInput.focus();
+    };
+    if (hasPasskey) {
+      passkeyBtn.focus();
+    } else {
+      passwordInput.focus();
+    }
 
     const doUnlock = async () => {
       const password = passwordInput.value;
@@ -193,11 +236,20 @@ import { checkBackupPassword } from '../crypto/backup-format';
       if (response.success) {
         showMainScreen();
       } else {
-        // A vault set up by a newer build is not a wrong PIN.
+        // A vault set up by a newer build, one whose lock data is damaged,
+        // or one whose format upgrade could not be confirmed, is not a
+        // wrong PIN.
         errorEl.textContent =
           response.code === 'UNSUPPORTED_KDF'
             ? t('popupVaultNeedsUpdate')
-            : t('popupWrongPassword');
+            : response.code === 'VAULT_DAMAGED'
+              ? // With no passkey on offer there is no other method to suggest.
+                hasPasskey
+                ? t('popupVaultDamaged')
+                : t('popupVaultDamagedNoPasskey')
+              : response.code === 'VAULT_WRITE_UNVERIFIED'
+                ? t('popupVaultWriteUnverified')
+                : t('popupWrongPassword');
         errorEl.style.display = 'block';
         passwordInput.value = '';
         passwordInput.focus();
@@ -213,10 +265,14 @@ import { checkBackupPassword } from '../crypto/backup-format';
     };
   }
 
-  function showSetupScreen(): void {
+  function showSetupScreen(passkeyUnlock?: PasskeyUnlockState): void {
     lockScreen.style.display = 'none';
     setupScreen.style.display = 'block';
     mainContainer.style.display = 'none';
+
+    // Only where a passkey can be added once the PIN or passphrase is set.
+    (document.getElementById('setup-passkey-note') as HTMLElement).hidden =
+      passkeyUnlock?.supported !== true;
 
     const passwordInput = document.getElementById('setup-password') as HTMLInputElement;
     const confirmInput = document.getElementById('setup-password-confirm') as HTMLInputElement;
@@ -281,6 +337,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
     setupEventListeners();
     startTotpTicker();
     initVaultWarning();
+    void initPasskeyOffer();
     initFilters().then(loadVault);
     void showUpgradeBackupNotice();
   }
@@ -352,6 +409,54 @@ import { checkBackupPassword } from '../crypto/backup-format';
     } catch (error) {
       console.error('Failed to persist vault warning dismissal:', error);
     }
+    void initPasskeyOffer(); // it waited for this banner to go
+  }
+
+  /**
+   * Offer passkey unlock on the main screen: only for a vault that has a
+   * lock, is unlocked and has no passkey yet, in a browser that can do it,
+   * while no upgrade backup is owed, and until the offer is dismissed.
+   */
+  async function initPasskeyOffer(): Promise<void> {
+    const offerEl = document.getElementById('passkey-offer') as HTMLElement | null;
+    if (!offerEl) return;
+    offerEl.hidden = true;
+    try {
+      const [state, dismissed, backup] = await Promise.all([
+        chrome.runtime.sendMessage({ type: 'IS_SECURE_STORAGE_UNLOCKED' }),
+        chrome.storage.local.get([PASSKEY_OFFER_DISMISSED_KEY, VAULT_WARNING_DISMISSED_KEY]),
+        chrome.runtime.sendMessage({ type: 'GET_UPGRADE_BACKUP_STATUS' }),
+      ]);
+      const passkeyUnlock: PasskeyUnlockState | undefined = state?.passkeyUnlock;
+      offerEl.hidden = !(
+        state?.success &&
+        state.isSetup &&
+        state.isUnlocked &&
+        passkeyUnlock?.supported === true &&
+        passkeyUnlock.count === 0 &&
+        // Enrolling is refused until an upgraded vault is backed up, which
+        // the notice above asks for.
+        backup?.required !== true &&
+        // One banner at a time: the backup warning comes first, and two
+        // would push the list out of the popup.
+        dismissed[VAULT_WARNING_DISMISSED_KEY] === true &&
+        dismissed[PASSKEY_OFFER_DISMISSED_KEY] !== true
+      );
+    } catch {
+      return; // no offer when the state cannot be read
+    }
+    (document.getElementById('passkey-offer-setup-btn') as HTMLButtonElement).onclick = () =>
+      openUnlockPage('enroll');
+    const dismissBtn = document.getElementById('passkey-offer-dismiss-btn') as HTMLButtonElement;
+    dismissBtn.setAttribute('aria-label', t('popupPasskeyOfferDismiss'));
+    dismissBtn.onclick = async () => {
+      offerEl.hidden = true;
+      try {
+        await chrome.storage.local.set({ [PASSKEY_OFFER_DISMISSED_KEY]: true });
+      } catch (error) {
+        console.error('Failed to persist passkey offer dismissal:', error);
+      }
+    };
   }
 
   async function loadSyncStatus(): Promise<void> {
@@ -1027,6 +1132,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
       downloadJson(encryptedBackup, `passkey-bond-backup-${getDateString()}.json`);
       await chrome.runtime.sendMessage({ type: 'COMPLETE_UPGRADE_BACKUP' });
       document.getElementById('upgrade-backup-required')?.remove();
+      void initPasskeyOffer(); // held back while the backup was owed
       showNotification(t('popupExportedPasskeys', { count: passkeys.length + totpEntries.length }));
     } catch (error) {
       console.error('Error exporting passkeys:', error);

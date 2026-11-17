@@ -26,7 +26,7 @@
 
 ## Phase 3: Differentiate
 
-- [ ] Biometric unlock (use a hardware key to unlock the vault)
+- [x] Biometric unlock (use a hardware key to unlock the vault) — passkey unlock in Chromium browsers; Firefox is PIN or passphrase only
 - [ ] Passkey sharing via encrypted link
 - [ ] Discoverable credentials (resident keys)
 - [ ] Browser-native credential provider API (Chrome 127+)

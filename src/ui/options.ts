@@ -2,6 +2,7 @@
 
 import {
   SUPPORTED_LANGUAGES,
+  formatCount,
   getStoredLanguage,
   initAndLocalize,
   setStoredLanguage,
@@ -22,6 +23,8 @@ import {
   type ExportFormat,
 } from '../porting';
 import { checkVaultSecret, type VaultSecretProblem } from '../crypto/vault-secret';
+import { cleanPasskeyName } from '../crypto/passkey-name';
+import { UNLOCK_RECORD_KEY, type UnlockPasskeyInfo } from '../crypto/unlock-record';
 import { DEFAULT_RELAYS } from '../sync/protocol';
 
 interface DomainRules {
@@ -62,6 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadDeveloperSettings();
   loadExtensionInfo();
   fillExportFormats();
+  openSectionFromHash();
 });
 
 // ==================== GENERAL ====================
@@ -108,7 +112,15 @@ async function setupThemeSettings(): Promise<void> {
 
 // ==================== NAVIGATION ====================
 
+/** Open the section named in the URL, as in options.html#security. */
+function openSectionFromHash(): void {
+  const section = window.location.hash.replace(/^#/, '');
+  if (!/^[a-z-]+$/.test(section)) return;
+  document.querySelector<HTMLElement>(`.nav-item[data-section="${section}"]`)?.click();
+}
+
 function setupNavigation(): void {
+  window.addEventListener('hashchange', openSectionFromHash);
   const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach((item) => {
     item.addEventListener('click', () => {
@@ -453,19 +465,66 @@ function secretProblemMessage(problem: VaultSecretProblem): string {
   return problem === 'too-long' ? t('vaultSecretTooLong') : t('optionsPasswordMin');
 }
 
-async function refreshSecurityStatus(): Promise<void> {
-  const response = await sendMessage('IS_SECURE_STORAGE_UNLOCKED');
+/** The refresh that is running, and whether it was asked for again meanwhile. */
+let securityRefresh: Promise<void> | null = null;
+let securityRefreshAgain = false;
+
+/**
+ * Redraw the Security section. A tab focus, a change to the unlock record
+ * and an action's own refresh can all ask at once: they share one run, which
+ * goes round again if anything asked after it started.
+ */
+function refreshSecurityStatus(): Promise<void> {
+  if (securityRefresh) {
+    securityRefreshAgain = true;
+    return securityRefresh;
+  }
+  securityRefresh = (async () => {
+    try {
+      do {
+        securityRefreshAgain = false;
+        await drawSecurityStatus();
+      } while (securityRefreshAgain);
+    } finally {
+      securityRefresh = null;
+    }
+  })();
+  return securityRefresh;
+}
+
+/** What the background says about the vault's lock, or {} when it cannot say. */
+async function loadUnlockMethods(): Promise<Record<string, unknown>> {
+  try {
+    return (await sendMessage('GET_UNLOCK_METHODS')) ?? {};
+  } catch {
+    return {};
+  }
+}
+
+async function drawSecurityStatus(): Promise<void> {
+  // One message draws both cards: the lock's state and its unlock passkeys.
+  const methods = await loadUnlockMethods();
   const statusEl = document.getElementById('master-pw-status')!;
   const setForm = document.getElementById('master-pw-set')!;
   const changeForm = document.getElementById('master-pw-change')!;
   const lockBtn = document.getElementById('lock-now-btn')!;
 
-  if (response.isSetup === false) {
+  // With a passkey enrolled, a change of PIN or passphrase replaces only its
+  // own wrapped copy of the vault's key, and the form says so.
+  const enrolled =
+    methods.supported === true && Array.isArray(methods.passkeys) ? methods.passkeys.length : 0;
+  document.getElementById('change-pw-keeps-key-note')!.hidden = enrolled === 0;
+  // A forgotten PIN or passphrase can be replaced with one of those
+  // passkeys; the link sits where it would be typed. The page it opens
+  // unlocks the vault first if it has to.
+  document.getElementById('passkey-unlock-reset-link')!.hidden = enrolled === 0;
+
+  if (methods.isSetup === false) {
     statusEl.textContent = t('optionsNotSet');
     statusEl.className = 'status-badge not-set';
     setForm.hidden = false;
     changeForm.hidden = true;
-  } else if (response.isUnlocked) {
+  } else if (methods.isUnlocked) {
     statusEl.textContent = t('optionsUnlocked');
     statusEl.className = 'status-badge unlocked';
     setForm.hidden = true;
@@ -482,6 +541,255 @@ async function refreshSecurityStatus(): Promise<void> {
   const result = await chrome.storage.local.get('auto_lock_timeout');
   const timeout = result.auto_lock_timeout ?? 30;
   (document.getElementById('auto-lock-timeout') as HTMLSelectElement).value = String(timeout);
+
+  drawPasskeyUnlock(methods);
+}
+
+// ---------- Passkey unlock ----------
+
+/** The passkey whose removal is waiting for the PIN or passphrase, if any. */
+let passkeyRemoveTarget: string | null = null;
+/** What the card was last drawn from, so an unchanged state is not redrawn. */
+let passkeyUnlockDrawn = '';
+
+function passkeyUnlockError(message: string): void {
+  const el = document.getElementById('passkey-unlock-error')!;
+  el.textContent = message;
+  el.hidden = message === '';
+}
+
+/** What to say about a refused change to the vault's unlock passkeys. */
+function passkeyUnlockFailure(code: unknown): string {
+  switch (code) {
+    case 'WRONG_SECRET':
+      return t('popupWrongPassword');
+    case 'VAULT_LOCKED':
+      return t('optionsPasskeyLockedHint');
+    case 'UNLOCK_PASSKEY_UNKNOWN':
+      return t('unlockErrPasskeyUnknown');
+    case 'VAULT_DAMAGED':
+      return t('popupVaultDamaged');
+    case 'UPGRADE_BACKUP_REQUIRED':
+      return t('unlockErrBackupRequired');
+    default:
+      return t('unlockErrGeneric');
+  }
+}
+
+/** The passkey unlock page, in a tab of its own: where passkey prompts run. */
+function openUnlockPage(mode: 'unlock' | 'enroll'): void {
+  void chrome.tabs.create({ url: chrome.runtime.getURL(`unlock.html#${mode}`) });
+}
+
+/**
+ * Draw the passkey unlock card from what the background reports. The card
+ * stays hidden where the browser cannot unlock with a passkey.
+ */
+function drawPasskeyUnlock(methods: Record<string, unknown>): void {
+  const card = document.getElementById('passkey-unlock-card')!;
+  const hint = document.getElementById('passkey-unlock-hint')!;
+  const list = document.getElementById('passkey-unlock-list')!;
+  const removeForm = document.getElementById('passkey-unlock-remove-form')!;
+  const damaged = document.getElementById('passkey-unlock-damaged')!;
+  const addBtn = document.getElementById('passkey-unlock-add-btn')!;
+  const openBtn = document.getElementById('passkey-unlock-open-btn')!;
+
+  // Hidden where the browser cannot do this, and while no lock is set: the
+  // card above already says to set one.
+  if (!methods.success || methods.supported !== true || methods.isSetup !== true) {
+    card.hidden = true;
+    passkeyUnlockDrawn = '';
+    return;
+  }
+  // Redrawing moves the removal prompt, which would take the focus out of
+  // its field, so leave the card alone when nothing changed.
+  const state = JSON.stringify(methods);
+  if (state === passkeyUnlockDrawn) return;
+  passkeyUnlockDrawn = state;
+  passkeyUnlockError(''); // whatever it said was about the state before
+  const unlocked = methods.isSetup === true && methods.isUnlocked === true;
+  const passkeys = unlocked && Array.isArray(methods.passkeys) ? methods.passkeys : [];
+  const max = Number(methods.max) || 0;
+  const atLimit = max > 0 && passkeys.length >= max;
+  const damagedCount = unlocked ? Number(methods.damagedPasskeys) || 0 : 0;
+
+  // An upgraded vault takes no change to its lock until it is backed up, so
+  // the card says that instead of offering a passkey that would be refused.
+  const backupRequired = unlocked && methods.backupRequired === true;
+
+  const hintText = !unlocked
+    ? t('optionsPasskeyLockedHint')
+    : backupRequired
+      ? t('unlockErrBackupRequired')
+      : atLimit
+        ? t('unlockErrPasskeyLimit', { max })
+        : passkeys.length === 0
+          ? t('optionsPasskeyNone')
+          : '';
+  hint.textContent = hintText;
+  hint.hidden = hintText === '';
+
+  // Rebuild the rows. The removal prompt sits under its row, so it is taken
+  // out first and put back if that passkey is still listed.
+  list.after(removeForm, document.getElementById('passkey-unlock-error')!);
+  list.replaceChildren(...(passkeys as UnlockPasskeyInfo[]).map(unlockPasskeyRow));
+  list.hidden = passkeys.length === 0;
+  const target = (passkeys as UnlockPasskeyInfo[]).find(
+    (passkey) => passkey.credentialId === passkeyRemoveTarget
+  );
+  if (target) {
+    showPasskeyRemoveForm(target, false);
+  } else {
+    hidePasskeyRemoveForm();
+  }
+
+  damaged.textContent = damagedCount > 0 ? formatCount('optionsPasskeyDamaged', damagedCount) : '';
+  damaged.hidden = damagedCount === 0;
+  // Only once a passkey is listed: before that, the PIN card's own advice
+  // about short PINs is all there is to say.
+  document.getElementById('passkey-unlock-disclosure')!.hidden = passkeys.length === 0;
+  addBtn.hidden = !unlocked || atLimit || backupRequired;
+  openBtn.hidden = unlocked;
+  document.getElementById('passkey-unlock-actions')!.hidden = addBtn.hidden && openBtn.hidden;
+  card.hidden = false;
+}
+
+function unlockPasskeyRow(passkey: UnlockPasskeyInfo): HTMLElement {
+  const row = document.createElement('div');
+  row.className = 'unlock-passkey-row';
+  row.dataset.credentialId = passkey.credentialId;
+
+  const info = document.createElement('div');
+  info.className = 'unlock-passkey-info';
+  const name = document.createElement('span');
+  name.className = 'unlock-passkey-name';
+  name.textContent = passkey.name;
+  const meta = document.createElement('span');
+  meta.className = 'unlock-passkey-meta';
+  meta.textContent = t('optionsPasskeyAdded', {
+    date: new Date(passkey.createdAt).toLocaleDateString(),
+  });
+  info.append(name, meta);
+
+  const actions = document.createElement('div');
+  actions.className = 'unlock-passkey-actions';
+  const button = (className: string, label: string, onClick: () => void) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `btn btn-secondary btn-sm ${className}`;
+    btn.textContent = label;
+    btn.setAttribute('aria-label', `${label}: ${passkey.name}`);
+    btn.addEventListener('click', onClick);
+    return btn;
+  };
+  actions.append(
+    button('unlock-passkey-rename-btn', t('optionsPasskeyRename'), () => {
+      void renameUnlockPasskey(passkey);
+    }),
+    button('unlock-passkey-remove-btn', t('commonRemove'), () => {
+      passkeyUnlockError('');
+      showPasskeyRemoveForm(passkey, true);
+    })
+  );
+
+  row.append(info, actions);
+  return row;
+}
+
+async function renameUnlockPasskey(passkey: UnlockPasskeyInfo): Promise<void> {
+  passkeyUnlockError('');
+  const typed = window.prompt(t('unlockEnrollNameLabel'), passkey.name)?.trim();
+  if (!typed || typed === passkey.name) return;
+  const name = cleanPasskeyName(typed);
+  if (!name) {
+    passkeyUnlockError(t('unlockEnrollNameInvalid'));
+    return;
+  }
+  const resp = await sendMessage('RENAME_UNLOCK_PASSKEY', {
+    credentialId: passkey.credentialId,
+    name,
+  });
+  await refreshSecurityStatus();
+  if (!resp?.success) passkeyUnlockError(passkeyUnlockFailure(resp?.code));
+}
+
+/** Ask for the PIN or passphrase under the row of the passkey to remove. */
+function showPasskeyRemoveForm(passkey: UnlockPasskeyInfo, focus: boolean): void {
+  const form = document.getElementById('passkey-unlock-remove-form')!;
+  const secret = document.getElementById('passkey-unlock-remove-secret') as HTMLInputElement;
+  const row = Array.from(
+    document.querySelectorAll<HTMLElement>('#passkey-unlock-list .unlock-passkey-row')
+  ).find((candidate) => candidate.dataset.credentialId === passkey.credentialId);
+  if (!row) return;
+  if (passkeyRemoveTarget !== passkey.credentialId) secret.value = '';
+  passkeyRemoveTarget = passkey.credentialId;
+  document.getElementById('passkey-unlock-remove-note')!.textContent = t(
+    'optionsPasskeyRemoveNote',
+    { name: passkey.name }
+  );
+  row.after(form);
+  // A refused removal is reported next to the field it is about.
+  form.querySelector('.card-actions')!.before(document.getElementById('passkey-unlock-error')!);
+  form.hidden = false;
+  if (focus) secret.focus();
+}
+
+function hidePasskeyRemoveForm(): void {
+  const form = document.getElementById('passkey-unlock-remove-form')!;
+  passkeyRemoveTarget = null;
+  (document.getElementById('passkey-unlock-remove-secret') as HTMLInputElement).value = '';
+  form.hidden = true;
+  // Back to the card, where errors that are not about a removal show.
+  document
+    .getElementById('passkey-unlock-list')!
+    .after(form, document.getElementById('passkey-unlock-error')!);
+}
+
+async function removeUnlockPasskey(): Promise<void> {
+  const secret = document.getElementById('passkey-unlock-remove-secret') as HTMLInputElement;
+  const credentialId = passkeyRemoveTarget;
+  if (!credentialId) return;
+  passkeyUnlockError('');
+  if (!secret.value) {
+    passkeyUnlockError(t('unlockSecretRequired'));
+    secret.focus();
+    return;
+  }
+  const resp = await sendMessage('REMOVE_UNLOCK_PASSKEY', {
+    password: secret.value,
+    credentialId,
+  });
+  secret.value = '';
+  if (resp?.success) passkeyRemoveTarget = null;
+  await refreshSecurityStatus();
+  if (!resp?.success) passkeyUnlockError(passkeyUnlockFailure(resp?.code));
+  if (passkeyRemoveTarget) secret.focus();
+}
+
+function wirePasskeyUnlockHandlers(): void {
+  document
+    .getElementById('passkey-unlock-add-btn')!
+    .addEventListener('click', () => openUnlockPage('enroll'));
+  document
+    .getElementById('passkey-unlock-open-btn')!
+    .addEventListener('click', () => openUnlockPage('unlock'));
+  document
+    .getElementById('passkey-unlock-remove-confirm-btn')!
+    .addEventListener('click', () => void removeUnlockPasskey());
+  document.getElementById('passkey-unlock-remove-cancel-btn')!.addEventListener('click', () => {
+    passkeyUnlockError('');
+    hidePasskeyRemoveForm();
+  });
+  document.getElementById('passkey-unlock-remove-secret')!.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') void removeUnlockPasskey();
+  });
+
+  // Passkeys are added, and the vault unlocked, in another tab: redraw when
+  // the unlock record changes and when this tab is looked at again.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && UNLOCK_RECORD_KEY in changes) void refreshSecurityStatus();
+  });
+  window.addEventListener('focus', () => void refreshSecurityStatus());
 }
 
 function wireSecurityHandlers(): void {
@@ -541,7 +849,14 @@ function wireSecurityHandlers(): void {
       clear('change-pw-current', 'change-pw-new', 'change-pw-confirm');
       await refreshSecurityStatus();
     } else {
-      showErr('change-pw-error', (resp.error as string) || t('optionsWrongPassword'));
+      showErr(
+        'change-pw-error',
+        resp.code === 'VAULT_DAMAGED'
+          ? t('popupVaultDamaged')
+          : resp.code === 'VAULT_WRITE_UNVERIFIED'
+            ? t('popupVaultWriteUnverified')
+            : (resp.error as string) || t('optionsWrongPassword')
+      );
     }
   });
 
@@ -553,7 +868,15 @@ function wireSecurityHandlers(): void {
       showErr('change-pw-error', t('optionsRemoveNeedsCurrent'));
       return;
     }
-    if (!window.confirm(t('optionsRemoveConfirm'))) {
+    // Turning the lock off also drops every passkey that unlocks the vault:
+    // say how many, and that they stay at the provider.
+    const state = await sendMessage('IS_SECURE_STORAGE_UNLOCKED');
+    const enrolled = (state?.passkeyUnlock as { count?: number } | undefined)?.count ?? 0;
+    const question =
+      enrolled > 0
+        ? formatCount('optionsRemoveConfirmWithPasskeys', enrolled)
+        : t('optionsRemoveConfirm');
+    if (!window.confirm(question)) {
       return;
     }
     const resp = await sendMessage('REMOVE_MASTER_PASSWORD', { currentPassword: current });
@@ -566,6 +889,8 @@ function wireSecurityHandlers(): void {
       showErr('change-pw-error', (resp.error as string) || t('optionsWrongPassword'));
     }
   });
+
+  wirePasskeyUnlockHandlers();
 
   // Lock now
   document.getElementById('lock-now-btn')!.addEventListener('click', async () => {

@@ -9,7 +9,7 @@ breaks things on purpose to see what still holds.
 ```bash
 npm test                    # everything below except the browser suite, ~20 s
 npm run test:e2e:webauthn   # the built extension in a real Chromium (needs openssl)
-npm run test:e2e            # the popup, and the vault key (PIN, passphrase, KDF upgrade), in a real Chromium
+npm run test:e2e            # the popup, the vault key (PIN, passphrase, storage upgrade) and passkey unlock, in a real Chromium
 ```
 
 ## How a ceremony is tested
@@ -57,6 +57,41 @@ Microsoft's and Meta's related-origin RP IDs (answered from their real
 the defaults of SimpleWebAuthn, py_webauthn, webauthn-rs, go-webauthn and
 others. To add one, append an entry with its `source` URL; the test picks it
 up.
+
+## The vault lock and passkey unlock
+
+The lock has its own suites, because a mistake there loses the whole vault
+rather than one sign-in.
+
+| Area                                                                                                                                                                        | Where                                                               |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| The unlock record: wrapping, what each wrapped key is bound to, HKDF against Node's own, parsing limits, damaged entries                                                    | `tests/unlock-record.test.ts`                                       |
+| Moving a vault from 0.13.0 and earlier to the wrapped data key: one write, every record equal afterwards, each way the write can be interrupted, in Chrome and Firefox      | `tests/vault-unlock-migration.test.ts`                              |
+| What an older build does with a moved vault, using the 0.13.0 code kept in `tests/fixtures/v0.13.0/`                                                                        | `tests/vault-downgrade.test.ts`                                     |
+| Passkey unlock through the real background: add, unlock, rename, remove, a new PIN from a passkey, changing the PIN with and without a passkey set up, turning the lock off | `tests/passkey-unlock.test.ts`                                      |
+| The options sent to the browser's WebAuthn client and how its answers and errors are read, against a fake `navigator.credentials`                                           | `tests/unlock-passkey-client.test.ts`                               |
+| The unlock page is not web-accessible, is built and packaged, and has its strings in every language                                                                         | `tests/unlock-page.test.ts`                                         |
+| The built extension in Chromium with the production key derivation                                                                                                          | `tests/e2e/vault-key.test.cjs`, `tests/e2e/passkey-unlock.test.cjs` |
+
+In jest the passkey provider is a fake, so PRF outputs are whatever the test
+supplies. `tests/e2e/passkey-unlock.test.cjs` is the one place the browser's
+own WebAuthn client runs: it attaches CDP virtual authenticators to the
+extension's unlock page. An authenticator without PRF is refused; one with
+PRF adds a passkey, which then opens the vault after a lock and after a
+service worker restart; a second authenticator adds a second passkey; a
+passkey sets a new PIN on the page, after which the old PIN is refused; a
+passkey the vault refuses to store is dropped instead of being offered for
+confirming again; and an authenticator that fails user verification unlocks
+nothing. All of it happens
+in one tab, because a virtual authenticator and its credentials belong to the
+tab they were attached to. The failed verification is the last ceremony: after
+it, Chromium refuses every later request in that tab.
+
+Not covered by any automated test: real passkey providers (an operating
+system's passkey manager, a phone over a hybrid connection, a physical
+security key) and Chromium browsers other than the Playwright build. The
+extension does not carry a list of providers; whether one supports PRF is
+found out when a passkey is added.
 
 ## Chaos experiments
 

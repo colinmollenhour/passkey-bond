@@ -32,7 +32,18 @@ import {
   secureStorage,
   StorageActivity,
   UnsupportedKdfError,
+  VaultWriteUnverifiedError,
 } from '../crypto/secure-storage';
+import {
+  cleanPasskeyName,
+  isCanonicalBase64,
+  isCredentialId,
+  isPasskeyUnlockOrigin,
+  MAX_UNLOCK_PASSKEYS,
+  PRF_LENGTH,
+  UnlockError,
+  VaultDamagedError,
+} from '../crypto/unlock-record';
 import { checkVaultSecret, MAX_SECRET_LENGTH } from '../crypto/vault-secret';
 import {
   checkBackupPassword,
@@ -43,7 +54,12 @@ import {
   type EncryptedBackupFields,
 } from '../crypto/backup-crypto';
 import { logger } from '../utils/logger';
-import { arrayBufferToBase64, arrayBufferToBase64URL, base64urlToBase64 } from '../utils/base64';
+import {
+  arrayBufferToBase64,
+  arrayBufferToBase64URL,
+  base64ToUint8Array,
+  base64urlToBase64,
+} from '../utils/base64';
 import {
   createAuthenticatorData,
   createAttestationObjectNone,
@@ -353,6 +369,63 @@ class VaultLockedError extends Error {
     this.name = 'VaultLockedError';
   }
 }
+
+/**
+ * An upgraded vault that still holds entries must be backed up before it is
+ * changed. Responses carry `code: 'UPGRADE_BACKUP_REQUIRED'` so a page can
+ * say what to do about it.
+ */
+class UpgradeBackupRequiredError extends Error {
+  readonly code = 'UPGRADE_BACKUP_REQUIRED';
+
+  constructor() {
+    super('Export an encrypted backup before changing this upgraded vault.');
+    this.name = 'UpgradeBackupRequiredError';
+  }
+}
+
+/**
+ * Whether this browser can unlock the vault with a passkey. The relying
+ * party is the extension's own origin, which Firefox does not accept.
+ */
+function passkeyUnlockSupported(): boolean {
+  return isPasskeyUnlockOrigin(chrome.runtime.getURL(''));
+}
+
+/** The code a page localizes a refused unlock operation by, if it has one. */
+function unlockErrorCode(error: unknown): string | undefined {
+  return error instanceof UnsupportedKdfError ||
+    error instanceof VaultDamagedError ||
+    error instanceof UnlockError ||
+    error instanceof VaultWriteUnverifiedError ||
+    error instanceof VaultLockedError
+    ? error.code
+    : undefined;
+}
+
+/** A failed unlock operation's response. Never carries payload values. */
+function unlockFailure(error: unknown): { success: false; error: string; code?: string } {
+  const code = unlockErrorCode(error);
+  const message = error instanceof Error ? error.message : String(error);
+  return { success: false, error: message, ...(code ? { code } : {}) };
+}
+
+/** The 32 bytes of a PRF output sent as canonical base64, or null. */
+function prfBytes(value: unknown): Uint8Array | null {
+  return isCanonicalBase64(value, PRF_LENGTH) ? base64ToUint8Array(value) : null;
+}
+
+const PASSKEY_UNLOCK_UNSUPPORTED = {
+  success: false,
+  error: 'Passkey unlock is not available in this browser',
+  code: 'PASSKEY_UNLOCK_UNSUPPORTED',
+} as const;
+const WRONG_SECRET = {
+  success: false,
+  error: 'Wrong PIN or passphrase',
+  code: 'WRONG_SECRET',
+} as const;
+const MALFORMED_UNLOCK_REQUEST = { success: false, error: 'Malformed request' } as const;
 
 /** Why a new master PIN or passphrase cannot be used, or null. */
 function vaultSecretProblem(secret: unknown): string | null {
@@ -879,9 +952,13 @@ class BackgroundService {
       sendResponse(response);
     } catch (error: unknown) {
       const message_str = error instanceof Error ? error.message : String(error);
-      const code = error instanceof VaultLockedError ? error.code : undefined;
-      // A locked vault is a normal state that the caller handles, not an
-      // error for chrome://extensions to list against the extension.
+      const code =
+        error instanceof VaultLockedError || error instanceof UpgradeBackupRequiredError
+          ? error.code
+          : undefined;
+      // A locked vault, or one waiting for its backup, is a normal state that
+      // the caller handles, not an error for chrome://extensions to list
+      // against the extension.
       if (!code) {
         console.error('Message handling error:', error);
       }
@@ -932,6 +1009,16 @@ class BackgroundService {
       'FACTORY_RESET',
       'CHANGE_MASTER_PASSWORD',
       'REMOVE_MASTER_PASSWORD',
+      // Changing how the vault unlocks needs it unlocked. Adding or removing
+      // a passkey, or setting a new PIN, also needs the secret or a passkey's
+      // PRF output; renaming does not. GET_UNLOCK_METHODS is not here: the
+      // lock screen offers the passkeys from it, and it returns only what
+      // the unlock record stores in the clear.
+      'VERIFY_MASTER_PASSWORD',
+      'ENROLL_UNLOCK_PASSKEY',
+      'RENAME_UNLOCK_PASSKEY',
+      'REMOVE_UNLOCK_PASSKEY',
+      'CHANGE_MASTER_PASSWORD_WITH_PASSKEY',
       // Which sites were signed in to, and with which passkey.
       'GET_WEBAUTHN_LOG',
     ]);
@@ -946,6 +1033,9 @@ class BackgroundService {
       'FACTORY_RESET',
       'CHANGE_MASTER_PASSWORD',
       'REMOVE_MASTER_PASSWORD',
+      'ENROLL_UNLOCK_PASSKEY',
+      'REMOVE_UNLOCK_PASSKEY',
+      'CHANGE_MASTER_PASSWORD_WITH_PASSKEY',
     ]);
     if (
       lockedTypes.has(type) &&
@@ -955,7 +1045,7 @@ class BackgroundService {
       throw new VaultLockedError();
     }
     if (upgradeBlockedTypes.has(type) && (await this.isUpgradeBackupRequired())) {
-      throw new Error('Export an encrypted backup before changing this upgraded vault.');
+      throw new UpgradeBackupRequiredError();
     }
     // A web page signs only with the passkey the user picked in the vault's
     // dialog, and creates one only when the user confirmed it there, for
@@ -994,6 +1084,10 @@ class BackgroundService {
       'RECONCILE_STORAGE',
       'CHANGE_MASTER_PASSWORD',
       'REMOVE_MASTER_PASSWORD',
+      'ENROLL_UNLOCK_PASSKEY',
+      'RENAME_UNLOCK_PASSKEY',
+      'REMOVE_UNLOCK_PASSKEY',
+      'CHANGE_MASTER_PASSWORD_WITH_PASSKEY',
     ]);
     if (mutations.has(type)) {
       return this.withVault(() => this.dispatchMessage(message));
@@ -1091,6 +1185,20 @@ class BackgroundService {
         );
       case 'REMOVE_MASTER_PASSWORD':
         return this.handleRemoveMasterPassword(payload as { currentPassword: string });
+      case 'GET_UNLOCK_METHODS':
+        return this.handleGetUnlockMethods();
+      case 'UNLOCK_WITH_PASSKEY':
+        return this.handleUnlockWithPasskey(payload || {});
+      case 'VERIFY_MASTER_PASSWORD':
+        return this.handleVerifyMasterPassword(payload || {});
+      case 'ENROLL_UNLOCK_PASSKEY':
+        return this.handleEnrollUnlockPasskey(payload || {});
+      case 'RENAME_UNLOCK_PASSKEY':
+        return this.handleRenameUnlockPasskey(payload || {});
+      case 'REMOVE_UNLOCK_PASSKEY':
+        return this.handleRemoveUnlockPasskey(payload || {});
+      case 'CHANGE_MASTER_PASSWORD_WITH_PASSKEY':
+        return this.handleChangeMasterPasswordWithPasskey(payload || {});
       case 'SET_DEBUG_LOGGING':
         return this.handleSetDebugLogging(payload as { enabled: boolean });
       case 'GET_DEBUG_LOGGING':
@@ -1801,11 +1909,14 @@ class BackgroundService {
    * no backup to export that would clear it. While the vault is locked its
    * contents are unknown, so the gate stays.
    */
-  private async isUpgradeBackupRequired(): Promise<boolean> {
+  private async isUpgradeBackupRequired(activity = StorageActivity.Record): Promise<boolean> {
     const result = await chrome.storage.local.get(UPGRADE_BACKUP_REQUIRED_KEY);
     if (result[UPGRADE_BACKUP_REQUIRED_KEY] !== true) return false;
     try {
-      const [passkeys, totpEntries] = await Promise.all([this.loadPasskeys(), loadTotpEntries()]);
+      const [passkeys, totpEntries] = await Promise.all([
+        this.loadPasskeys(activity),
+        loadTotpEntries(activity),
+      ]);
       if (passkeys.length > 0 || totpEntries.length > 0) return true;
     } catch {
       return true;
@@ -2467,30 +2578,188 @@ class BackgroundService {
         return { success: false, error: 'Password is required' };
       }
 
-      const unlocked = await this.withVault(async () => {
-        const ready = await secureStorage.initialize(password);
-        if (ready) {
-          await this.migrateLegacyRawStorage();
-          await this.stripCleartextChainSeed();
-          await this.repairStoredCredentialIds();
-        }
-        return ready;
-      });
+      const unlocked = await this.unlockAndContinue(() => secureStorage.initialize(password));
       if (!unlocked) {
         return { success: false, error: 'Invalid password or storage not initialized' };
       }
-      await this.stampLegacyBackupFlags();
-      // The seed lives in the encrypted store, so sync could not have started
-      // while locked. Now that the key is in memory, bring it up.
-      await this.initializeSyncService();
 
       return { success: true, message: 'Secure storage unlocked' };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
       console.error('Failed to unlock secure storage:', error);
-      // A vault set up by a newer build: say so rather than "wrong PIN".
-      const code = error instanceof UnsupportedKdfError ? error.code : undefined;
-      return { success: false, error: message, ...(code ? { code } : {}) };
+      // A vault set up by a newer build, or one whose lock data is damaged:
+      // say so rather than "wrong PIN".
+      return unlockFailure(error);
+    }
+  }
+
+  /**
+   * Open the vault with `open` and, when it opens, do what every unlock is
+   * followed by, whichever method opened it: fold in records left in
+   * cleartext, repair stored IDs, and start sync.
+   */
+  private async unlockAndContinue(open: () => Promise<boolean>): Promise<boolean> {
+    const unlocked = await this.withVault(async () => {
+      const ready = await open();
+      if (ready) {
+        await this.migrateLegacyRawStorage();
+        await this.stripCleartextChainSeed();
+        await this.repairStoredCredentialIds();
+      }
+      return ready;
+    });
+    if (!unlocked) return false;
+    await this.stampLegacyBackupFlags();
+    // The seed lives in the encrypted store, so sync could not have started
+    // while locked. Now that the key is in memory, bring it up.
+    await this.initializeSyncService();
+    return true;
+  }
+
+  // ==================== UNLOCK PASSKEYS ====================
+  // An unlock passkey is a credential held outside this vault whose PRF
+  // output opens it (src/crypto/unlock-record.ts). The WebAuthn prompt runs
+  // in the unlock page, outside every queue; these handlers get its result
+  // and re-check the vault's state before anything is written. They never
+  // log a payload or put a payload value in an error.
+
+  private async handleGetUnlockMethods(): Promise<unknown> {
+    try {
+      const methods = await secureStorage.getUnlockMethods();
+      return {
+        success: true,
+        // The same read says whether a lock is set: anything but `none`.
+        isSetup: methods.format !== 'none',
+        isUnlocked: secureStorage.isStorageUnlocked(),
+        supported: passkeyUnlockSupported(),
+        format: methods.format,
+        vaultId: methods.vaultId,
+        passkeys: methods.passkeys,
+        damagedPasskeys: methods.damagedPasskeys,
+        max: MAX_UNLOCK_PASSKEYS,
+        // Adding or removing a passkey and setting a new PIN are refused
+        // while this is true; pages check it before any passkey prompt.
+        // Asking is not use of the vault, so it does not put off the auto-lock.
+        backupRequired: await this.isUpgradeBackupRequired(StorageActivity.Maintenance),
+      };
+    } catch (error: unknown) {
+      return unlockFailure(error);
+    }
+  }
+
+  private async handleUnlockWithPasskey(payload: MessagePayload): Promise<unknown> {
+    if (!passkeyUnlockSupported()) return PASSKEY_UNLOCK_UNSUPPORTED;
+    const { credentialId } = payload as { credentialId?: unknown };
+    const prfOutput = prfBytes((payload as { prfOutput?: unknown }).prfOutput);
+    try {
+      if (!isCredentialId(credentialId) || !prfOutput) return MALFORMED_UNLOCK_REQUEST;
+      await this.unlockAndContinue(async () => {
+        await secureStorage.unlockWithPasskey(credentialId, prfOutput);
+        return true;
+      });
+      return { success: true };
+    } catch (error: unknown) {
+      return unlockFailure(error);
+    } finally {
+      prfOutput?.fill(0);
+    }
+  }
+
+  private async handleVerifyMasterPassword(payload: MessagePayload): Promise<unknown> {
+    try {
+      const { password } = payload as { password?: unknown };
+      if (typeof password !== 'string' || !password) return MALFORMED_UNLOCK_REQUEST;
+      return { success: true, valid: await secureStorage.verifyMasterPassword(password) };
+    } catch (error: unknown) {
+      return unlockFailure(error);
+    }
+  }
+
+  private async handleEnrollUnlockPasskey(payload: MessagePayload): Promise<unknown> {
+    if (!passkeyUnlockSupported()) return PASSKEY_UNLOCK_UNSUPPORTED;
+    const { password, vaultId, credentialId, prfSalt, transports } = payload as Record<
+      string,
+      unknown
+    >;
+    const name = cleanPasskeyName((payload as { name?: unknown }).name);
+    const prfOutput = prfBytes((payload as { prfOutput?: unknown }).prfOutput);
+    try {
+      if (
+        typeof password !== 'string' ||
+        !password ||
+        typeof vaultId !== 'string' ||
+        !isCredentialId(credentialId) ||
+        !isCanonicalBase64(prfSalt, PRF_LENGTH) ||
+        !prfOutput ||
+        !name ||
+        (transports !== undefined && !Array.isArray(transports))
+      ) {
+        return MALFORMED_UNLOCK_REQUEST;
+      }
+      if (!secureStorage.isStorageUnlocked()) throw new VaultLockedError();
+      // Verified here, inside the vault queue the commit runs in, so the
+      // secret cannot change between the check and the write.
+      if (!(await secureStorage.verifyMasterPassword(password))) return WRONG_SECRET;
+      const passkey = await secureStorage.addUnlockPasskey({
+        vaultId,
+        credentialId,
+        prfSalt,
+        prfOutput,
+        name,
+        transports: transports as string[] | undefined,
+      });
+      return { success: true, passkey };
+    } catch (error: unknown) {
+      return unlockFailure(error);
+    } finally {
+      prfOutput?.fill(0);
+    }
+  }
+
+  private async handleRenameUnlockPasskey(payload: MessagePayload): Promise<unknown> {
+    try {
+      const { credentialId } = payload as { credentialId?: unknown };
+      const name = cleanPasskeyName((payload as { name?: unknown }).name);
+      if (!isCredentialId(credentialId) || !name) return MALFORMED_UNLOCK_REQUEST;
+      await secureStorage.renameUnlockPasskey(credentialId, name);
+      return { success: true };
+    } catch (error: unknown) {
+      return unlockFailure(error);
+    }
+  }
+
+  private async handleRemoveUnlockPasskey(payload: MessagePayload): Promise<unknown> {
+    try {
+      const { password, credentialId } = payload as { password?: unknown; credentialId?: unknown };
+      if (typeof password !== 'string' || !password || !isCredentialId(credentialId)) {
+        return MALFORMED_UNLOCK_REQUEST;
+      }
+      if (!secureStorage.isStorageUnlocked()) throw new VaultLockedError();
+      if (!(await secureStorage.verifyMasterPassword(password))) return WRONG_SECRET;
+      await secureStorage.removeUnlockPasskey(credentialId);
+      return { success: true };
+    } catch (error: unknown) {
+      return unlockFailure(error);
+    }
+  }
+
+  private async handleChangeMasterPasswordWithPasskey(payload: MessagePayload): Promise<unknown> {
+    const { credentialId, newPassword } = payload as {
+      credentialId?: unknown;
+      newPassword?: unknown;
+    };
+    const prfOutput = prfBytes((payload as { prfOutput?: unknown }).prfOutput);
+    try {
+      const problem = vaultSecretProblem(newPassword);
+      if (problem) return { success: false, error: problem };
+      if (typeof newPassword !== 'string' || !isCredentialId(credentialId) || !prfOutput) {
+        return MALFORMED_UNLOCK_REQUEST;
+      }
+      await secureStorage.changeMasterPasswordWithPasskey(credentialId, prfOutput, newPassword);
+      return { success: true };
+    } catch (error: unknown) {
+      return unlockFailure(error);
+    } finally {
+      prfOutput?.fill(0);
     }
   }
 
@@ -2569,8 +2838,12 @@ class BackgroundService {
   private async handleIsSecureStorageUnlocked(): Promise<unknown> {
     try {
       const isUnlocked = secureStorage.isStorageUnlocked();
-      const isSetup = await secureStorage.isSetup();
-      return { success: true, isUnlocked, isSetup };
+      // The lock screen offers passkey unlock from this; 0 when the record
+      // cannot be read. The same read says whether a lock is set.
+      const { format, passkeys } = await secureStorage.getUnlockMethods();
+      const isSetup = format !== 'none';
+      const passkeyUnlock = { supported: passkeyUnlockSupported(), count: passkeys.length };
+      return { success: true, isUnlocked, isSetup, passkeyUnlock };
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return { success: false, error: message };
@@ -2599,9 +2872,9 @@ class BackgroundService {
 
       return { success: true, message: 'Master password changed successfully' };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
       console.error('Failed to change master password:', error);
-      return { success: false, error: message };
+      // Damaged lock data or an unconfirmed write is not a wrong PIN.
+      return unlockFailure(error);
     }
   }
 

@@ -169,6 +169,7 @@ describe('setting up a master PIN', () => {
 const ENCRYPTED_VAULT_KEYS = [
   'passext_master_key_check',
   'passext_vault_kdf',
+  'passext_vault_unlock',
   'passext_encrypted_passkeys',
 ];
 

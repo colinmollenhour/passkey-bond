@@ -1,7 +1,9 @@
 /**
- * The vault key's KDF record: written with every new key, replaced in the
- * same storage write as the re-encrypted vault on a PIN change, removed with
- * the PIN, and reported as "newer version" rather than "wrong PIN" when this
+ * The KDF record of the PIN's key, kept in the unlock record next to the
+ * PIN's wrapped copy of the vault data key (`passext_vault_kdf` itself holds
+ * the format marker): written with every new lock, replaced in the same
+ * storage write as the re-encrypted vault on a PIN change, removed with the
+ * PIN, and reported as "newer version" rather than "wrong PIN" when this
  * build cannot read it. Real background and secure storage against an
  * in-memory chrome.storage.local, on the cheap test KDF profile.
  */
@@ -72,6 +74,12 @@ const vaultState = () =>
 
 let storage: StorageData;
 
+const SENTINEL = { kdf: 'wrapped-data-key', version: 1 };
+/** How the PIN's key is derived: the KDF record inside the unlock record. */
+const pinKdf = () =>
+  (storage.passext_vault_unlock as { pin: { kdf: { kdf: string; salt: string } } } | undefined)?.pin
+    .kdf;
+
 beforeEach(() => {
   storage = useFakeStorage();
 });
@@ -105,17 +113,18 @@ describe('a new PIN', () => {
   it('stores how the key was derived next to the vault', async () => {
     await fullVault();
 
-    expect(storage.passext_vault_kdf).toEqual({
+    expect(storage.passext_vault_kdf).toEqual(SENTINEL);
+    expect(pinKdf()).toEqual({
       kdf: 'scrypt',
       params: { N: 1024, r: 8, p: 1 },
       salt: expect.any(String),
     });
-    const { salt } = storage.passext_vault_kdf as { salt: string };
+    const { salt } = pinKdf()!;
     expect(Buffer.from(salt, 'base64')).toHaveLength(32);
     expect(storage.passext_encryption_salt).toBeUndefined();
   });
 
-  it('writes the KDF record and the check value in one storage write', async () => {
+  it('writes the format marker, the unlock record and the check value in one storage write', async () => {
     storage.passkeys = [passkey];
     const { send } = await loadBackground();
     local().set.mockClear();
@@ -124,7 +133,11 @@ describe('a new PIN', () => {
 
     const writes = local().set.mock.calls.map(([items]) => Object.keys(items));
     expect(writes).toContainEqual(
-      expect.arrayContaining(['passext_vault_kdf', 'passext_master_key_check'])
+      expect.arrayContaining([
+        'passext_vault_kdf',
+        'passext_vault_unlock',
+        'passext_master_key_check',
+      ])
     );
     expect(writes.filter((keys) => keys.includes('passext_vault_kdf'))).toHaveLength(1);
   });
@@ -153,7 +166,8 @@ describe('a vault from before KDF records', () => {
     });
 
     expect(change.success).toBe(true);
-    expect(storage.passext_vault_kdf).toMatchObject({ kdf: 'scrypt' });
+    expect(storage.passext_vault_kdf).toEqual(SENTINEL);
+    expect(pinKdf()).toMatchObject({ kdf: 'scrypt' });
     expect(storage.passext_encryption_salt).toBeUndefined();
     expect((await contentsWith(NEW_PIN))?.totp).toEqual([totp]);
   });
@@ -174,10 +188,10 @@ describe('changing the PIN', () => {
     const rekeys = local().set.mock.calls.filter(([items]) => 'passext_vault_kdf' in items);
     expect(rekeys).toHaveLength(1);
     expect(Object.keys(rekeys[0][0]).sort()).toEqual(
-      ['passext_vault_kdf', ...ENCRYPTED_VAULT_VALUES].sort()
+      ['passext_vault_kdf', 'passext_vault_unlock', ...ENCRYPTED_VAULT_VALUES].sort()
     );
-    expect((storage.passext_vault_kdf as { salt: string }).salt).not.toBe(
-      (before.passext_vault_kdf as { salt: string }).salt
+    expect(pinKdf()!.salt).not.toBe(
+      (before.passext_vault_unlock as { pin: { kdf: { salt: string } } }).pin.kdf.salt
     );
     for (const key of ENCRYPTED_VAULT_VALUES) expect(storage[key]).not.toEqual(before[key]);
 
@@ -327,7 +341,7 @@ describe('a vault from a newer version', () => {
     storage.passext_vault_kdf = {
       kdf: 'argon2id',
       params: { m: 65536, t: 3, p: 1 },
-      salt: (storage.passext_vault_kdf as { salt: string }).salt,
+      salt: pinKdf()!.salt,
     };
     const before = vaultState();
     const { send } = await loadBackground();

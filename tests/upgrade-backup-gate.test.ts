@@ -119,6 +119,8 @@ describe('the upgrade backup gate', () => {
     expect(await send('DELETE_TOTP_ENTRY', { id: 'totp-1' })).toEqual({
       success: false,
       error: BLOCKED,
+      // What a page tells this refusal apart by.
+      code: 'UPGRADE_BACKUP_REQUIRED',
     });
 
     await send('COMPLETE_UPGRADE_BACKUP');

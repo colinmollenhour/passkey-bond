@@ -65,7 +65,7 @@ Store links will be listed at <https://passkey.bond/download> once they exist.
 - **Local storage** — passkeys stay in browser local storage, no external server
 - **TOTP / 2FA codes** — built-in RFC 6238 / 4226 authenticator with live codes, clipboard copy, and `otpauth://` import (paste a URI, paste a QR screenshot, or upload a QR image — decoded locally, no camera)
 - **Unified vault** — passkeys and 2FA codes share one searchable list with per-type filters; each entry expands to show its details
-- **Vault lock** — an optional PIN or passphrase encrypts the vault at rest and locks the popup; set, change, or remove it any time
+- **Vault lock** — an optional PIN or passphrase encrypts the vault at rest and locks the popup; set, change, or remove it any time. In Chrome and other Chromium browsers a passkey held outside the vault (your OS passkey manager, a phone, a security key) can unlock it too, with the PIN or passphrase as fallback. The Android and iOS apps have no PIN: they unlock with the device's own lock (face, fingerprint, screen lock or passcode)
 - **Backup & import** — export all passkeys (including private keys) and TOTP entries as a password-encrypted JSON file, import on another device or the mobile app
 - **Move in from anywhere** — import passkeys and MFA seeds from CXF, Bitwarden, Proton Pass, Dashlane, 1Password, KeePassXC, LastPass, Keeper, Google Authenticator, Aegis, 2FAS, andOTP, FreeOTP+, Raivo and Ente Auth; export back out as CXF, `otpauth://` or CSV — Options → Import & Export ([details](docs/porting/README.md))
 - **Cross-device sync** — optional Nostr-based sync chain using a BIP-39 seed phrase; passkeys and 2FA codes sync end-to-end encrypted
@@ -117,7 +117,7 @@ Every development build has the extension ID `odoehegfpkpmhicjkpdajlpdhcaghkhi`,
 3. On `credentials.get()`, it signs the challenge with the stored private key using proper CBOR encoding
 4. The popup reads directly from `chrome.storage.local` — no background message passing for display
 5. TOTP codes are derived locally from each entry's secret using HMAC-SHA1/256/512; the popup caches the current code and refreshes it once per second while the vault is open
-6. With a PIN or passphrase set, the vault moves into AES-256-GCM encrypted storage under a key derived with scrypt (N=2^17, r=8, p=1), and the popup gates behind a lock screen; removing it moves the vault back to cleartext. Vaults locked by older versions are re-keyed to scrypt on their next unlock
+6. With a PIN or passphrase set, the vault moves into AES-256-GCM encrypted storage under a random 256-bit data key, and the popup gates behind a lock screen; removing it moves the vault back to cleartext. Each unlock method keeps its own AES-256-GCM-wrapped copy of the data key: the PIN or passphrase wraps it under a key derived with scrypt (N=2^17, r=8, p=1), and each unlock passkey under HKDF-SHA256 of that passkey's WebAuthn PRF output. Vaults locked by older versions move to this format on their next PIN or passphrase unlock, after which 0.13.0 and earlier can no longer open them
 
 ---
 
@@ -166,6 +166,9 @@ src/
 ## Security
 
 - Passkeys and TOTP secrets live in `chrome.storage.local`. Without a PIN or passphrase they are in cleartext. With one they are encrypted, but anyone with a copy of the browser profile can try every 6-digit PIN within hours on a GPU, however slow the key derivation; a short PIN mainly protects against someone at the unlocked computer. Use a passphrase of four or more random words, or a PIN of 10+ digits, and treat the profile as sensitive regardless
+- Passkey unlock adds a way in and takes none away: the PIN or passphrase still opens the vault, so the offline guessing above applies unchanged and a passkey does not make a short PIN safer. Removing an unlock passkey does not delete it at the provider, and it still opens a copy of the profile made before the removal
+- The unlock passkey has to live outside the browser's extensions and its provider has to support the WebAuthn PRF extension, which is checked when you add it; no provider list is built in. Extension-based passkey managers, this one included, do not answer on extension pages. Firefox does not accept an extension's own origin for a passkey, so there the vault unlocks with the PIN or passphrase only. Passkey unlock is a browser-extension feature: the Android and iOS apps keep the vault key behind the device lock and have no PIN to fall back to or replace
+- Changing the PIN or passphrase re-encrypts the vault under a new data key only when no unlock passkey is set up; with one set up, only the PIN or passphrase's wrapped copy is replaced. To force re-encryption, remove the passkeys, change the PIN or passphrase, then add them again
 - Export files contain private keys and TOTP secrets — treat them like passwords. The CXF, otpauth:// and CSV exports are plaintext because the receiving app expects that; delete them once imported. The popup's password-protected backup is the one to keep
 - Sync payloads are end-to-end encrypted; relays never see plaintext (see [How sync works](#how-sync-works))
 - Anyone who obtains your sync seed phrase can join your chain and receive your vault — protect it like the vault itself

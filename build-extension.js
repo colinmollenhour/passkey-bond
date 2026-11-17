@@ -180,6 +180,14 @@ async function buildForTarget(browserTarget) {
       outfile: `${distDir}/options.js`,
     });
     console.log('  ✅ options.js');
+
+    // The passkey unlock page: a tab of its own for the browser's passkey prompt.
+    await esbuild.build({
+      ...commonOptions,
+      entryPoints: ['src/ui/unlock.ts'],
+      outfile: `${distDir}/unlock.js`,
+    });
+    console.log('  ✅ unlock.js');
   } catch (error) {
     console.error('❌ Build failed:', error.message);
     process.exit(1);
@@ -269,6 +277,10 @@ async function buildForTarget(browserTarget) {
     fs.copyFileSync(path.join('src/ui', file), path.join(distDir, file));
     console.log(`  ✅ ${file}`);
   }
+
+  // Shares popup.css. Not web accessible: only the extension opens it.
+  fs.copyFileSync('src/ui/unlock.html', `${distDir}/unlock.html`);
+  console.log('  ✅ unlock.html');
 
   if (fs.existsSync('src/ui/import.html')) {
     fs.copyFileSync('src/ui/import.html', `${distDir}/import.html`);

@@ -8,6 +8,53 @@ entries use the old names. The format follows
 
 ## [Unreleased]
 
+### Unlock the vault with a passkey
+
+A vault locked with a PIN or passphrase can now also be opened with a passkey
+kept outside Passkey.bond: your operating system's passkey manager, a phone,
+or a security key.
+
+- **Passkey unlock, in Chrome and other Chromium browsers.** On the lock
+  screen, "Unlock with passkey" opens a tab that asks your passkey provider to
+  confirm it is you. The passkey does more than approve: it produces a secret
+  that decrypts the vault's key, so a prompt that returns without that secret
+  unlocks nothing.
+- **Which providers work.** The provider has to support the WebAuthn PRF
+  extension. Passkey.bond checks this when you add a passkey and saves it only
+  after the passkey has opened the vault's key once, so one that cannot unlock
+  is never left set up. A passkey manager that is itself a browser extension
+  cannot be used, Passkey.bond included: extensions do not answer passkey
+  requests on another extension's pages.
+- **Your PIN or passphrase still unlocks the vault,** and is always offered
+  next to the passkey. Someone with a copy of your browser profile can still
+  guess it offline, so a passkey does not make a short PIN any safer. Use four
+  or more random words, or a PIN of 10 or more digits.
+- **Add, name and remove passkeys** under Options → Security, up to 8 for one
+  vault. Adding or removing one asks for your PIN or passphrase. Removing a
+  passkey here does not delete it at your provider, and it can still open a
+  copy of your browser profile made before you removed it.
+- **Forgot your PIN or passphrase?** While the vault is unlocked, a passkey can
+  set a new one.
+- **Changing your PIN or passphrase** re-encrypts the vault under a new key
+  only while no passkey is set up. With a passkey set up, the change replaces
+  the PIN or passphrase and leaves the vault's key as it was. To re-encrypt,
+  remove the passkeys, change the PIN or passphrase, then add them again.
+- **Turning off the vault lock** also removes every passkey that unlocks the
+  vault, after telling you how many. They stay at your passkey provider until
+  you delete them there, and cannot open a lock you set up later.
+- **Firefox** unlocks with the PIN or passphrase only for now. Firefox does
+  not let an extension register a passkey under its own address.
+- **The Android and iOS apps are unchanged.** They have no PIN or passphrase:
+  the vault there opens with the device's own lock (face, fingerprint, or
+  screen lock or passcode), so there is no PIN for a passkey to stand in for.
+- **New vault storage format.** Every locked vault, in Chrome and in Firefox,
+  moves to it the next time it is unlocked with its PIN or passphrase. Version
+  0.13.0 then says the vault needs a newer version and cannot open it; earlier
+  versions cannot either. Firefox vaults move too, although passkey unlock is
+  not available there yet. Everything is re-encrypted and checked in one step,
+  so an interrupted move leaves the vault as it was and is tried again at the
+  next unlock.
+
 ## [0.13.0] - 2026-11-17
 
 ### Passkey.bond: a fork of Fenko Vault

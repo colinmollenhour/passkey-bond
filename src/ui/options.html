@@ -557,6 +557,16 @@
                 protect against that, use a passphrase of four or more random words, or a PIN of at
                 least 10 digits.
               </p>
+              <p
+                id="change-pw-keeps-key-note"
+                class="card-hint"
+                data-i18n="optionsChangeKeepsKeyNote"
+                hidden
+              >
+                While a passkey can unlock this vault, changing your PIN or passphrase does not
+                re-encrypt the vault. To re-encrypt it, remove the passkeys, change the PIN or
+                passphrase, then add them again.
+              </p>
               <input
                 type="password"
                 id="change-pw-current"
@@ -565,6 +575,17 @@
                 data-i18n-placeholder="optionsCurrentPasswordPlaceholder"
                 autocomplete="current-password"
               />
+              <!-- Shown while a passkey can unlock this vault -->
+              <a
+                id="passkey-unlock-reset-link"
+                class="unlock-passkey-reset"
+                href="unlock.html#reset-secret"
+                target="_blank"
+                rel="noopener"
+                data-i18n="optionsPasskeyResetLink"
+                hidden
+                >Forgot your PIN or passphrase? Set a new one with a passkey</a
+              >
               <input
                 type="password"
                 id="change-pw-new"
@@ -587,17 +608,86 @@
                   <span data-i18n="optionsChangePassword">Change</span>
                 </button>
                 <button id="lock-now-btn" class="btn btn-secondary btn-sm">
-                  <span data-i18n="optionsLockNow">Lock Now</span>
+                  <span data-i18n="optionsLockNow">Lock now</span>
                 </button>
                 <button id="remove-pw-btn" class="btn btn-danger btn-sm">
-                  <span data-i18n="optionsRemovePassword">Remove</span>
+                  <span data-i18n="optionsTurnOffLock">Turn off vault lock</span>
                 </button>
               </div>
             </div>
           </div>
 
+          <!-- Passkeys held outside the vault that unlock it. Shown where the browser can. -->
+          <div id="passkey-unlock-card" class="card" hidden>
+            <h3 data-i18n="optionsPasskeyUnlock">Passkey unlock</h3>
+            <p class="card-hint" data-i18n="optionsPasskeyUnlockDesc">
+              Passkeys that unlock this vault. They are kept by your passkey provider, not in
+              Passkey.bond.
+            </p>
+            <p id="passkey-unlock-hint" class="card-hint" hidden></p>
+            <div id="passkey-unlock-list" class="unlock-passkey-list" hidden></div>
+            <!-- Moved under the row whose Remove button was pressed -->
+            <div id="passkey-unlock-remove-form" class="pw-form unlock-passkey-remove" hidden>
+              <p id="passkey-unlock-remove-note" class="card-hint"></p>
+              <input
+                type="password"
+                id="passkey-unlock-remove-secret"
+                maxlength="256"
+                placeholder="Current PIN or passphrase"
+                data-i18n-placeholder="unlockEnrollSecretLabel"
+                aria-describedby="passkey-unlock-remove-note"
+                autocomplete="current-password"
+              />
+              <div class="card-actions">
+                <button
+                  type="button"
+                  id="passkey-unlock-remove-confirm-btn"
+                  class="btn btn-danger btn-sm"
+                >
+                  <span data-i18n="optionsPasskeyRemoveConfirm">Remove passkey</span>
+                </button>
+                <button
+                  type="button"
+                  id="passkey-unlock-remove-cancel-btn"
+                  class="btn btn-secondary btn-sm"
+                >
+                  <span data-i18n="commonCancel">Cancel</span>
+                </button>
+              </div>
+            </div>
+            <div id="passkey-unlock-error" class="field-error" role="alert" hidden></div>
+            <p id="passkey-unlock-damaged" class="card-hint" hidden></p>
+            <p
+              id="passkey-unlock-disclosure"
+              class="card-hint"
+              data-i18n="unlockFallbackDisclosure"
+              hidden
+            >
+              Your PIN or passphrase still unlocks this vault. Someone with a copy of your browser
+              profile can guess it offline, so a passkey does not make a short PIN any safer.
+            </p>
+            <div id="passkey-unlock-actions" class="card-actions" hidden>
+              <button
+                type="button"
+                id="passkey-unlock-add-btn"
+                class="btn btn-primary btn-sm"
+                hidden
+              >
+                <span data-i18n="optionsPasskeyAdd">Add a passkey</span>
+              </button>
+              <button
+                type="button"
+                id="passkey-unlock-open-btn"
+                class="btn btn-secondary btn-sm"
+                hidden
+              >
+                <span data-i18n="popupUnlock">Unlock</span>
+              </button>
+            </div>
+          </div>
+
           <div class="card">
-            <h3 data-i18n="optionsAutoLockTimeout">Auto-Lock Timeout</h3>
+            <h3 data-i18n="optionsAutoLockTimeout">Auto-lock timeout</h3>
             <p class="card-hint" data-i18n="optionsAutoLockDesc">
               Lock the vault after this period of inactivity.
             </p>

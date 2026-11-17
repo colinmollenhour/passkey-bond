@@ -20,7 +20,7 @@ Highlights:
 - A built-in authenticator: time-based 2FA codes with a live countdown and one-tap copy
 - Add a code by pasting its link, a QR screenshot, or a QR image; it is read on your device, with no camera needed
 - End-to-end encrypted sync across your devices, with no account to create
-- An optional PIN that locks the vault and encrypts it on disk
+- An optional PIN or passphrase that locks the vault and encrypts it on disk, with the choice in Chrome of unlocking it with a passkey you keep outside the vault
 - Encrypted backups you export and restore yourself
 - Works alongside your browser: sites you have not saved still get the normal passkey prompt
 

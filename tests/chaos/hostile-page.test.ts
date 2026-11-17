@@ -254,6 +254,118 @@ describe('a compromised renderer impersonating the content script', () => {
   });
 });
 
+describe('the messages that change how the vault unlocks', () => {
+  const PIN = '482916';
+  const unlockPasskey = {
+    credentialId: b64url(new Uint8Array(32).fill(7)),
+    prfSalt: Buffer.alloc(32, 1).toString('base64'),
+    prfOutput: Buffer.alloc(32, 2).toString('base64'),
+  };
+  let vaultId: string;
+
+  /** Valid in every field: only the sender is wrong. */
+  const requests = (): Array<[string, Record<string, unknown>]> => [
+    ['GET_UNLOCK_METHODS', {}],
+    ['UNLOCK_WITH_PASSKEY', { payload: { ...unlockPasskey } }],
+    ['VERIFY_MASTER_PASSWORD', { payload: { password: PIN } }],
+    [
+      'ENROLL_UNLOCK_PASSKEY',
+      {
+        payload: {
+          password: PIN,
+          vaultId,
+          credentialId: b64url(new Uint8Array(32).fill(9)),
+          prfSalt: unlockPasskey.prfSalt,
+          prfOutput: unlockPasskey.prfOutput,
+          name: 'Evil',
+          transports: ['usb'],
+        },
+      },
+    ],
+    [
+      'RENAME_UNLOCK_PASSKEY',
+      { payload: { credentialId: unlockPasskey.credentialId, name: 'Evil' } },
+    ],
+    [
+      'REMOVE_UNLOCK_PASSKEY',
+      { payload: { password: PIN, credentialId: unlockPasskey.credentialId } },
+    ],
+    [
+      'CHANGE_MASTER_PASSWORD_WITH_PASSKEY',
+      { payload: { ...unlockPasskey, newPassword: '000000' } },
+    ],
+  ];
+  const lockData = () =>
+    JSON.stringify(
+      Object.fromEntries(
+        Object.entries(vault.storage).filter(([key]) => key.startsWith('passext_'))
+      )
+    );
+
+  beforeEach(async () => {
+    expect(
+      (await vault.send({ type: 'SETUP_MASTER_PASSWORD', payload: { password: PIN } })).success
+    ).toBe(true);
+    vaultId = (await vault.send({ type: 'GET_UNLOCK_METHODS' })).vaultId;
+    const enrolled = await vault.send({
+      type: 'ENROLL_UNLOCK_PASSKEY',
+      payload: { password: PIN, vaultId, ...unlockPasskey, name: 'Laptop', transports: [] },
+    });
+    expect(enrolled.success).toBe(true);
+  });
+
+  it.each([
+    ['unlocked', false],
+    ['locked', true],
+  ])('are all refused from a content script while the vault is %s', async (_state, locked) => {
+    if (locked) await vault.send({ type: 'LOCK_SECURE_STORAGE' });
+    const before = lockData();
+
+    for (const [type, extra] of requests()) {
+      const response: any = await vault.send({ type, ...extra }, EVIL_PAGE);
+
+      expect(response?.success).not.toBe(true);
+      expect(response?.error).toBe(`${type} is not available to web pages`);
+      // Not even the public parts of the record go to a web page.
+      expect(JSON.stringify(response)).not.toContain(vaultId);
+      expect(JSON.stringify(response)).not.toContain(unlockPasskey.prfSalt);
+    }
+
+    expect(lockData()).toBe(before);
+    expect((await vault.send({ type: 'IS_SECURE_STORAGE_UNLOCKED' })).isUnlocked).toBe(!locked);
+  });
+
+  it.each([
+    ['unlocked', false],
+    ['locked', true],
+  ])('are all refused from the vault dialog while the vault is %s', async (_state, locked) => {
+    if (locked) await vault.send({ type: 'LOCK_SECURE_STORAGE' });
+    const before = lockData();
+
+    for (const [type, extra] of requests()) {
+      const response: any = await vault.send({ type, ...extra }, dialogSender(77));
+
+      expect(response?.success).not.toBe(true);
+      expect(JSON.stringify(response ?? null)).not.toContain(vaultId);
+    }
+
+    expect(lockData()).toBe(before);
+    expect((await vault.send({ type: 'IS_SECURE_STORAGE_UNLOCKED' })).isUnlocked).toBe(!locked);
+  });
+
+  it('still work from an extension page', async () => {
+    await vault.send({ type: 'LOCK_SECURE_STORAGE' });
+
+    const unlocked: any = await vault.send(
+      { type: 'UNLOCK_WITH_PASSKEY', payload: { ...unlockPasskey } },
+      EXTENSION_PAGE
+    );
+
+    expect(unlocked.success).toBe(true);
+    expect((await vault.passkeys()).map((p) => p.credentialId)).toEqual([bankCredentialId]);
+  });
+});
+
 describe('taking back a registration', () => {
   const createFrom = (sender: MessageSender, requestId: string) =>
     createConfirmed(sender, requestId, {
