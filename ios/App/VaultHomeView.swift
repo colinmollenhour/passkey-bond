@@ -216,16 +216,14 @@ struct VaultHomeView: View {
     private var settings: some View {
         NavigationStack {
             Form {
-                Section {
-                    #if LOCAL_DEVICE_TEST
+                BrandSection("Passkeys") {
+                    #if LOCAL_DEVICE_TEST && !UI_TEST_HOST
                     Text("This test app supports vault storage and backups. Passkey AutoFill requires the full Passkey.bond build.")
                     #else
                     Text("Enable Passkey.bond in your device's Password AutoFill settings to create and use passkeys in apps and Safari.")
                     #endif
-                } header: { BrandHeader("Passkeys") }
-                .listRowBackground(Brand.surface)
-                .textCase(nil)
-                Section {
+                }
+                BrandSection("Backup and restore") {
                     SecureField("Backup password", text: $password)
                     SecureField("Confirm password for export", text: $confirmation)
                     Button("Export encrypted backup") {
@@ -240,25 +238,19 @@ struct VaultHomeView: View {
                     Button("Import backup") { importing = true }
                     Text("Keep the file and password safe. Nobody can recover them for you.")
                         .font(.jost(13, relativeTo: .footnote)).foregroundStyle(Brand.muted)
-                } header: { BrandHeader("Backup and restore") }
-                .listRowBackground(Brand.surface)
-                .textCase(nil)
-                Section {
+                }
+                BrandSection("Security") {
                     Text("The vault locks when you leave the app or after five minutes without activity.")
                     Text("Copied codes stay on this device and expire after 30 seconds.")
                     Button("Lock vault") { model.lock() }
-                } header: { BrandHeader("Security") }
-                .listRowBackground(Brand.surface)
-                .textCase(nil)
-                Section {
+                }
+                BrandSection("Privacy and support") {
                     Text("QR codes are read on this device. Camera images are not uploaded.")
                     Text("Sync encrypts your vault contents. Relays can see your IP address, sync identifiers and update times. Leaving sync does not delete records already held by relays.")
                     Link("Privacy policy", destination: VaultLinks.privacy)
                     Link("Contact support", destination: VaultLinks.support)
                     NavigationLink("About and licenses") { OpenSourceView() }
-                } header: { BrandHeader("Privacy and support") }
-                .listRowBackground(Brand.surface)
-                .textCase(nil)
+                }
             }
             .brandList()
             .onChange(of: password) { _, _ in model.touch() }

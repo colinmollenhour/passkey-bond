@@ -8,12 +8,7 @@ final class StoreScreenshotTests: XCTestCase {
         continueAfterFailure = false
     }
 
-    override func tearDown() {
-        XCUIDevice.shared.appearance = .light
-    }
-
     func testStoreScreenshots() {
-        XCUIDevice.shared.appearance = .light
         let app = XCUIApplication()
         app.launchArguments += ["-demoVault"]
         app.launch()
@@ -36,25 +31,31 @@ final class StoreScreenshotTests: XCTestCase {
         let account = app.textFields["Account"]
         account.tap()
         account.typeText("alex@example.com\n")
-        dismissKeyboard(app)
         capture(app, "03-add-code")
         app.buttons["Cancel"].tap()
         XCTAssertTrue(app.navigationBars["Add 2FA code"].waitForNonExistence(timeout: 5))
 
-        select(app, "Sync")
-        XCTAssertTrue(app.buttons["Create sync chain"].waitForExistence(timeout: 5))
+        select(app, "Sync", until: app.buttons["Create sync chain"])
         capture(app, "04-sync")
 
-        select(app, "Settings")
-        XCTAssertTrue(app.buttons["Export encrypted backup"].waitForExistence(timeout: 5))
+        select(app, "Settings", until: app.buttons["Export encrypted backup"])
         capture(app, "05-settings")
+        app.terminate()
+    }
 
-        select(app, "Vault")
-        XCTAssertTrue(bank.waitForExistence(timeout: 5))
-        XCUIDevice.shared.appearance = .dark
-        // Let the trait change redraw before capturing.
-        Thread.sleep(forTimeInterval: 1)
+    /// The vault in dark mode. The host app takes the colour scheme from a
+    /// launch argument, since the simulator appearance can't be switched
+    /// reliably from inside a test.
+    func testStoreScreenshotDark() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-demoVault", "-darkMode"]
+        app.launch()
+        XCTAssertTrue(app.buttons["Unlock vault"].waitForExistence(timeout: 10))
+        app.buttons["Unlock vault"].tap()
+        let bank = app.cells.containing(.staticText, identifier: "bank.example").firstMatch
+        XCTAssertTrue(bank.waitForExistence(timeout: 10))
         capture(app, "06-vault-dark")
+        app.terminate()
     }
 
     /// Tab bar items are tab bar buttons on iPhone, and plain buttons in the
@@ -64,22 +65,17 @@ final class StoreScreenshotTests: XCTestCase {
         return item.exists ? item : app.buttons[name].firstMatch
     }
 
-    /// Selects a tab, tapping again if the first tap was swallowed (it can be
-    /// right after a sheet closes).
-    private func select(_ app: XCUIApplication, _ name: String) {
+    /// Selects a tab until `landmark` (an element on that tab) appears,
+    /// tapping again if a tap was swallowed. iPad tab items don't report
+    /// isSelected, so the landmark is the check.
+    private func select(_ app: XCUIApplication, _ name: String, until landmark: XCUIElement) {
         for _ in 0..<3 {
             let item = tab(app, name)
             XCTAssertTrue(item.waitForExistence(timeout: 5))
             item.tap()
-            if item.wait(for: \.isSelected, toEqual: true, timeout: 2) { return }
+            if landmark.waitForExistence(timeout: 3) { return }
         }
         XCTFail("Could not select the \(name) tab")
-    }
-
-    private func dismissKeyboard(_ app: XCUIApplication) {
-        guard app.keyboards.count > 0 else { return }
-        let title = app.navigationBars["Add 2FA code"]
-        if title.exists { title.tap() }
     }
 
     private func capture(_ app: XCUIApplication, _ name: String) {

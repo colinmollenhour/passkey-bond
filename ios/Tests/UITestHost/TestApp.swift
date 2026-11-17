@@ -12,6 +12,7 @@ struct VaultUITestApp: App {
         WindowGroup {
             VaultHomeView(model: NativeVaultModel(vault: access, authenticate: { _ in true }),
                           sync: NativeSyncModel(vault: access.vault))
+                .preferredColorScheme(ProcessInfo.processInfo.arguments.contains("-darkMode") ? .dark : nil)
         }
     }
 }

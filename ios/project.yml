@@ -41,7 +41,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: bond.passkey.uitest
         INFOPLIST_FILE: App/Info.plist
         GENERATE_INFOPLIST_FILE: NO
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) LOCAL_DEVICE_TEST"
+        # LOCAL_DEVICE_TEST: no app group or keychain entitlements. UI_TEST_HOST:
+        # show the shipping app's copy, since the store screenshots come from here.
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) LOCAL_DEVICE_TEST UI_TEST_HOST"
     scheme:
       testTargets: [NativeUITests]
 
