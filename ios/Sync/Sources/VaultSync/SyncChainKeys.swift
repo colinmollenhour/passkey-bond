@@ -76,7 +76,8 @@ enum Scrypt {
             }
             return 0
         }
-        guard status == 0 else { throw SyncError.invalidKey }
+        // vault_scrypt_romix returns -2 when malloc fails.
+        guard status == 0 else { throw status == -2 ? SyncError.outOfMemory : SyncError.invalidKey }
         return pbkdf2(password: password, salt: blocks, length: length)
     }
 

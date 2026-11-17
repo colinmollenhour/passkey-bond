@@ -15,6 +15,9 @@ final class NativeSyncModel: ObservableObject, NativeSyncLifecycle {
     private var service: SyncService?
     // The stored seed's chain keys, derived once per unlock: scrypt takes 128 MiB and a good part of a second.
     private var chain: (seedHash: String, keys: SyncChainKeys)?
+    // The derivation in flight, shared by every caller for the same seed so that quick lock/unlock
+    // cycles never run two 128 MiB derivations at once.
+    private var derivation: (seedHash: String, task: Task<SyncChainKeys, Error>)?
     private var active = false
     private var generation = 0
 
@@ -85,7 +88,9 @@ final class NativeSyncModel: ObservableObject, NativeSyncLifecycle {
     }
 
     func retry() {
-        guard active, let service else { return }
+        guard active, !preparing else { return }
+        // Key derivation or settings loading failed before a service started: start over.
+        guard let service else { return restart() }
         Task { await service.retry() }
     }
 
@@ -101,13 +106,17 @@ final class NativeSyncModel: ObservableObject, NativeSyncLifecycle {
         let token = generation
         preparing = true
         Task { [weak self] in
-            let keys = try? await SyncChainKeys.derived(seedHash: hash)
-            guard let self, self.active, self.generation == token else { return }
+            guard let self else { return }
+            let result = await self.deriveKeys(hash)
+            guard self.active, self.generation == token else { return }
             self.preparing = false
             do {
-                guard let keys else { throw VaultError.invalidData }
+                let keys = try result.get()
                 try self.vault.joinSync(seedHash: hash, chainID: keys.chainID, deviceName: name)
                 self.chain = (seedHash: hash, keys: keys)
+            } catch SyncError.outOfMemory {
+                self.message = Self.outOfMemory
+                return
             } catch {
                 self.message = failure
                 return
@@ -154,10 +163,18 @@ final class NativeSyncModel: ObservableObject, NativeSyncLifecycle {
         chain = nil
         preparing = true
         Task { [weak self] in
-            let keys = try? await SyncChainKeys.derived(seedHash: settings.seedHash)
-            guard let self, self.active, self.generation == token else { return }
+            guard let self else { return }
+            let result = await self.deriveKeys(settings.seedHash)
+            guard self.active, self.generation == token else { return }
             self.preparing = false
-            guard let keys else {
+            let keys: SyncChainKeys
+            do {
+                keys = try result.get()
+            } catch SyncError.outOfMemory {
+                self.status = .storageError
+                self.message = Self.outOfMemory
+                return
+            } catch {
                 self.loadFailed()
                 return
             }
@@ -211,6 +228,21 @@ final class NativeSyncModel: ObservableObject, NativeSyncLifecycle {
         } catch {
             loadFailed()
         }
+    }
+
+    private static let outOfMemory = "Not enough memory to prepare sync keys. Close other apps and try again."
+
+    private func deriveKeys(_ seedHash: String) async -> Result<SyncChainKeys, Error> {
+        let task: Task<SyncChainKeys, Error>
+        if let derivation, derivation.seedHash == seedHash {
+            task = derivation.task
+        } else {
+            task = Task.detached(priority: .userInitiated) { try SyncChainKeys.derive(seedHash: seedHash) }
+            derivation = (seedHash: seedHash, task: task)
+        }
+        let result = await task.result
+        if derivation?.seedHash == seedHash { derivation = nil }
+        return result
     }
 
     private func loadFailed() {

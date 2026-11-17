@@ -7,6 +7,8 @@ public enum SyncError: Error {
     case invalidMessage
     case invalidEvent
     case capacity
+    /// scrypt could not allocate its 128 MiB working buffer.
+    case outOfMemory
 }
 
 // Preserve the vault's historical word positions and checksum convention.

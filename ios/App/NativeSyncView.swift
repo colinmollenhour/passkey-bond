@@ -48,7 +48,7 @@ struct NativeSyncView: View {
                         SecureField("12- or 24-word recovery phrase", text: $phrase)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("Join sync chain") {
-                            if model.join(phrase) { phrase = "" }
+                            model.join(phrase)
                         }.disabled(phrase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                 }
@@ -59,6 +59,8 @@ struct NativeSyncView: View {
                 Button("Leave chain", role: .destructive) { model.leave() }
             }
             .onDisappear { phrase = "" }
+            // Clear the phrase once the join has committed, not when it starts.
+            .onChange(of: model.enabled) { _, enabled in if enabled { phrase = "" } }
             .sheet(isPresented: Binding(get: { model.recoveryPhrase != nil },
                                          set: { if !$0 { model.recoveryPhrase = nil } })) {
                 NavigationStack {
