@@ -2216,7 +2216,7 @@ html:has(.sync-settings) {
 }
 
 /* Lock screen without its hint line: keep the heading off the first button */
-.auth-no-hint .auth-form {
+.auth-no-hint > .auth-form {
   margin-top: 20px;
 }
 
