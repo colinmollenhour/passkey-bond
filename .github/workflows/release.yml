@@ -143,7 +143,7 @@ jobs:
         run: |
           export VERSION_NAME="${GITHUB_REF#refs/tags/v}"
           ./android/build-android.sh
-          cp android/dist/passkey-bond-android-signed.apk \
+          mv android/dist/passkey-bond-android-signed.apk \
             "android/dist/passkey-bond-${VERSION_NAME}.apk"
 
       - name: Upload APK artifact
