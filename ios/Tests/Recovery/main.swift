@@ -6,7 +6,8 @@ let archive = VaultArchive(directory: directory)
 try archive.unlock(key: Data(repeating: 31, count: 32))
 let vault = VaultStore(archive: archive)
 let seed = String(repeating: "ac", count: 32)
-try vault.joinSync(seedHash: seed, deviceName: "Recovery test")
+// The v5 chain ID of this seed (ios/Sync/chain-keys.mjs); joining stores what VaultSync derived.
+try vault.joinSync(seedHash: seed, chainID: "64f31b669c7f903f379f29161d984bcb", deviceName: "Recovery test")
 let registration = try vault.register(rpId: "example.com", userName: "alice", userHandle: Data("alice".utf8), excluded: [])
 let record = try vault.findPasskey(credentialId: Base64URL.encode(registration.credentialID))!
 let plaintext = try VaultBackup.decrypt(vault.exportBackup(password: "fixture-password"), password: "fixture-password")

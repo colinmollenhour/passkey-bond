@@ -225,13 +225,14 @@ final class VaultStore {
         updateCredentialIdentities([])
     }
 
+    // VaultSync checks the chain ID against the seed: the v5 derivation is slow and this file builds
+    // without that package. A v4 ID (a prefix of the seed hash) stays valid until adoptSyncChainID.
     func syncSettings() throws -> VaultSyncSettings? {
         let values = try archive.read()
         let config = object(values[Key.syncConfig] ?? "{}")
         guard config["enabled"] as? Bool == true else { return nil }
-        guard let hash = config["seedHash"] as? String, hash.count == 64,
-              hash.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }),
-              let chainID = config["chainId"] as? String, chainID == String(hash.prefix(32)),
+        guard let hash = config["seedHash"] as? String, Self.isHex(hash, count: 64),
+              let chainID = config["chainId"] as? String, Self.isHex(chainID, count: VaultSyncSettings.chainIDLength),
               let deviceID = config["deviceId"] as? String, !deviceID.isEmpty else { throw VaultError.invalidData }
         let name = config["deviceName"] as? String ?? "iPhone"
         let raw = values[Key.customRelays].flatMap { try? JSONDecoder().decode([String].self, from: Data($0.utf8)) }
@@ -244,12 +245,16 @@ final class VaultStore {
         return VaultSyncSettings(seedHash: hash, chainID: chainID, deviceID: deviceID, deviceName: name, relays: relays)
     }
 
-    func joinSync(seedHash: String, deviceName: String) throws {
-        guard seedHash.count == 64, seedHash.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }),
-              !deviceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              deviceName.utf8.count <= 256 else { throw VaultError.invalidData }
+    static func isValidSyncDeviceName(_ name: String) -> Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && name.utf8.count <= 256
+    }
+
+    /// `chainID` is the protocol v5 ID that VaultSync's SyncChainKeys derived from `seedHash`.
+    func joinSync(seedHash: String, chainID: String, deviceName: String) throws {
+        guard Self.isHex(seedHash, count: 64), Self.isHex(chainID, count: VaultSyncSettings.chainIDLength),
+              chainID != VaultSyncSettings.legacyChainID(seedHash: seedHash),
+              Self.isValidSyncDeviceName(deviceName) else { throw VaultError.invalidData }
         let deviceID = UUID().uuidString
-        let chainID = String(seedHash.prefix(32))
         let now = Date().timeIntervalSince1970 * 1000
         try archive.transaction { values in
             var config = object(values[Key.syncConfig] ?? "{}")
@@ -263,6 +268,27 @@ final class VaultStore {
                 "id": deviceID, "name": deviceName, "deviceType": "Mobile (iOS)", "publicKey": "",
                 "createdAt": now, "lastSeen": now, "isThisDevice": true,
             ]]])
+        }
+    }
+
+    /// Protocol v5 replaced the chain ID, which v4 took straight from the seed. Rewrites every stored copy
+    /// that still holds this seed's v4 ID `legacyID` (the config and the device list) in one transaction,
+    /// as the extension's adoptSyncChainId does. A copy for any other chain is left alone.
+    func adoptSyncChainID(_ chainID: String, replacing legacyID: String) throws {
+        guard Self.isHex(chainID, count: VaultSyncSettings.chainIDLength), chainID != legacyID else {
+            throw VaultError.invalidData
+        }
+        try archive.transaction { values in
+            var config = object(values[Key.syncConfig] ?? "{}")
+            guard let hash = config["seedHash"] as? String, config["chainId"] as? String == legacyID,
+                  VaultSyncSettings.legacyChainID(seedHash: hash) == legacyID else { return }
+            config["chainId"] = chainID
+            values[Key.syncConfig] = try encode(config)
+            var chain = object(values[Key.syncDevices] ?? "{}")
+            if chain["id"] as? String == legacyID {
+                chain["id"] = chainID
+                values[Key.syncDevices] = try encode(chain)
+            }
         }
     }
 
@@ -453,6 +479,10 @@ final class VaultStore {
         }
         updateCredentialIdentities(try loadPasskeys())
         return VaultRegistration(credentialID: credentialID, attestation: WebAuthn.attestationObject(authData: authData))
+    }
+
+    private static func isHex(_ value: String, count: Int) -> Bool {
+        value.utf8.count == count && value.utf8.allSatisfy { (48...57).contains($0) || (97...102).contains($0) }
     }
 
     private func records(_ raw: String?) throws -> [[String: Any]] {

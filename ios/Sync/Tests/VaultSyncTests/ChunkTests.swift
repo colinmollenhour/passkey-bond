@@ -13,12 +13,12 @@ final class ChunkTests: XCTestCase {
         XCTAssertNil(try collector.accept(parts[0]))
         XCTAssertEqual(try collector.accept(parts[1]), payload)
         XCTAssertEqual(try collector.accept(parts[1]), payload, "Retry after storage failure lost the completed payload")
-        let requests = try collector.missing(parts[2], address: "pksync-v4-chain-device-update-2", author: String(repeating: "ab", count: 32))
+        let requests = try collector.missing(parts[2], address: "pksync-v5-chain-device-update-2", author: String(repeating: "ab", count: 32))
         XCTAssertEqual(requests.count, 1)
         let frame = try JSONSerialization.jsonObject(with: Data(requests[0].utf8)) as! [Any]
         let filter = frame[2] as! [String: Any]
-        XCTAssertEqual(filter["#d"] as? [String], (0..<3).map { "pksync-v4-chain-device-update-\($0)" })
-        XCTAssertTrue(try collector.missing(parts[2], address: "pksync-v4-chain-device-update-2",
+        XCTAssertEqual(filter["#d"] as? [String], (0..<3).map { "pksync-v5-chain-device-update-\($0)" })
+        XCTAssertTrue(try collector.missing(parts[2], address: "pksync-v5-chain-device-update-2",
                                              author: String(repeating: "ab", count: 32)).isEmpty)
     }
 

@@ -29,6 +29,10 @@ public struct SyncDelivery: Sendable {
         return .pending
     }
 
+    public func contains(_ id: String) -> Bool {
+        ids.contains(id)
+    }
+
     public mutating func acknowledge(_ id: String) -> Bool {
         guard ids.contains(id) else { return false }
         accepted.insert(id)

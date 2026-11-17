@@ -9,7 +9,9 @@ let package = Package(
         .package(url: "https://github.com/21-DOT-DEV/swift-secp256k1.git", exact: "0.24.0"),
     ],
     targets: [
-        .target(name: "VaultSync", dependencies: [.product(name: "P256K", package: "swift-secp256k1")],
+        // scrypt's ROMix in C: Debug builds compile Swift at -Onone, too slow for a 128 MiB derivation.
+        .target(name: "CVaultScrypt"),
+        .target(name: "VaultSync", dependencies: ["CVaultScrypt", .product(name: "P256K", package: "swift-secp256k1")],
                 resources: [.copy("Resources/vault-words.txt")]),
         .testTarget(name: "VaultSyncTests", dependencies: ["VaultSync"],
                     resources: [.copy("Fixtures")]),

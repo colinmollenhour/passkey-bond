@@ -42,17 +42,22 @@ public final class SyncProtocol {
     private var processed: Set<String> = []
     private var order: [String] = []
 
-    public init(seedHash: String, deviceID: String, deviceName: String) throws {
+    /// Derives the chain keys first: slow, so prefer `init(keys:)` with keys from `SyncChainKeys.derived`.
+    public convenience init(seedHash: String, deviceID: String, deviceName: String) throws {
+        try self.init(keys: SyncChainKeys.derive(seedHash: seedHash), deviceID: deviceID, deviceName: deviceName)
+    }
+
+    public init(keys: SyncChainKeys, deviceID: String, deviceName: String) throws {
         guard !deviceID.isEmpty, deviceID.utf8.count <= Self.maxIdentityBytes,
               deviceName.utf8.count <= Self.maxIdentityBytes else { throw SyncError.invalidMessage }
-        cipher = try SyncCipher(seedHash: seedHash)
+        cipher = try SyncCipher(keys: keys)
         self.deviceID = deviceID
         self.deviceName = deviceName
     }
 
     public func subscription(at now: Date = Date()) throws -> String {
         let filters: [[String: Any]] = [
-            ["kinds": [SyncCipher.eventKind], "#d": ["pksync-v4-\(cipher.chainID)"],
+            ["kinds": [SyncCipher.eventKind], "#d": ["\(SyncCipher.eventPrefix)-\(cipher.chainID)"],
              "since": Int64(now.timeIntervalSince1970 - Self.lookback), "limit": 50],
             ["kinds": [SyncCipher.eventKind], "authors": [cipher.author], "#h": [cipher.chainID]],
         ]
@@ -94,7 +99,7 @@ public final class SyncProtocol {
         guard !processed.contains(event.id), cipher.verify(event) else { return .ignored }
         guard let content = try chunks.accept(event.content, at: now) else {
             let address = event.tags.first(where: { $0.first == "d" }).flatMap { $0.count > 1 ? $0[1] : nil } ?? ""
-            guard address.hasPrefix("pksync-v4-\(cipher.chainID)-") else { throw SyncError.invalidMessage }
+            guard address.hasPrefix("\(SyncCipher.eventPrefix)-\(cipher.chainID)-") else { throw SyncError.invalidMessage }
             return .missing(try chunks.missing(event.content, address: address, author: event.pubkey))
         }
         let message = try dictionary(cipher.decryptMessage(content))
@@ -159,8 +164,8 @@ public final class SyncProtocol {
         let content = try cipher.encryptMessage(JSONSerialization.data(withJSONObject: message))
         return try SyncChunks.split(content).enumerated().map { index, part in
             let tags = kind == .update || kind == .response
-                ? [["d", "pksync-v4-\(cipher.chainID)-\(deviceID)-\(kind.rawValue)-\(index)"], ["h", cipher.chainID]]
-                : [["d", "pksync-v4-\(cipher.chainID)"]]
+                ? [["d", "\(SyncCipher.eventPrefix)-\(cipher.chainID)-\(deviceID)-\(kind.rawValue)-\(index)"], ["h", cipher.chainID]]
+                : [["d", "\(SyncCipher.eventPrefix)-\(cipher.chainID)"]]
             return try cipher.sign(content: part, tags: tags, createdAt: Int64(now.timeIntervalSince1970))
         }
     }

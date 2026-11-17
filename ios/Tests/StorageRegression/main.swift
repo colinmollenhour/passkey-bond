@@ -100,7 +100,8 @@ require(try Set(mixedVault.loadPasskeys().map(\.id)) == Set(["credential", "nati
 let webArchive = VaultArchive(directory: directory.appendingPathComponent("web"))
 try webArchive.unlock(key: key)
 let webVault = VaultStore(archive: webArchive)
-try webVault.joinSync(seedHash: String(repeating: "ab", count: 32), deviceName: "Native")
+try webVault.joinSync(seedHash: String(repeating: "ab", count: 32), chainID: "707571ea9119f5dd95a71a1b0429ae48",
+                      deviceName: "Native")
 try webVault.savePasskeys([PasskeyRecord.fromJSON(nativeRecord)!])
 let webSnapshot = try LegacyWebSnapshot(["passkeys": raw,
     "sync_config": "{\"seedHash\":\"old-chain\",\"deviceId\":\"old-device\"}"])

@@ -2,17 +2,18 @@ import CoreFoundation
 import Foundation
 
 public struct RelaySyncConfig: Sendable {
-    public let seedHash: String
+    public let keys: SyncChainKeys
     public let deviceID: String
     public let deviceName: String
     public let relays: [URL]
 
-    public init(seedHash: String, deviceID: String, deviceName: String, relays: [URL]) throws {
-        guard Data(hex: seedHash)?.count == 32, !deviceID.isEmpty, !relays.isEmpty,
+    /// `keys` come from `SyncChainKeys.derived(seedHash:)`, so starting the service never runs scrypt.
+    public init(keys: SyncChainKeys, deviceID: String, deviceName: String, relays: [URL]) throws {
+        guard !deviceID.isEmpty, !relays.isEmpty,
               relays.allSatisfy({ $0.scheme == "wss" && $0.host != nil && $0.user == nil && $0.fragment == nil }) else {
             throw SyncError.invalidMessage
         }
-        self.seedHash = seedHash
+        self.keys = keys
         self.deviceID = deviceID
         self.deviceName = deviceName
         self.relays = relays
@@ -26,6 +27,9 @@ public enum SyncStatus: Sendable, Equatable {
 public enum SyncChange: Sendable {
     case unchanged, changed
 }
+
+/// The connected relay answered one of our events with `OK false`.
+struct RelayRejection: Error {}
 
 public actor SyncService {
     public typealias Load = @Sendable () async throws -> Data
@@ -108,7 +112,7 @@ public actor SyncService {
 
     private func run(token: Int) async {
         do {
-            wire = try SyncProtocol(seedHash: config.seedHash, deviceID: config.deviceID, deviceName: config.deviceName)
+            wire = try SyncProtocol(keys: config.keys, deviceID: config.deviceID, deviceName: config.deviceName)
         } catch {
             await report(.storageError)
             if generation == token { worker = nil }
@@ -139,6 +143,10 @@ public actor SyncService {
                     do {
                         try await handle(frame, channel: channel, token: token, connection: connection)
                     } catch is CancellationError { break }
+                    catch is RelayRejection {
+                        // This relay will not carry our events; the next one may.
+                        break
+                    }
                     catch {
                         // Malformed remote messages cannot tear down a healthy relay connection.
                         continue
@@ -214,7 +222,15 @@ public actor SyncService {
         if type == "OK" {
             guard frame.count >= 3, let id = frame[1] as? String, let accepted = frame[2] as? NSNumber,
                   CFGetTypeID(accepted) == CFBooleanGetTypeID() else { throw SyncError.invalidMessage }
-            guard accepted.boolValue else { await report(.retryNeeded); return }
+            let note = frame.count > 3 ? frame[3] as? String ?? "" : ""
+            // NIP-01 relays report a stored copy as accepted; tolerate those that send false.
+            if !accepted.boolValue && !note.hasPrefix("duplicate:") {
+                guard deliveries.values.contains(where: { $0.contains(id) }) else { return }
+                // One relay at a time: a relay that refuses our event (its write policy, a rate limit,
+                // an outdated protocol) would otherwise hold sync on a socket that never delivers.
+                await report(.retryNeeded)
+                throw RelayRejection()
+            }
             for kind in Array(deliveries.keys) {
                 guard current(token, connection) else { return }
                 guard var delivery = deliveries[kind], delivery.acknowledge(id) else { continue }

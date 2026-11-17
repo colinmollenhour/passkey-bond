@@ -4,17 +4,22 @@ import XCTest
 @testable import VaultSync
 
 private actor TestRelay: RelayConnection {
+    private let accepts: Bool
     private var frames: [String] = []
     private var incoming: [String] = []
     private var reader: CheckedContinuation<String, any Error>?
     private var closed = false
+
+    init(accepts: Bool = true) {
+        self.accepts = accepts
+    }
 
     func send(_ text: String) async throws {
         guard !closed else { throw CancellationError() }
         frames.append(text)
         let frame = try JSONSerialization.jsonObject(with: Data(text.utf8)) as! [Any]
         if frame.first as? String == "EVENT", let event = frame[1] as? [String: Any], let id = event["id"] as? String {
-            let ack = try JSONSerialization.data(withJSONObject: ["OK", id, true, ""])
+            let ack = try JSONSerialization.data(withJSONObject: ["OK", id, accepts, accepts ? "" : "blocked: policy"])
             push(String(decoding: ack, as: UTF8.self))
         }
     }
@@ -42,6 +47,7 @@ private actor TestRelay: RelayConnection {
     }
 
     func sentFrames() -> [String] { frames }
+    func isClosed() -> Bool { closed }
 }
 
 private actor TestSyncStorage {
@@ -145,8 +151,8 @@ private final class TestTLSConnection: RelayConnection {
 @MainActor
 final class ServiceTests: XCTestCase {
     private func config() throws -> RelaySyncConfig {
-        try RelaySyncConfig(seedHash: String(repeating: "ab", count: 32), deviceID: "native", deviceName: "iPhone",
-                            relays: [URL(string: "wss://relay.example")!])
+        try RelaySyncConfig(keys: TestKeys.of(String(repeating: "ab", count: 32)), deviceID: "native",
+                            deviceName: "iPhone", relays: [URL(string: "wss://relay.example")!])
     }
 
     private func service(_ relay: TestRelay, _ storage: TestSyncStorage) throws -> SyncService {
@@ -177,6 +183,31 @@ final class ServiceTests: XCTestCase {
         XCTAssertTrue(stopped)
     }
 
+    func testRejectedEventMovesToNextRelay() async throws {
+        let refusing = TestRelay(accepts: false)
+        let accepting = TestRelay()
+        let storage = TestSyncStorage()
+        let relays = [URL(string: "wss://refusing.example")!, URL(string: "wss://accepting.example")!]
+        let config = try RelaySyncConfig(keys: TestKeys.of(String(repeating: "ab", count: 32)), deviceID: "native",
+                                         deviceName: "iPhone", relays: relays)
+        let service = SyncService(config: config, load: { await storage.load() },
+                                  apply: { try await storage.apply($0) }, report: { await storage.report($0) },
+                                  connect: { $0.host == "refusing.example" ? refusing : accepting })
+        await service.start()
+        try await eventually { await storage.hasStatus(.retryNeeded) }
+        try await eventually { await refusing.isClosed() }
+        // The service waits five seconds before it connects to the next relay.
+        for _ in 0..<50 {
+            if await storage.hasStatus(.sent) { break }
+            try await Task.sleep(for: .milliseconds(200))
+        }
+        let sent = await storage.hasStatus(.sent)
+        XCTAssertTrue(sent, "Sync stayed on a relay that refused its events")
+        let frames = await accepting.sentFrames()
+        XCTAssertTrue(frames.contains { $0.contains("EVENT") })
+        await service.stop()
+    }
+
     func testLockDropsPendingSnapshot() async throws {
         let relay = TestRelay()
         let storage = TestSyncStorage()
@@ -200,7 +231,7 @@ final class ServiceTests: XCTestCase {
         let service = try service(relay, storage)
         await service.start()
         try await eventually { await storage.hasStatus(.sent) }
-        let sender = try SyncProtocol(seedHash: config().seedHash, deviceID: "peer", deviceName: "Browser")
+        let sender = try SyncProtocol(keys: config().keys, deviceID: "peer", deviceName: "Browser")
         let event = try XCTUnwrap(sender.snapshot(Data("{\"passkeys\":[],\"totpEntries\":[]}".utf8), purpose: .update).first)
         let eventObject = try JSONSerialization.jsonObject(with: SyncJSON.encode(event))
         let frame = String(decoding: try JSONSerialization.data(withJSONObject: ["EVENT", "subscription", eventObject]), as: UTF8.self)
@@ -230,9 +261,9 @@ final class ServiceTests: XCTestCase {
         }
         let firstStore = TestSyncStorage(snapshot: Data("{\"passkeys\":[{\"id\":\"native-tls-credential\"}],\"totpEntries\":[]}".utf8))
         let secondStore = TestSyncStorage()
-        let hash = try SyncRecovery.seedHash(SyncRecovery.generate())
-        let firstConfig = try RelaySyncConfig(seedHash: hash, deviceID: "one", deviceName: "Phone one", relays: [url])
-        let secondConfig = try RelaySyncConfig(seedHash: hash, deviceID: "two", deviceName: "Phone two", relays: [url])
+        let keys = try await SyncChainKeys.derived(seedHash: SyncRecovery.seedHash(SyncRecovery.generate()))
+        let firstConfig = try RelaySyncConfig(keys: keys, deviceID: "one", deviceName: "Phone one", relays: [url])
+        let secondConfig = try RelaySyncConfig(keys: keys, deviceID: "two", deviceName: "Phone two", relays: [url])
         let first = SyncService(config: firstConfig, load: { await firstStore.load() },
                                 apply: { try await firstStore.apply($0) }, report: { await firstStore.report($0) }, connect: open)
         let second = SyncService(config: secondConfig, load: { await secondStore.load() },

@@ -1,4 +1,3 @@
-import CommonCrypto
 import CryptoKit
 import Foundation
 import P256K
@@ -31,13 +30,15 @@ public struct RelayEvent: Codable, Sendable {
 // Key material stays inside this driver. Callers exchange encrypted messages and signed events.
 public final class SyncCipher {
     public static let eventKind = 30078
+    /// The bundle and chunk format version, unchanged by protocol v5 (SYNC_BUNDLE_VERSION).
     public static let version = "4.0"
+    /// Relay address prefix (SYNC_EVENT_PREFIX); v4 used "pksync-v4".
+    public static let eventPrefix = "pksync-v5"
     public static let maxEventBytes = 16_384
     public let chainID: String
     public let author: String
     private let encryptionKey: SymmetricKey
     private let signingKey: P256K.Schnorr.PrivateKey
-    private static let rounds: UInt32 = 100_000
     private static let keyBytes = 32
     private static let nonceBytes = 12
     private static let tagBytes = 16
@@ -53,12 +54,19 @@ public final class SyncCipher {
         let c: String
     }
 
-    public init(seedHash: String) throws {
-        guard Data(hex: seedHash)?.count == Self.keyBytes else { throw SyncError.invalidKey }
-        chainID = String(seedHash.prefix(32))
-        let prefix = "pkvault-sync-v4-\(chainID)"
-        encryptionKey = SymmetricKey(data: try Self.derive(seedHash, salt: "\(prefix)-enc"))
-        signingKey = try P256K.Schnorr.PrivateKey(dataRepresentation: Self.derive(seedHash, salt: "\(prefix)-nostr"))
+    /// Derives the chain keys first: slow, so prefer `init(keys:)` with keys from `SyncChainKeys.derived`.
+    public convenience init(seedHash: String) throws {
+        try self.init(keys: SyncChainKeys.derive(seedHash: seedHash))
+    }
+
+    public init(keys: SyncChainKeys) throws {
+        guard keys.encryptionKey.count == Self.keyBytes, keys.signingKey.count == Self.keyBytes,
+              keys.chainID.count == SyncChainKeys.chainIDLength, Data(hex: keys.chainID) != nil else {
+            throw SyncError.invalidKey
+        }
+        chainID = keys.chainID
+        encryptionKey = SymmetricKey(data: keys.encryptionKey)
+        signingKey = try P256K.Schnorr.PrivateKey(dataRepresentation: keys.signingKey)
         author = Data(signingKey.xonly.bytes).hex
     }
 
@@ -129,24 +137,5 @@ public final class SyncCipher {
         let canonical: [Any] = [0, author, createdAt, kind, tags, content]
         let data = try JSONSerialization.data(withJSONObject: canonical, options: [.withoutEscapingSlashes])
         return Data(SHA256.hash(data: data))
-    }
-
-    private static func derive(_ password: String, salt: String) throws -> Data {
-        let input = Array(password.utf8)
-        let saltBytes = Array(salt.utf8)
-        var output = Data(count: keyBytes)
-        let result = output.withUnsafeMutableBytes { result in
-            input.withUnsafeBytes { password in
-                saltBytes.withUnsafeBytes { salt in
-                    CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
-                                        password.baseAddress?.assumingMemoryBound(to: CChar.self), input.count,
-                                        salt.baseAddress?.assumingMemoryBound(to: UInt8.self), saltBytes.count,
-                                        CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256), rounds,
-                                        result.baseAddress?.assumingMemoryBound(to: UInt8.self), keyBytes)
-                }
-            }
-        }
-        guard result == kCCSuccess else { throw SyncError.invalidKey }
-        return output
     }
 }

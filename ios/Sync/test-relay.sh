@@ -10,12 +10,13 @@ cleanup() {
   rm -rf "$OUT"
 }
 trap cleanup EXIT
+command -v jq >/dev/null || { echo "jq is required: the local relay runs relay/write-policy.jq" >&2; exit 1; }
 openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj '/CN=localhost' \
   -addext 'subjectAltName=DNS:localhost' -addext 'extendedKeyUsage=serverAuth' \
   -keyout "$OUT/key.pem" -out "$OUT/cert.pem" >/dev/null 2>&1
 openssl x509 -in "$OUT/cert.pem" -outform der -out "$OUT/cert.der"
 cd "$ROOT"
-node ios/Sync/local-relay.mjs "$OUT/cert.pem" "$OUT/key.pem" "$OUT/ready" >"$OUT/relay.log" 2>&1 &
+node ios/Sync/local-relay.mjs "$OUT/cert.pem" "$OUT/key.pem" "$OUT/ready" "$OUT/rejected" >"$OUT/relay.log" 2>&1 &
 RELAY_PID=$!
 for _ in {1..100}; do
   if [ -s "$OUT/ready" ]; then break; fi
@@ -25,3 +26,8 @@ done
 test -s "$OUT/ready"
 SYNC_TEST_RELAY="$(cat "$OUT/ready")" SYNC_TEST_CERT="$OUT/cert.der" \
   swift test --package-path ios/Sync
+if [ -s "$OUT/rejected" ]; then
+  echo "relay.passkey.bond's write policy rejected native sync events:" >&2
+  cat "$OUT/rejected" >&2
+  exit 1
+fi

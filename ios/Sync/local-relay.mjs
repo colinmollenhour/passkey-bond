@@ -1,6 +1,13 @@
+// A local TLS relay for the native sync tests:
+//   node ios/Sync/local-relay.mjs cert.pem key.pem ready-file rejected-file
+// Every event passes relay.passkey.bond's write policy first, so the tests fail
+// on anything that relay would refuse; each refusal is appended to
+// rejected-file for test-relay.sh.
 import { createServer } from 'node:https';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { spawn } from 'node:child_process';
+import { createInterface } from 'node:readline';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 
@@ -11,6 +18,26 @@ const NOT_FOUND = 404;
 const EVENT_KIND = 30078;
 const MAX_FRAME = 18_432;
 const MAX_EVENTS = 1000;
+const rejections = process.argv[5];
+
+// The strfry write policy, run as relay/write-policy.sh runs it: one
+// long-lived jq reading one request per line and answering one decision per
+// line, in order.
+const policy = spawn('jq', ['-c', '--unbuffered', '-f', resolve('relay/write-policy.jq')], {
+  stdio: ['pipe', 'pipe', 'inherit'],
+});
+const decisions = [];
+policy.on('exit', code => {
+  process.stderr.write(`Write policy exited (${code})\n`);
+  for (const decide of decisions.splice(0)) decide({ action: 'reject', msg: 'error: write policy stopped' });
+});
+createInterface({ input: policy.stdout }).on('line', line => decisions.shift()?.(JSON.parse(line)));
+const admit = event => new Promise(decide => {
+  decisions.push(decide);
+  const request = { type: 'new', event, receivedAt: Math.floor(Date.now() / 1000), sourceType: 'IP4', sourceInfo: '127.0.0.1' };
+  policy.stdin.write(`${JSON.stringify(request)}\n`);
+});
+
 const server = createServer({ cert: readFileSync(process.argv[2]), key: readFileSync(process.argv[3]) }, (_, response) => {
   response.writeHead(NOT_FOUND).end();
 });
@@ -49,8 +76,15 @@ sockets.on('connection', socket => {
         ])).digest('hex');
         const valid = event.kind === EVENT_KIND && digest === event.id &&
           await schnorr.verifyAsync(Buffer.from(event.sig, 'hex'), Buffer.from(digest, 'hex'), Buffer.from(event.pubkey, 'hex'));
-        send(socket, ['OK', event.id, valid, valid ? '' : 'invalid event']);
-        if (!valid) return;
+        const decision = valid ? await admit(event) : { id: event.id, action: 'reject', msg: 'invalid: event' };
+        const accepted = decision.id === event.id && decision.action === 'accept';
+        send(socket, ['OK', event.id, accepted, accepted ? '' : decision.msg ?? 'blocked']);
+        if (!accepted) {
+          const line = `Rejected kind ${event.kind} ${JSON.stringify(event.tags)}: ${decision.msg}\n`;
+          process.stderr.write(line);
+          if (rejections) appendFileSync(rejections, line);
+          return;
+        }
         stored.set(event.id, event);
         if (stored.size > MAX_EVENTS) stored.delete(stored.keys().next().value);
         for (const [peer, requests] of subscriptions) {
@@ -70,4 +104,5 @@ server.listen(0, '127.0.0.1', () => {
 process.on('SIGTERM', () => {
   for (const socket of subscriptions.keys()) socket.terminate();
   server.close();
+  policy.stdin.end();
 });
