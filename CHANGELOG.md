@@ -8,6 +8,8 @@ entries use the old names. The format follows
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-17
+
 ### Unlock the vault with a passkey
 
 A vault locked with a PIN or passphrase can now also be opened with a passkey
