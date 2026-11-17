@@ -1,0 +1,30 @@
+[
+  {
+    "seedHash": "abababababababababababababababababababababababababababababababab",
+    "chainID": "707571ea9119f5dd95a71a1b0429ae48",
+    "encryptionKey": "a41e0348c18667c27952ec1b2e7d83aa887f96fd70fd7cb102183e1afbb024dd",
+    "signingKey": "d5571e38b61af162b25e66e43f54de06da07ccc2965a5419a60af63e193bc53e",
+    "author": "e951915440a8296bb48d46631a04b1c72a0164a3e480cffc43db215ac586c54f"
+  },
+  {
+    "seedHash": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+    "chainID": "850412e65554455c4c6f58f3630cd26a",
+    "encryptionKey": "d9913fc390d1f0da5c17acea60af90267f9b26e1ebbd16b96dab304ba4800109",
+    "signingKey": "c304e404fcd29fc9cba51cc5f46ca2d9dde25de8db5bca8365c3c7530d631dfa",
+    "author": "364d13a26a968d409f95e1de540b2e0560a5400288e0077c817ecdabfa358b01"
+  },
+  {
+    "seedHash": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+    "chainID": "8fc61ad8d0c0c37bf0b1c1c53ec3642c",
+    "encryptionKey": "fbed94394945cb23ae345b2f30c7bc85928acfcb1ef0b440d948b7da1b65078b",
+    "signingKey": "fc58179e5f855e30129310483afbb264cb084d8316ef13ce3e38d10c79580adc",
+    "author": "e48c58c1b38c5414c690ca4a002f17d415af1e99e6e833b1777fbcfa45937165"
+  },
+  {
+    "seedHash": "4179529caf32c8cca4a1772697d3c8b15837a02eefe85cd8f9483480e663f2f1",
+    "chainID": "88f8c8b06939f9d453a9c01214e55d4a",
+    "encryptionKey": "a9dc00151657601ddcc7a9a6e81e53c0246d396b0947992988ed72f3b873c90f",
+    "signingKey": "942eb4d01f4eac024aae7a95af6613a39199f1bf1eeaedc5a0ddc7efaf848f74",
+    "author": "6828aecc55ed63f63816d7bfe610ed90fa759634427fd9c2e52b4c038391263c"
+  }
+]

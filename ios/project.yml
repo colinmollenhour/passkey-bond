@@ -9,6 +9,11 @@ options:
     iOS: "17.0"
   createIntermediateGroups: true
   groupSortPosition: top
+  postGenCommand: bash pin-packages.sh PasskeyBond.xcodeproj
+
+packages:
+  VaultSync:
+    path: Sync
 
 settings:
   base:
@@ -21,23 +26,77 @@ settings:
     TARGETED_DEVICE_FAMILY: "1,2"
 
 targets:
+  NativeUITestHost:
+    type: application
+    platform: iOS
+    sources:
+      - path: Tests/UITestHost
+      - path: App
+        excludes: [PasskeyBondApp.swift, PasskeyBond.entitlements]
+      - path: Shared
+    dependencies:
+      - package: VaultSync
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: bond.passkey.uitest
+        INFOPLIST_FILE: App/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        # LOCAL_DEVICE_TEST: no app group or keychain entitlements. UI_TEST_HOST:
+        # show the shipping app's copy, since the store screenshots come from here.
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) LOCAL_DEVICE_TEST UI_TEST_HOST"
+    scheme:
+      testTargets: [NativeUITests]
+
+  NativeUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: Tests/NativeUI
+    dependencies:
+      - target: NativeUITestHost
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: NativeUITestHost
+
+  WebMigrationTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests/WebMigration
+    dependencies:
+      - target: PasskeyBond
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/PasskeyBond.app/PasskeyBond"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
   PasskeyBond:
     type: application
     platform: iOS
     sources:
       - path: App
       - path: Shared
-      - path: web
+      - path: PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: Migration/web
         type: folder
         buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: bond.passkey.app
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_ENTITLEMENTS: App/PasskeyBond.entitlements
         GENERATE_INFOPLIST_FILE: NO
     dependencies:
       - target: CredentialProvider
+      - package: VaultSync
+
+    scheme:
+      testTargets:
+        - WebMigrationTests
 
   CredentialProvider:
     type: app-extension
@@ -45,6 +104,8 @@ targets:
     sources:
       - path: CredentialProvider
       - path: Shared
+      - path: PrivacyInfo.xcprivacy
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: bond.passkey.app.CredentialProvider
