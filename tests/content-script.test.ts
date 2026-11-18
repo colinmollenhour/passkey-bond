@@ -303,6 +303,60 @@ describe('content script: the vault dialog', () => {
     expect(sent().map((message) => message.type)).toContain('PASSKEY_DIALOG_CANCEL');
   });
 
+  const createRequest = () =>
+    request('PASSKEY_CREATE_REQUEST', {
+      publicKey: {
+        rp: { id: 'localhost' },
+        user: { name: 'alice' },
+        challenge: 'AQID',
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+      },
+    });
+
+  it('cancels an unanswered create prompt after 30 seconds and ignores a late approval', async () => {
+    jest.useFakeTimers();
+    try {
+      const result = createRequest();
+      await jest.advanceTimersByTimeAsync(0);
+      expect(mountDialogFrame).toHaveBeenCalled();
+
+      await jest.advanceTimersByTimeAsync(29_999);
+      expect(frame.unmount).not.toHaveBeenCalled();
+
+      await jest.advanceTimersByTimeAsync(1);
+      dialogResult('dialog-2', 'approved');
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(await result).toMatchObject({
+        success: false,
+        name: 'NotAllowedError',
+        blockNativeFallback: true,
+      });
+      expect(frame.unmount).toHaveBeenCalledTimes(1);
+      expect(sent().filter((message) => message.type === 'PASSKEY_DIALOG_CANCEL')).toHaveLength(1);
+      expect(sent().map((message) => message.type)).not.toContain('CREATE_PASSKEY');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it.each(['cancel', 'approved'])('clears the create timeout after %s', async (outcome) => {
+    jest.useFakeTimers();
+    try {
+      const result = createRequest();
+      await jest.advanceTimersByTimeAsync(0);
+      dialogResult('dialog-2', outcome);
+      await jest.advanceTimersByTimeAsync(0);
+      expect((await result).success).toBe(outcome === 'approved');
+
+      await jest.advanceTimersByTimeAsync(30_000);
+      expect(sent().map((message) => message.type)).not.toContain('PASSKEY_DIALOG_CANCEL');
+      expect(frame.unmount).toHaveBeenCalledTimes(1);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('cancels on Escape in the page, but not on an Escape the page made up', async () => {
     const result = getRequest();
     await flush();

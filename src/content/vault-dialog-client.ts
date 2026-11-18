@@ -7,6 +7,7 @@
  */
 
 import {
+  CREATE_DIALOG_TIMEOUT_MS,
   DIALOG_MESSAGES,
   type VaultDialogKind,
   type VaultDialogOutcome,
@@ -86,9 +87,11 @@ export class VaultDialogClient {
     let launcher: Launcher | null = null;
     const outcome = await new Promise<VaultDialogOutcome>((resolve) => {
       let settled = false;
+      let cancelTimer: ReturnType<typeof setTimeout> | undefined;
       const settle = (value: VaultDialogOutcome) => {
         if (settled) return;
         settled = true;
+        clearTimeout(cancelTimer);
         this.waiters.delete(dialogId);
         signal.removeEventListener('abort', onAbort);
         document.removeEventListener('keydown', onKeydown, true);
@@ -119,6 +122,7 @@ export class VaultDialogClient {
       this.dismissActive = dismiss;
       signal.addEventListener('abort', onAbort);
       document.addEventListener('keydown', onKeydown, true);
+      if (request.kind === 'create') cancelTimer = setTimeout(dismiss, CREATE_DIALOG_TIMEOUT_MS);
 
       if (mode === 'frame') {
         frame = mountDialogFrame({ token, kind: request.kind, focus: !request.conditional });

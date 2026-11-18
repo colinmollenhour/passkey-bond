@@ -495,6 +495,83 @@ describe('ceremonies through the installed extension', () => {
   });
 });
 
+describe('passkey prompts over a site login modal', () => {
+  let page: Page;
+
+  beforeEach(async () => {
+    page = await vault.newPage();
+    await page.goto('https://modal.test/');
+  });
+
+  afterEach(() => page.close());
+
+  async function showMask(): Promise<void> {
+    await page.evaluate(() => {
+      const style = document.createElement('style');
+      style.textContent = '#login-mask::backdrop { background: rgba(0, 0, 0, 0.1); }';
+      document.head.append(style);
+      const mask = document.createElement('dialog');
+      mask.id = 'login-mask';
+      mask.style.cssText =
+        'position:fixed;inset:0;display:grid;z-index:1;width:100vw;height:100vh;' +
+        'max-width:none;max-height:none;margin:0;background:rgba(0,0,0,0.8)';
+      mask.innerHTML = '<button id="sms-login">SMS login complete</button>';
+      document.body.append(mask);
+      mask.showModal();
+      document.getElementById('sms-login')!.focus();
+    });
+  }
+
+  it('lets Create receive a real click above an existing fullscreen modal', async () => {
+    await showMask();
+    const json = creationJSON('modal.test');
+
+    await verifyCreated(await create(page, json), json, 'https://modal.test', 'modal.test');
+    expect(await page.locator('#login-mask').evaluate((mask) => mask.matches(':modal'))).toBe(true);
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('sms-login');
+  });
+
+  it.each(['cancel', 'escape', 'timeout'])('releases the page on %s', async (action) => {
+    await showMask();
+    const result = create(page, creationJSON('modal.test'), { click: false });
+    const frame = await dialogFrame(page);
+    await frame.waitForSelector('#pkv-cancel');
+
+    if (action === 'cancel') await frame.locator('#pkv-cancel').click();
+    if (action === 'escape') {
+      await frame.locator('#card').focus();
+      await page.keyboard.press('Escape');
+    }
+
+    expect(await result).toMatchObject({ ok: false, name: 'NotAllowedError' });
+    await page.waitForFunction(() => document.activeElement?.id === 'sms-login');
+    expect(dialogOpen(page)).toBe(false);
+    expect(await page.locator('#login-mask').evaluate((mask) => mask.matches(':modal'))).toBe(true);
+    await page.locator('#sms-login').click();
+  });
+
+  it.each(['opens', 'reopens'])('stays interactive when the site %s its modal', async (action) => {
+    if (action === 'reopens') await showMask();
+    const result = create(page, creationJSON('modal.test'), { click: false });
+    const frame = await dialogFrame(page);
+    await frame.waitForSelector('#pkv-create');
+    if (action === 'opens') {
+      await showMask();
+    } else {
+      await page.evaluate(() => {
+        const mask = document.getElementById('login-mask') as HTMLDialogElement;
+        mask.close();
+        mask.showModal();
+      });
+    }
+
+    await clickInDialog(page, '#pkv-create');
+
+    expect(await result).toMatchObject({ ok: true });
+    expect(await page.locator('#login-mask').evaluate((mask) => mask.matches(':modal'))).toBe(true);
+  });
+});
+
 /**
  * What a page can do to the vault's dialog, with a real browser's
  * rendering: read it, or get a click out of the user that they did not
@@ -621,7 +698,7 @@ describe('a page attacking the vault’s dialog', () => {
 
     const frame = await pendingSignIn();
     // The user sees the accounts...
-    expect(await frame.locator('body').innerText()).toContain('ALICE SECRET');
+    expect(await frame.locator('body').innerText()).toContain('Alice Secret');
 
     // ...and the page sees none of them, however it looks.
     const pageView = await page.evaluate(() => {

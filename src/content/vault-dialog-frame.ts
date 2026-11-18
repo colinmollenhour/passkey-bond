@@ -27,7 +27,7 @@ export interface DialogFrame {
 export interface MountOptions {
   token: string;
   kind: VaultDialogKind;
-  /** Move focus into the dialog (not for a sign-in the page did not ask for yet). */
+  /** Show modally and move focus inside (not for a conditional sign-in). */
   focus: boolean;
 }
 
@@ -68,7 +68,7 @@ function hostStyles(kind: VaultDialogKind, zoom: number): string {
   // :host rules marked !important beat anything the page says about the
   // host, its own !important rules and inline styles included.
   return `
-    :host {
+    :host, dialog {
       all: initial !important;
       display: block !important;
       position: fixed !important;
@@ -83,6 +83,15 @@ function hostStyles(kind: VaultDialogKind, zoom: number): string {
       z-index: 2147483647 !important;
       zoom: ${zoom} !important;
       pointer-events: auto !important;
+    }
+    dialog {
+      zoom: 1 !important;
+    }
+    dialog:not([open]) {
+      display: none !important;
+    }
+    dialog::backdrop {
+      background: transparent;
     }
     iframe {
       display: block;
@@ -113,7 +122,14 @@ export function mountDialogFrame(options: MountOptions): DialogFrame {
   const frame = document.createElement('iframe');
   frame.title = t('appName');
   frame.src = chrome.runtime.getURL(VAULT_DIALOG_PAGE);
-  root.append(style, frame);
+  // Popovers remain inert outside a site's modal, even in the top layer.
+  // An explicit prompt needs its own modal; autofill must leave the page usable.
+  const modal = options.focus ? document.createElement('dialog') : null;
+  if (modal) {
+    modal.setAttribute('aria-label', t('appName'));
+    modal.appendChild(frame);
+  }
+  root.append(style, modal ?? frame);
 
   let resolveGone!: () => void;
   const gone = new Promise<void>((resolve) => (resolveGone = resolve));
@@ -138,9 +154,19 @@ export function mountDialogFrame(options: MountOptions): DialogFrame {
 
   // In the top layer where the browser has it, so the page's stacking and
   // its ancestors' opacity, filters and transforms do not apply.
-  const popover = typeof (host as { showPopover?: unknown }).showPopover === 'function';
+  const popover = !modal && typeof host.showPopover === 'function';
   if (popover) host.setAttribute('popover', 'manual');
   document.documentElement.appendChild(host);
+  if (modal) {
+    modal.addEventListener('close', () => {
+      if (mounted && !modal.open) resolveGone();
+    });
+    try {
+      modal.showModal();
+    } catch {
+      resolveGone();
+    }
+  }
   if (popover) {
     try {
       host.showPopover();
@@ -152,10 +178,27 @@ export function mountDialogFrame(options: MountOptions): DialogFrame {
     });
   }
 
-  const observer = new MutationObserver(() => {
-    if (!host.isConnected || host.parentNode !== document.documentElement) resolveGone();
+  const observer = new MutationObserver((records) => {
+    if (!host.isConnected || host.parentNode !== document.documentElement) {
+      resolveGone();
+      return;
+    }
+    if (!modal?.open) return;
+    const opened = records.some(
+      (record) => record.type === 'attributes' && (record.target as Element).matches('dialog:modal')
+    );
+    if (opened) {
+      // A login flow may open its mask after requesting the credential.
+      // Re-enter the top layer without moving or reloading the iframe.
+      modal.close();
+      modal.showModal();
+    }
   });
-  observer.observe(document.documentElement, { childList: true });
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: !!modal,
+    ...(modal && { attributes: true, attributeFilter: ['open'] }),
+  });
 
   return {
     gone,
@@ -164,6 +207,7 @@ export function mountDialogFrame(options: MountOptions): DialogFrame {
       mounted = false;
       observer.disconnect();
       const hadFocus = document.activeElement === host;
+      if (modal?.open) modal.close();
       host.remove();
       if (hadFocus && previousFocus?.isConnected) {
         previousFocus.focus({ preventScroll: true });
