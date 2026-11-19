@@ -108,6 +108,9 @@ export const DIALOG_FRAME_SIZE: Record<VaultDialogKind, { width: number; height:
 /** How long the dialog must have been fully visible before a click counts. */
 export const CONSENT_DWELL_MS = 500;
 
+/** Cancel an unanswered registration prompt rather than blocking the site indefinitely. */
+export const CREATE_DIALOG_TIMEOUT_MS = 30_000;
+
 /** Outer size of the popup window: the frame, plus room for the title bar. */
 export const DIALOG_WINDOW_SIZE: Record<VaultDialogKind, { width: number; height: number }> = {
   get: { width: 380, height: 440 },

@@ -40,6 +40,21 @@ class VaultEnvironment extends TestEnvironment {
         return protocol === 'https:' || protocol === 'wss:' || LOOPBACK.test(hostname);
       },
     });
+
+    // Model the dialog lifecycle jsdom lacks; real Chromium tests cover modality and rendering.
+    const dialog = window.HTMLDialogElement.prototype;
+    if (typeof dialog.showModal !== 'function') {
+      dialog.showModal = function () {
+        this.open = true;
+      };
+    }
+    if (typeof dialog.close !== 'function') {
+      dialog.close = function () {
+        if (!this.open) return;
+        this.open = false;
+        window.setTimeout(() => this.dispatchEvent(new window.Event('close')), 0);
+      };
+    }
   }
 }
 

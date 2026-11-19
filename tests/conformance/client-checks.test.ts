@@ -425,14 +425,29 @@ describe('ceremony timeout (§5.1.3 step 4, §15.1)', () => {
     expect((await pending).error?.name).toBe('NotAllowedError');
   });
 
-  it('caps a very long RP timeout at the recommended 10 minutes', async () => {
+  it('caps a very long sign-in timeout at the recommended 10 minutes', async () => {
+    await register();
+    neverAnswer();
+    jest.useFakeTimers({ doNotFake: ['queueMicrotask', 'nextTick', 'setImmediate'] });
+
+    const pending = getWith((o) => (o.timeout = 24 * 60 * 60 * 1000));
+
+    expect(await settledAfter(pending, 599000)).toBe(false);
+    expect(await settledAfter(pending, 2000)).toBe(true);
+    expect((await pending).error?.name).toBe('NotAllowedError');
+  });
+
+  it('cancels an unanswered Create prompt after 30 seconds despite a longer RP timeout', async () => {
     neverAnswer();
     jest.useFakeTimers({ doNotFake: ['queueMicrotask', 'nextTick', 'setImmediate'] });
 
     const pending = createWith((o) => (o.timeout = 24 * 60 * 60 * 1000));
 
-    expect(await settledAfter(pending, 599000)).toBe(false);
+    expect(await settledAfter(pending, 29000)).toBe(false);
     expect(await settledAfter(pending, 2000)).toBe(true);
+    expect((await pending).error?.name).toBe('NotAllowedError');
+    expect(await vault.passkeys()).toEqual([]);
+    expect(vault.native.create).not.toHaveBeenCalled();
   });
 
   it('never times out a conditional (autofill) request', async () => {
