@@ -132,8 +132,11 @@ body {
   justify-content: center;
 }
 
-/* Offered under the picker when the site may have just refused the passkey. */
-.retry {
+/*
+ * One option above the buttons: the picker's retry with the other synced
+ * setting, or the create confirmation's synced setting.
+ */
+.option {
   flex: none;
   padding: 6px 16px 8px;
   font-size: 11px;
@@ -143,12 +146,12 @@ body {
   border-top: 1px solid var(--accent-border);
 }
 
-.retry-hint {
+.option-hint {
   margin: 0 0 4px;
   color: var(--text-muted);
 }
 
-.retry-switch {
+.option-switch {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -156,7 +159,7 @@ body {
   cursor: pointer;
 }
 
-.retry-switch input {
+.option-switch input {
   margin: 0;
   accent-color: var(--accent);
 }
@@ -173,6 +176,11 @@ body {
 
 .card-footer .wide {
   grid-column: 1 / -1;
+}
+
+/* Two to a row: narrow side padding keeps short labels ("Save elsewhere") on one line. */
+.card-footer .btn {
+  padding-inline: 8px;
 }
 
 /* Passkey list */

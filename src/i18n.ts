@@ -591,6 +591,13 @@ const en: TranslationMap = {
   pageCreatePasskeyTitle: 'Create a Passkey?',
   pageCreatePasskeyMsg: 'Create a passkey for {user} on {rp}?',
   pageCreate: 'Create',
+  pageCreateElsewhere: 'Save elsewhere',
+  pageCreateElsewhereTitle:
+    "Use the browser's own prompt instead: a security key, a phone, or this device.",
+  dialogCreateSynced: 'Mark as synced',
+  dialogCreateSyncedHint: 'Some sites refuse synced passkeys. Turn this off for those.',
+  dialogCreateSecurityKeyHint:
+    '{rp} asked for a security key, and may refuse a synced passkey. For a real security key, choose Save elsewhere.',
   dialogInactive: 'This request is no longer active.',
   dialogNotVisible: 'Cannot confirm this dialog is fully visible.',
   dialogOpenWindow: 'Open it in a window',

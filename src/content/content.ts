@@ -338,6 +338,14 @@ class ContentScript {
         if (dialog.status !== 'decided') {
           throw new Error(t('pagePasskeyError'));
         }
+        if (dialog.outcome === 'passthrough') {
+          this.postPassthroughResponse(
+            'PASSKEY_CREATE_RESPONSE',
+            requestId,
+            'User chose another authenticator'
+          );
+          return;
+        }
         if (dialog.outcome !== 'approved') {
           window.postMessage(
             {

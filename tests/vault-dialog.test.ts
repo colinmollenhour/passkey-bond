@@ -32,6 +32,8 @@ const CREATE_VIEW: VaultDialogView = {
   mode: 'frame',
   rpId: 'bank.example',
   userName: 'Carol',
+  synced: true,
+  securityKey: false,
 };
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -182,21 +184,21 @@ describe('a passkey the site may have just refused', () => {
 
   it('shows the offer only while that passkey is selected, switched off', async () => {
     await show(RETRY_VIEW);
-    expect(byId('retry').hidden).toBe(true);
+    expect(byId('option').hidden).toBe(true);
 
     trustedClick(document.querySelectorAll('.passkey-item')[1]);
 
-    expect(byId('retry').hidden).toBe(false);
-    expect(byId('retry-hint').textContent).toContain('bank.example');
-    expect(byId('retry-label').textContent).toMatch(/synced/i);
-    expect(byId<HTMLInputElement>('retry-switch').checked).toBe(false);
+    expect(byId('option').hidden).toBe(false);
+    expect(byId('option-hint').textContent).toContain('bank.example');
+    expect(byId('option-label').textContent).toMatch(/synced/i);
+    expect(byId<HTMLInputElement>('option-switch').checked).toBe(false);
   });
 
   it('asks for the switch when the user turns it on', async () => {
     const send = await show(RETRY_VIEW);
 
     trustedClick(document.querySelectorAll('.passkey-item')[1]);
-    trustedClick(byId('retry-switch'));
+    trustedClick(byId('option-switch'));
     trustedClick(byId('pkv-continue'));
     await flush();
 
@@ -221,7 +223,7 @@ describe('a passkey the site may have just refused', () => {
     const send = await show(RETRY_VIEW);
 
     trustedClick(document.querySelectorAll('.passkey-item')[1]);
-    trustedClick(byId('retry-switch'));
+    trustedClick(byId('option-switch'));
     trustedClick(document.querySelectorAll('.passkey-item')[0]);
     trustedClick(byId('pkv-continue'));
     await flush();
@@ -233,7 +235,7 @@ describe('a passkey the site may have just refused', () => {
     const send = await show(RETRY_VIEW);
 
     trustedClick(document.querySelectorAll('.passkey-item')[1]);
-    const toggle = byId<HTMLInputElement>('retry-switch');
+    const toggle = byId<HTMLInputElement>('option-switch');
     toggle.click();
     toggle.checked = true;
     trustedClick(byId('pkv-continue'));
@@ -370,7 +372,53 @@ describe('the create confirmation', () => {
     trustedClick(byId('pkv-create'));
     await flush();
 
-    expect(decisions(send).map((message) => message.decision)).toEqual([{ action: 'create' }]);
+    expect(decisions(send).map((message) => message.decision)).toEqual([
+      { action: 'create', synced: true },
+    ]);
+  });
+
+  it('creates a device-bound passkey when the user turns synced off', async () => {
+    const send = await show(CREATE_VIEW);
+
+    expect(byId('option').hidden).toBe(false);
+    expect(byId<HTMLInputElement>('option-switch').checked).toBe(true);
+    trustedClick(byId('option-switch'));
+    trustedClick(byId('pkv-create'));
+    await flush();
+
+    expect(decisions(send)[0].decision).toEqual({ action: 'create', synced: false });
+  });
+
+  it('starts synced off, and says why, when the site asked for a security key', async () => {
+    const send = await show({ ...CREATE_VIEW, synced: false, securityKey: true });
+
+    expect(byId<HTMLInputElement>('option-switch').checked).toBe(false);
+    expect(byId('option-hint').textContent).toContain('bank.example asked for a security key');
+    trustedClick(byId('pkv-create'));
+    await flush();
+
+    expect(decisions(send)[0].decision).toEqual({ action: 'create', synced: false });
+  });
+
+  it('ignores a synced switch that script changed', async () => {
+    const send = await show(CREATE_VIEW);
+
+    const toggle = byId<HTMLInputElement>('option-switch');
+    toggle.click();
+    toggle.checked = false;
+    trustedClick(byId('pkv-create'));
+    await flush();
+
+    expect(decisions(send)[0].decision).toEqual({ action: 'create', synced: true });
+  });
+
+  it('hands the request to the browser on Save elsewhere', async () => {
+    const send = await show(CREATE_VIEW);
+
+    trustedClick(byId('pkv-passthrough'));
+    await flush();
+
+    expect(decisions(send).map((message) => message.decision)).toEqual([{ action: 'passthrough' }]);
   });
 
   it('starts with focus on the dialog, not on Create', async () => {

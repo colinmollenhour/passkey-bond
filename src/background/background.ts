@@ -469,6 +469,9 @@ class BackgroundService {
       }
       return candidates;
     },
+    // A site that asks for a security key often refuses a synced passkey.
+    newPasskeySynced: async ({ securityKey }) =>
+      !securityKey && (await loadWebAuthnFlags()).backupEligible,
   });
 
   private withVault<T>(operation: () => Promise<T>): Promise<T> {
@@ -1062,7 +1065,11 @@ class BackgroundService {
       message.payload = { ...message.payload, switchBackup: false };
     }
     if (message.requester && type === 'CREATE_PASSKEY') {
-      await this.dialogs.consumeApproval(message, 'create');
+      const approval = await this.dialogs.consumeApproval(message, 'create');
+      message.payload = { ...message.payload, synced: approval.synced };
+    } else if (type === 'CREATE_PASSKEY' && message.payload) {
+      // Only the dialog can choose the synced setting.
+      message.payload = { ...message.payload, synced: undefined };
     }
 
     // Serialize read/modify/write operations. Lookups and relay waits stay independent.
@@ -1362,11 +1369,13 @@ class BackgroundService {
 
       const flagSettings = await loadWebAuthnFlags();
       // Fixed for the life of the credential: the site may store BE and
-      // reject any later sign-in that disagrees.
-      const backupFlags = normalizeBackupFlags(
-        flagSettings.backupEligible,
-        flagSettings.backupState || (await this.isSyncConfigured())
-      );
+      // reject any later sign-in that disagrees. The user may have chosen in
+      // the dialog; otherwise the settings decide.
+      const synced =
+        typeof payload.synced === 'boolean' ? payload.synced : flagSettings.backupEligible;
+      const backupFlags = synced
+        ? normalizeBackupFlags(true, flagSettings.backupState || (await this.isSyncConfigured()))
+        : normalizeBackupFlags(false, false);
       const authenticatorData = await createAuthenticatorData(
         rpId,
         credentialId,

@@ -91,6 +91,8 @@ export class VaultDialog {
   private passkeys: VaultDialogPasskey[] = [];
   /** The user turned on the retry offer's switch, for the passkey selected. */
   private switchBackup = false;
+  /** Create: whether the new passkey says it is synced. */
+  private synced = false;
   private readonly consentButtons: HTMLButtonElement[] = [];
   private mode: VaultDialogMode = 'frame';
   private unverifiedTimer: ReturnType<typeof setTimeout> | null = null;
@@ -173,15 +175,23 @@ export class VaultDialog {
         user: view.userName || t('commonUnknownUser'),
         rp: view.rpId,
       });
+      this.setUpSynced(view);
+      // Cancel fails the request; the browser's own prompt (a security key,
+      // a phone, this device) is a separate choice.
+      const elsewhere = this.button('pkv-passthrough', t('pageCreateElsewhere'), 'secondary', () =>
+        this.decide({ action: 'passthrough' })
+      );
+      elsewhere.title = t('pageCreateElsewhereTitle');
       footer.append(
         this.button('pkv-cancel', t('commonCancel'), 'secondary', () =>
           this.decide({ action: 'cancel' })
         ),
+        elsewhere,
         this.button(
           'pkv-create',
           t('pageCreate'),
-          'primary',
-          () => this.decide({ action: 'create' }),
+          'primary wide',
+          () => this.decide({ action: 'create', synced: this.synced }),
           true
         )
       );
@@ -254,31 +264,52 @@ export class VaultDialog {
    * it on, since a second sign-in is not always a refused one.
    */
   private setUpRetry(rpId: string): void {
-    this.el('retry-hint').textContent = t('dialogRetryHint', { rp: rpId });
-    const toggle = this.el<HTMLInputElement>('retry-switch');
-    // Only the user's own click changes what is signed. A scripted click()
-    // still fires a trusted "change", so the click itself is checked, and
-    // the state is kept here rather than read from the box.
-    toggle.addEventListener('click', (event) => {
-      if (!event.isTrusted) event.preventDefault();
-    });
-    toggle.addEventListener('change', () => {
-      this.switchBackup = toggle.checked;
-      this.gate?.refresh();
-    });
+    this.el('option-hint').textContent = t('dialogRetryHint', { rp: rpId });
+    this.wireOption((checked) => (this.switchBackup = checked));
     this.paintRetry();
   }
 
   private paintRetry(): void {
     const retry = this.selected()?.retry;
     this.switchBackup = false;
-    this.el<HTMLInputElement>('retry-switch').checked = false;
-    this.el('retry').hidden = !retry;
+    this.el<HTMLInputElement>('option-switch').checked = false;
+    this.el('option').hidden = !retry;
     if (retry) {
-      this.el('retry-label').textContent = t(
+      this.el('option-label').textContent = t(
         retry.synced ? 'dialogRetryUseDeviceBound' : 'dialogRetryUseSynced'
       );
     }
+  }
+
+  /**
+   * Whether the new passkey says it is synced. Some sites refuse one that
+   * does, notably those that ask for a security key, which start it off.
+   */
+  private setUpSynced(view: Extract<VaultDialogView, { kind: 'create' }>): void {
+    this.synced = view.synced;
+    this.el('option-hint').textContent = view.securityKey
+      ? t('dialogCreateSecurityKeyHint', { rp: view.rpId })
+      : t('dialogCreateSyncedHint');
+    this.el('option-label').textContent = t('dialogCreateSynced');
+    this.el<HTMLInputElement>('option-switch').checked = view.synced;
+    this.wireOption((checked) => (this.synced = checked));
+    this.el('option').hidden = false;
+  }
+
+  /**
+   * Only the user's own click changes what is created or signed. A scripted
+   * click() still fires a trusted "change", so the click itself is checked,
+   * and the state is kept by `apply` rather than read from the box.
+   */
+  private wireOption(apply: (checked: boolean) => void): void {
+    const toggle = this.el<HTMLInputElement>('option-switch');
+    toggle.addEventListener('click', (event) => {
+      if (!event.isTrusted) event.preventDefault();
+    });
+    toggle.addEventListener('change', () => {
+      apply(toggle.checked);
+      this.gate?.refresh();
+    });
   }
 
   private passkeyItem(passkey: VaultDialogPasskey, selected: boolean): HTMLElement {
@@ -451,9 +482,11 @@ export class VaultDialog {
         const rect = selected.getBoundingClientRect();
         return inView(selected) && rect.top >= body.top - 0.5 && rect.bottom <= body.bottom + 0.5;
       })();
+    const option = this.el('option');
     return (
       whole(this.el('title')) &&
       whole(this.el('subtitle')) &&
+      (option.hidden || inView(option)) &&
       inView(this.el('footer')) &&
       selectedShown
     );
@@ -501,7 +534,7 @@ export class VaultDialog {
     this.el('title').textContent = t('appName');
     this.el('subtitle').textContent = t('dialogInactive');
     this.el('passkeys').textContent = '';
-    this.el('retry').hidden = true;
+    this.el('option').hidden = true;
     this.el('footer').textContent = '';
     this.el('status').hidden = true;
     if (this.env.inWindow) {

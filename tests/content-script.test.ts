@@ -313,6 +313,20 @@ describe('content script: the vault dialog', () => {
       },
     });
 
+  it('hands a create to the browser when the user saves elsewhere, and fails it on cancel', async () => {
+    const elsewhere = createRequest();
+    await flush();
+    dialogResult('dialog-2', 'passthrough');
+    expect(await elsewhere).toMatchObject({ passthrough: true });
+
+    const cancelled = createRequest();
+    await flush();
+    dialogResult('dialog-2', 'cancel');
+    expect(await cancelled).toMatchObject({ name: 'NotAllowedError', blockNativeFallback: true });
+
+    expect(sent().map((message) => message.type)).not.toContain('CREATE_PASSKEY');
+  });
+
   it('cancels an unanswered create prompt after 30 seconds and ignores a late approval', async () => {
     jest.useFakeTimers();
     try {

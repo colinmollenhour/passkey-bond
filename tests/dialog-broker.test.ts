@@ -361,6 +361,80 @@ describe('deciding', () => {
   });
 });
 
+describe('creating a passkey', () => {
+  const FLAG_BE = 0x08;
+
+  const createKey = (extra: Record<string, unknown> = {}) => ({
+    rp: { id: 'bank.example', name: 'Bank' },
+    user: { id: 'dXNlci1j', name: 'carol@bank.example', displayName: 'Carol' },
+    challenge: 'AAAA',
+    pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+    rpId: 'bank.example',
+    ...extra,
+  });
+
+  /** Run a create through the dialog, deciding `decision`; the view and the background's answer. */
+  async function create(
+    decision: Record<string, unknown>,
+    publicKey = createKey(),
+    extraPayload: Record<string, unknown> = {}
+  ) {
+    const { token } = await open('req-c', { kind: 'create', publicKey } as any);
+    const { view } = await attach(token);
+    await decide(token, decision);
+    const response: any = await vault.send(
+      { type: 'CREATE_PASSKEY', requestId: 'req-c', payload: { publicKey, ...extraPayload } },
+      PAGE
+    );
+    return { view, response };
+  }
+
+  const beOf = (response: any) =>
+    Uint8Array.from(atob(response.credential.response.authenticatorData), (c) =>
+      c.charCodeAt(0)
+    )[32] & FLAG_BE;
+
+  it('offers synced by default, and creates a synced passkey', async () => {
+    const { view, response } = await create({ action: 'create' });
+
+    expect(view).toMatchObject({ kind: 'create', synced: true, securityKey: false });
+    expect(beOf(response)).toBe(FLAG_BE);
+  });
+
+  it('starts synced off when the site asks for a security key', async () => {
+    const { view, response } = await create(
+      { action: 'create' },
+      createKey({ hints: ['security-key'] })
+    );
+
+    expect(view).toMatchObject({ synced: false, securityKey: true });
+    expect(beOf(response)).toBe(0);
+  });
+
+  it('creates a device-bound passkey when the user turns synced off', async () => {
+    const { response } = await create({ action: 'create', synced: false });
+
+    expect(response.success).toBe(true);
+    expect(beOf(response)).toBe(0);
+    const [created] = (await vault.passkeys()).filter((p: any) => p.id === response.credential.id);
+    expect(created).toMatchObject({ backupEligible: false, backupState: false });
+  });
+
+  it('ignores a synced setting the page sends itself', async () => {
+    const { response } = await create({ action: 'create' }, createKey(), { synced: false });
+
+    expect(beOf(response)).toBe(FLAG_BE);
+  });
+
+  it('passes the request on to the browser when the user saves elsewhere', async () => {
+    const { response } = await create({ action: 'passthrough' });
+    await vault.settle();
+
+    expect(results().map((sent) => sent.message.outcome)).toEqual(['passthrough']);
+    expect(response.success).toBe(false);
+  });
+});
+
 describe('signing in again soon after a sign-in the site may have refused', () => {
   const FLAG_BE = 0x08;
   const FLAG_BS = 0x10;

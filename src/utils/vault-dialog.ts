@@ -58,7 +58,19 @@ export interface VaultDialogPasskey {
 
 export type VaultDialogView =
   | { kind: 'get'; mode: VaultDialogMode; rpId: string; passkeys: VaultDialogPasskey[] }
-  | { kind: 'create'; mode: VaultDialogMode; rpId: string; userName: string };
+  | {
+      kind: 'create';
+      mode: VaultDialogMode;
+      rpId: string;
+      userName: string;
+      /** Whether the new passkey says it is synced, until the user changes it. */
+      synced: boolean;
+      /**
+       * The site asked for a security key (hints: ['security-key']). Such
+       * sites often refuse a passkey that says it is synced.
+       */
+      securityKey: boolean;
+    };
 
 export type VaultDialogDecision =
   | {
@@ -67,8 +79,13 @@ export type VaultDialogDecision =
       /** Switch the passkey's synced setting, and keep it, before signing. Needs `retry`. */
       switchBackup?: boolean;
     }
-  | { action: 'create' }
+  | {
+      action: 'create';
+      /** Whether the new passkey says it is synced (BE and BS); the view's default if absent. */
+      synced?: boolean;
+    }
   | { action: 'cancel' }
+  /** Let the browser's own prompt handle the request (another passkey or authenticator). */
   | { action: 'passthrough' };
 
 export const DIALOG_MESSAGES = {
@@ -98,12 +115,12 @@ export const DIALOG_TOKEN_MESSAGE = 'passkey-bond-dialog-token';
 /**
  * Fixed frame sizes. The picker's does not depend on how many passkeys it
  * lists: the page can measure the frame's host, and must not learn the
- * number of accounts from it. The create confirmation's fits its summary row
- * under a subtitle of up to three lines.
+ * number of accounts from it. The create confirmation's fits its summary row,
+ * the synced option and two rows of buttons under a two-line subtitle.
  */
 export const DIALOG_FRAME_SIZE: Record<VaultDialogKind, { width: number; height: number }> = {
   get: { width: 340, height: 372 },
-  create: { width: 340, height: 250 },
+  create: { width: 340, height: 372 },
 };
 
 /** How long the dialog must have been fully visible before a click counts. */
@@ -115,7 +132,7 @@ export const CREATE_DIALOG_TIMEOUT_MS = 30_000;
 /** Outer size of the popup window: the frame, plus room for the title bar. */
 export const DIALOG_WINDOW_SIZE: Record<VaultDialogKind, { width: number; height: number }> = {
   get: { width: 380, height: 440 },
-  create: { width: 380, height: 318 },
+  create: { width: 380, height: 440 },
 };
 
 /**

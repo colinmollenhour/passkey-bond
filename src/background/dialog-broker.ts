@@ -69,6 +69,8 @@ interface DialogSession {
   approvedPasskeyId?: string;
   /** The user asked to switch the approved passkey's synced setting first. */
   approvedSwitchBackup?: boolean;
+  /** Whether the passkey the user approved creating says it is synced. */
+  approvedSynced?: boolean;
   /** The dialog document that claimed the session. */
   dialog?: { tabId: number; frameId: number; documentId?: string };
   /** Window mode: where the dialog page was opened, once it was. */
@@ -103,6 +105,8 @@ export interface DialogBrokerDeps {
    * whether each one asserts "synced" now (see VaultDialogPasskey.retry).
    */
   retryCandidates?(rpId: string): Promise<Map<string, { synced: boolean }>>;
+  /** Whether a passkey created for this request says it is synced, unless the user changes it. */
+  newPasskeySynced?(request: { securityKey: boolean }): Promise<boolean>;
 }
 
 /** What the user approved in a sign-in or create dialog. */
@@ -111,6 +115,13 @@ export interface Approval {
   passkeyId?: string;
   /** Switch that passkey's synced setting before signing. */
   switchBackup: boolean;
+  /** For a create: whether the new passkey says it is synced. */
+  synced?: boolean;
+}
+
+/** The site asked for a security key: WebAuthn L3 hints. */
+export function asksForSecurityKey(publicKey: Payload): boolean {
+  return Array.isArray(publicKey.hints) && publicKey.hints.includes('security-key');
 }
 
 const STORAGE_KEY = 'vault_dialog_sessions';
@@ -242,7 +253,9 @@ export class DialogBroker {
     } else {
       const user = (publicKey.user as Payload | undefined) ?? {};
       const userName = String(user.displayName || user.name || '');
-      view = { kind, mode, rpId, userName };
+      const securityKey = asksForSecurityKey(publicKey);
+      const synced = (await this.deps.newPasskeySynced?.({ securityKey })) ?? !securityKey;
+      view = { kind, mode, rpId, userName, synced, securityKey };
     }
 
     const session: DialogSession = {
@@ -342,6 +355,7 @@ export class DialogBroker {
     return {
       passkeyId: session.approvedPasskeyId,
       switchBackup: session.approvedSwitchBackup === true,
+      ...(session.approvedSynced !== undefined && { synced: session.approvedSynced }),
     };
   }
 
@@ -517,7 +531,7 @@ export class DialogBroker {
       case 'cancel':
         return 'cancel';
       case 'passthrough':
-        return session.kind === 'get' ? 'passthrough' : undefined;
+        return 'passthrough';
       case 'use':
         if (session.kind !== 'get' || !session.passkeyIds.includes(decision.id)) return undefined;
         session.approvedPasskeyId = decision.id;
@@ -528,7 +542,10 @@ export class DialogBroker {
           session.view.passkeys.some((passkey) => passkey.id === decision.id && !!passkey.retry);
         return 'approved';
       case 'create':
-        return session.kind === 'create' ? 'approved' : undefined;
+        if (session.kind !== 'create' || session.view.kind !== 'create') return undefined;
+        session.approvedSynced =
+          typeof decision.synced === 'boolean' ? decision.synced : session.view.synced;
+        return 'approved';
       default:
         return undefined;
     }
