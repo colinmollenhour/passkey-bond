@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await setupGeneralSettings();
   loadInterceptionSettings();
   loadSyncSettings();
+  watchSyncSettings();
   loadSecuritySettings();
   loadAdvancedSettings();
   loadDeveloperSettings();
@@ -276,6 +277,42 @@ function renderDomainList(domains: string[]): void {
 }
 
 // ==================== SYNC ====================
+
+let syncRefreshRunning = false;
+let syncRefreshQueued = false;
+
+/**
+ * Sync is set up, joined and left in other tabs (sync-setup closes itself
+ * after joining), and the background rewrites sync_status as it syncs, so
+ * redraw on those changes and when this tab is looked at again. Refreshes
+ * are coalesced so a burst of status writes causes at most one extra load.
+ */
+function watchSyncSettings(): void {
+  const refresh = async (): Promise<void> => {
+    if (syncRefreshRunning) {
+      syncRefreshQueued = true;
+      return;
+    }
+    syncRefreshRunning = true;
+    try {
+      do {
+        syncRefreshQueued = false;
+        await loadSyncSettings();
+      } while (syncRefreshQueued);
+    } catch (error) {
+      console.error('Failed to refresh sync settings:', error);
+    } finally {
+      syncRefreshRunning = false;
+    }
+  };
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && ('sync_config' in changes || 'sync_status' in changes)) {
+      void refresh();
+    }
+  });
+  window.addEventListener('focus', () => void refresh());
+}
 
 async function loadSyncSettings(): Promise<void> {
   const response = await sendMessage('GET_SYNC_STATUS');
