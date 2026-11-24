@@ -73,7 +73,6 @@ import { checkBackupPassword } from '../crypto/backup-format';
   let vaultListEl: HTMLElement;
   let noResultsEl: HTMLElement;
   let noResultsTextEl: HTMLElement;
-  let statusRowEl: HTMLElement;
   let refreshBtn: HTMLButtonElement;
   let exportFullBtn: HTMLButtonElement;
   let confirmModal: HTMLElement;
@@ -466,14 +465,13 @@ import { checkBackupPassword } from '../crypto/backup-format';
     try {
       const response = await chrome.runtime.sendMessage({ type: 'GET_SYNC_STATUS' });
       if (!response.success || !response.status?.enabled) {
-        badge.style.display = 'none';
-        if (statusRowEl) statusRowEl.hidden = true;
+        badge.hidden = true;
         return;
       }
 
       const status = response.status;
-      badge.style.display = 'inline-block';
-      if (statusRowEl) statusRowEl.hidden = false;
+      badge.hidden = false;
+      let detail = '';
 
       switch (status.connectionStatus) {
         case 'connected':
@@ -490,7 +488,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
           badge.textContent = t('popupSyncError');
           badge.style.background = '#6b1e2a';
           badge.style.color = '#fbf7ef';
-          badge.title = status.lastError || t('commonUnknown');
+          detail = status.lastError || t('commonUnknown');
           break;
         default:
           badge.textContent = t('popupSyncOffline');
@@ -498,12 +496,13 @@ import { checkBackupPassword } from '../crypto/backup-format';
           badge.style.color = '#fbf7ef';
       }
 
-      if (status.pendingChanges > 0) {
-        badge.textContent += ` (${t('popupSyncPending', { count: status.pendingChanges })})`;
-      }
+      // The header leaves the chip little room, so it shows only the state;
+      // the pending count and error go in its tooltip.
+      const pending =
+        status.pendingChanges > 0 ? t('popupSyncPending', { count: status.pendingChanges }) : '';
+      badge.title = [badge.textContent, pending, detail].filter(Boolean).join(' · ');
     } catch {
-      badge.style.display = 'none';
-      if (statusRowEl) statusRowEl.hidden = true;
+      badge.hidden = true;
     }
   }
 
@@ -513,7 +512,6 @@ import { checkBackupPassword } from '../crypto/backup-format';
     vaultListEl = document.getElementById('vault-list') as HTMLElement;
     noResultsEl = document.getElementById('no-results') as HTMLElement;
     noResultsTextEl = document.getElementById('no-results-text') as HTMLElement;
-    statusRowEl = document.getElementById('status-row') as HTMLElement;
     refreshBtn = document.getElementById('refresh-btn') as HTMLButtonElement;
     exportFullBtn = document.getElementById('export-full-btn') as HTMLButtonElement;
     searchInput = document.getElementById('search-input') as HTMLInputElement;

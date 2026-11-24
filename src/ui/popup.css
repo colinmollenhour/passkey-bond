@@ -201,12 +201,32 @@ header {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-width: 0;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 2px;
+  min-width: 0;
+}
+
+.header-actions .badge {
+  display: block;
+  min-width: 0;
+  margin-right: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-actions .icon-btn,
+.header-content h1 {
+  flex-shrink: 0;
+}
+
+.header-actions .badge[hidden] {
+  display: none;
 }
 
 h1 {
@@ -258,18 +278,6 @@ h3 {
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
-}
-
-/* ---------- Status bar (badge row under header) ---------- */
-.status-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px var(--gutter) 0;
-}
-
-.status-row[hidden] {
-  display: none;
 }
 
 .badge {
