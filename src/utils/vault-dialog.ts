@@ -98,11 +98,12 @@ export const DIALOG_TOKEN_MESSAGE = 'passkey-bond-dialog-token';
 /**
  * Fixed frame sizes. The picker's does not depend on how many passkeys it
  * lists: the page can measure the frame's host, and must not learn the
- * number of accounts from it.
+ * number of accounts from it. The create confirmation's fits its summary row
+ * under a subtitle of up to three lines.
  */
 export const DIALOG_FRAME_SIZE: Record<VaultDialogKind, { width: number; height: number }> = {
   get: { width: 340, height: 372 },
-  create: { width: 340, height: 232 },
+  create: { width: 340, height: 250 },
 };
 
 /** How long the dialog must have been fully visible before a click counts. */
@@ -114,7 +115,7 @@ export const CREATE_DIALOG_TIMEOUT_MS = 30_000;
 /** Outer size of the popup window: the frame, plus room for the title bar. */
 export const DIALOG_WINDOW_SIZE: Record<VaultDialogKind, { width: number; height: number }> = {
   get: { width: 380, height: 440 },
-  create: { width: 380, height: 300 },
+  create: { width: 380, height: 318 },
 };
 
 /**

@@ -126,6 +126,7 @@ export class VaultDialog {
     const list = this.el('passkeys');
     footer.textContent = '';
     list.textContent = '';
+    let summary: HTMLElement | null = null;
 
     if (view.kind === 'get') {
       this.el('title').textContent = t('pageChoosePasskey');
@@ -164,7 +165,8 @@ export class VaultDialog {
       // The account the passkey is for, where the picker lists passkeys:
       // what a native prompt shows, and it fills the frame's fixed body.
       list.removeAttribute('role');
-      list.appendChild(this.newPasskeySummary(view.userName, view.rpId));
+      summary = this.newPasskeySummary(view.userName, view.rpId);
+      list.appendChild(summary);
       this.el('body').classList.add('centered');
       this.el('title').textContent = t('pageCreatePasskeyTitle');
       this.el('subtitle').textContent = t('pageCreatePasskeyMsg', {
@@ -192,6 +194,7 @@ export class VaultDialog {
     card.hidden = false;
     this.mode = view.mode;
     this.doc.documentElement.classList.toggle('in-window', view.mode === 'window');
+    if (summary) this.fitSummary(summary);
     this.gate = this.env.createGate(card, {
       mode: view.mode,
       reference: () => this.reference(),
@@ -223,6 +226,22 @@ export class VaultDialog {
     info.append(name, detail);
     row.append(avatar, info);
     return row;
+  }
+
+  /**
+   * The summary repeats the subtitle, which always shows the account and
+   * site in full. When a long subtitle leaves the fixed body too short for
+   * it, leave the row out rather than make the body scroll.
+   */
+  private fitSummary(summary: HTMLElement): void {
+    const body = this.el('body');
+    const fit = () => {
+      summary.hidden = false;
+      summary.hidden = body.scrollHeight > body.clientHeight + 1;
+    };
+    fit();
+    void this.doc.fonts?.ready.then(fit);
+    this.env.window.addEventListener('resize', fit);
   }
 
   private selected(): VaultDialogPasskey | undefined {
