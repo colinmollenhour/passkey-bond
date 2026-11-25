@@ -477,10 +477,17 @@ test('the locked popup leads with the passkey, and the passkey opens the vault',
   await popup.locator('#lock-screen').waitFor({ state: 'visible' });
   await popup.locator('#unlock-passkey-btn').waitFor({ state: 'visible' });
   assert.equal(await popup.locator('#unlock-secret-form').isVisible(), false);
-  // The popup cannot hold a passkey prompt (it closes when it loses focus), so it opens a tab.
+  // The popup cannot hold a passkey prompt (it closes when it loses focus), so
+  // it opens a small window of its own that starts the prompt itself.
   const tab = await tabOpenedBy(() => popup.click('#unlock-passkey-btn'));
-  assert.equal(tab.url(), `chrome-extension://${extensionId}/unlock.html#unlock`);
+  const url = tab.url();
+  // Closed first: it is running a passkey prompt, which holds the page's lock.
   await tab.close();
+  assert.match(url, new RegExp(`^chrome-extension://${extensionId}/unlock\\.html\\?`));
+  const opened = new URL(url);
+  assert.equal(opened.hash, '#unlock');
+  assert.equal(opened.searchParams.get('start'), '1');
+  assert.match(opened.searchParams.get('window') ?? '', /^\d+$/);
   if (!popup.isClosed()) await popup.close();
 
   const [{ signCount: before }] = await credentialsOn('laptop');

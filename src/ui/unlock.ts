@@ -84,6 +84,17 @@ function modeFromHash(): Mode {
 
 /** The tab closes itself after an unlock only when it was opened to unlock. */
 const loadedMode = modeFromHash();
+const params = new URLSearchParams(window.location.search);
+/**
+ * Opened by the popup in a small window of its own (?window=<id of the
+ * browser window it came from>) rather than a tab. Its close buttons say
+ * "Close", and an unlock goes back to the popup.
+ */
+const inWindow = params.has('window');
+const originWindowId = Number.parseInt(params.get('window') ?? '', 10);
+/** Start the passkey prompt as soon as the page is ready (?start=1). */
+const startPrompt = params.get('start') === '1';
+if (inWindow) document.documentElement.classList.add('in-window');
 let mode: Mode = loadedMode;
 let methods: UnlockMethods | null = null;
 let busy = false;
@@ -269,7 +280,7 @@ function showUnavailable(text: string, way: 'close' | 'settings' = 'close'): voi
   el('unavailable-title').textContent = modeHeading();
   el('unavailable-text').textContent = text;
   el('unavailable-action-btn').textContent =
-    way === 'settings' ? t('unlockOpenSecuritySettings') : t('unlockCloseTab');
+    way === 'settings' ? t('unlockOpenSecuritySettings') : closeLabel();
   show('unavailable-view');
 }
 
@@ -464,6 +475,11 @@ async function enterMode(next: Mode): Promise<void> {
 
 // ---------- Unlock ----------
 
+function closeLabel(): string {
+  return inWindow ? t('commonClose') : t('unlockCloseTab');
+}
+
+/** Closes the window too, when the page is its only tab. */
 async function closeThisTab(): Promise<void> {
   try {
     const tab = await chrome.tabs.getCurrent();
@@ -473,12 +489,30 @@ async function closeThisTab(): Promise<void> {
   }
 }
 
+/**
+ * Back to the popup the user came from, now unlocked, where the browser
+ * lets an extension open its popup (Chrome 127 and later).
+ */
+async function reopenPopup(): Promise<void> {
+  const action = chrome.action as {
+    openPopup?: (options?: { windowId?: number }) => Promise<void>;
+  };
+  if (!Number.isInteger(originWindowId) || typeof action?.openPopup !== 'function') return;
+  try {
+    await chrome.windows.update(originWindowId, { focused: true });
+    await action.openPopup({ windowId: originWindowId });
+  } catch {
+    // The window is gone, or the browser refused: the toolbar button still works.
+  }
+}
+
 async function afterUnlock(): Promise<void> {
   el<HTMLInputElement>('fallback-secret').value = '';
   fallbackOpen = false;
   await refresh();
   if (!methods?.isUnlocked) return;
   if (mode === 'unlock' && loadedMode === 'unlock') {
+    if (inWindow) await reopenPopup();
     await closeThisTab();
   } else {
     // Unlocked as a step towards something else, which is now on screen.
@@ -799,5 +833,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('focus', recheck);
   document.addEventListener('visibilitychange', recheck);
 
+  if (inWindow) {
+    for (const id of ['unlock-close-btn', 'enroll-close-btn', 'reset-close-btn']) {
+      el(id).textContent = closeLabel();
+    }
+  }
+
   await enterMode(mode);
+
+  // Opened from the popup's "Unlock with passkey": that click asked for the
+  // prompt, so do not ask for a second one. The browser runs a passkey
+  // prompt only for a focused page, so wait for the new window's focus.
+  if (startPrompt && mode === 'unlock' && !el('passkey-unlock-btn').hidden) {
+    if (!document.hasFocus()) {
+      await new Promise<void>((resolve) =>
+        window.addEventListener('focus', () => resolve(), { once: true })
+      );
+    }
+    if (!busy && !el('passkey-unlock-btn').hidden) void unlockWithPasskey();
+  }
 });

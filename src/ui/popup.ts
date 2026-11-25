@@ -47,6 +47,9 @@ import { checkBackupPassword } from '../crypto/backup-format';
   const EXPORT_VERSION = '1.0';
   const SETUP_SKIPPED_KEY = 'master_password_setup_skipped';
   const PASSKEY_OFFER_DISMISSED_KEY = 'passkey_unlock_offer_dismissed';
+  /** Outer size of the passkey unlock window: the lock screen, plus the title bar. */
+  const UNLOCK_WINDOW_WIDTH = 380;
+  const UNLOCK_WINDOW_HEIGHT = 420;
 
   /** What the background says about unlocking this vault with a passkey. */
   interface PasskeyUnlockState {
@@ -176,6 +179,39 @@ import { checkBackupPassword } from '../crypto/backup-format';
     void chrome.tabs.create({ url: chrome.runtime.getURL(`unlock.html#${mode}`) });
   }
 
+  /**
+   * Unlock with a passkey in a small window of its own, next to the toolbar,
+   * which starts the prompt straight away. The popup cannot run the prompt
+   * itself, since it closes when the prompt takes focus. Opens a tab where
+   * the browser has no popup windows, or refuses this one.
+   */
+  async function openUnlockWindow(): Promise<void> {
+    const size = { width: UNLOCK_WINDOW_WIDTH, height: UNLOCK_WINDOW_HEIGHT };
+    try {
+      const parent = await chrome.windows.getCurrent();
+      const url = chrome.runtime.getURL(`unlock.html?window=${parent.id ?? ''}&start=1#unlock`);
+      const placed =
+        typeof parent.left === 'number' &&
+        typeof parent.top === 'number' &&
+        typeof parent.width === 'number'
+          ? {
+              left: Math.max(parent.left, parent.left + parent.width - size.width - 16),
+              top: parent.top + 72,
+            }
+          : {};
+      const options = { url, type: 'popup' as const, focused: true, ...size };
+      try {
+        await chrome.windows.create({ ...options, ...placed });
+      } catch {
+        // Chrome refuses bounds mostly off screen; let it place the window.
+        await chrome.windows.create(options);
+      }
+      window.close();
+    } catch {
+      openUnlockPage('unlock');
+    }
+  }
+
   function showLockScreen(passkeyUnlock?: PasskeyUnlockState): void {
     lockScreen.style.display = 'block';
     setupScreen.style.display = 'none';
@@ -206,7 +242,7 @@ import { checkBackupPassword } from '../crypto/backup-format';
     lockScreen.classList.toggle('auth-no-hint', hasPasskey);
     unlockBtn.classList.toggle('btn-primary', !hasPasskey);
     unlockBtn.classList.toggle('btn-secondary', hasPasskey);
-    passkeyBtn.onclick = () => openUnlockPage('unlock');
+    passkeyBtn.onclick = () => void openUnlockWindow();
     useSecretBtn.onclick = () => {
       useSecretBtn.hidden = true;
       useSecretBtn.setAttribute('aria-expanded', 'true');
