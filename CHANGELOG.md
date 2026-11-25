@@ -8,6 +8,17 @@ entries use the old names. The format follows
 
 ## [Unreleased]
 
+## [0.14.2] - 2026-11-25
+
+### Changed
+
+- **Unlocking with a passkey from the popup takes one click.** "Unlock with
+  passkey" used to open a full tab where you had to click the same button
+  again. It now opens a small window next to the toolbar that asks for your
+  passkey straight away. Once the vault is unlocked, the window closes and the
+  popup opens again (in Chrome 127 and later). If you cancel the prompt, the
+  window offers it again, along with your PIN or passphrase.
+
 ## [0.14.1] - 2026-11-24
 
 ### Creating a passkey for a site that wants a security key
