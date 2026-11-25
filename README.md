@@ -18,7 +18,7 @@ Store links will be listed at <https://passkey.bond/download> once they exist.
 
 > Found a bug? [Open an issue](https://github.com/colinmollenhour/passkey-bond/issues).
 
-> Passkey.bond began as a fork of [Fenko Vault](https://github.com/FenkoHQ/passkey-vault) by Fenko, MIT licensed. It can import Fenko Vault backups and join a Fenko Vault sync chain, so you can move an existing vault across.
+> Passkey.bond began as a fork of [Fenko Vault](https://github.com/FenkoHQ/passkey-vault) by Fenko, MIT licensed. It can import Fenko Vault backups, so you can move an existing vault across. It cannot join a Fenko Vault sync chain: released Fenko Vault versions use an older sync protocol.
 
 ---
 

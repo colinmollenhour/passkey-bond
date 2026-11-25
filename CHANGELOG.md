@@ -8,6 +8,36 @@ entries use the old names. The format follows
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-11-24
+
+### Creating a passkey for a site that wants a security key
+
+- **Choose whether a new passkey is marked as synced.** The "Create a
+  Passkey?" dialog now has a "Mark as synced" switch. Some sites refuse synced
+  passkeys and only say so after the passkey is made, which left an unusable
+  passkey in the vault. When a site asks for a security key, the switch starts
+  off. Otherwise it follows your setting under Options → Advanced.
+- **Save elsewhere.** A new button in the same dialog hands the request to
+  your browser's own prompt, so you can use a security key, a phone, or this
+  device instead. Cancel still cancels the request.
+
+### Fixed
+
+- The Sync tab in Options said "Sync is not configured yet." after you set up
+  sync in another tab, until you reloaded it. It now updates by itself.
+- The "Create a Passkey?" dialog showed a scrollbar when the account name and
+  site wrapped onto two lines.
+
+### Changed
+
+- The sync status chip in the popup moved into the header, next to the lock
+  and settings buttons. Hover over it to see pending changes or an error.
+- More auto-lock timeouts: 12 hours, 1 day and 1 week.
+- **Correction to 0.13.0:** joining a Fenko Vault sync chain with its seed
+  phrase does not bring your passkeys across. Released versions of Fenko Vault
+  use an older sync protocol, so the two never see each other. Export a backup
+  from Fenko Vault and import it instead.
+
 ## [0.14.0] - 2026-11-17
 
 ### Unlock the vault with a passkey
@@ -73,10 +103,11 @@ over it:
 - **New AAGUID** `2391d29c-2806-4960-a51b-7c18e5da7976`, so sites that look the
   authenticator up show Passkey.bond. Passkeys made under the old AAGUID keep
   working.
-- **Moving your vault across.** Either join your existing sync chain with its
-  seed phrase (the sync protocol is unchanged), or export a backup from Fenko
-  Vault and import it. Then disable Fenko Vault, since two extensions both
-  answering WebAuthn requests get in each other's way.
+- **Moving your vault across.** Export a backup from Fenko Vault and import
+  it. (This entry first said you could also join your Fenko Vault sync chain
+  with its seed phrase. That does not work: see 0.14.1.) Then disable Fenko
+  Vault, since two extensions both answering WebAuthn requests get in each
+  other's way.
 - **New default relays.** Fenko's relay is gone. New installs sync through
   `relay.passkey.bond`, which accepts only Passkey.bond sync events, plus
   `relay.damus.io` and `nos.lol`; `relay.nostr.band` no longer answers.
